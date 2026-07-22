@@ -9,11 +9,7 @@ const Venta = sequelize.define('Venta', {
   },
   mesaId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  fecha: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    allowNull: true,
   },
   total: {
     type: DataTypes.DECIMAL(10, 2),

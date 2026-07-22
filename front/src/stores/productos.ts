@@ -28,5 +28,9 @@ export const useProductoStore = defineStore('productos', {
       if (index !== -1) this.productos[index] = data
       return data
     },
+    async desactivarProducto(id: number) {
+      await api.delete(`/productos/${id}`)
+      this.productos = this.productos.filter((p) => p.id !== id)
+    },
   },
 })

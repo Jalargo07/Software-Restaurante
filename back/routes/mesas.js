@@ -4,7 +4,9 @@ const Mesa = require('../models/Mesa');
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const mesas = await Mesa.findAll();
+  const where = {};
+  if (req.query.estado) where.estado = req.query.estado;
+  const mesas = await Mesa.findAll({ where });
   res.json(mesas);
 });
 
