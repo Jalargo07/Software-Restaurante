@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import api from '../../services/api'
 import { useVentaStore } from '../../stores/ventas'
 import ModalBase from '../../components/common/ModalBase.vue'
 
-const router = useRouter()
 const ventaStore = useVentaStore()
 const ventasAbiertas = ref<any[]>([])
 const cobrandoVenta = ref<any>(null)
 const metodoPago = ref('efectivo')
 const agregandoAVenta = ref<any>(null)
-const showProductSelector = ref(false)
+const mostrarSelector = ref(false)
 const productos = ref<any[]>([])
 const busqueda = ref('')
 const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
@@ -41,7 +39,7 @@ function abrirAgregar(venta: any) {
   agregandoAVenta.value = venta
   seleccionados.value = []
   busqueda.value = ''
-  showProductSelector.value = true
+  mostrarSelector.value = true
 }
 
 function agregarProducto(producto: any) {
