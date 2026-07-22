@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "planner": {
+      "mode": "subagent",
+      "description": "Analiza requerimientos y los divide en pasos concretos separando Front y Back."
+    },
+    "coder-front": {
+      "mode": "subagent",
+      "description": "Especialista en Vue 3 Composition API. Solo trabaja en la carpeta front/."
+    },
+    "coder-back": {
+      "mode": "subagent",
+      "description": "Especialista en Node.js y APIs REST. Solo trabaja en la carpeta back/."
+    },
+    "reviewer": {
+      "mode": "subagent",
+      "description": "Revisa código en busca de bugs o errores de sintaxis antes de dar por terminada una tarea."
+    }
+  }
+}
