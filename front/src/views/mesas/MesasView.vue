@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMesaStore } from '../../stores/mesas'
 import { useVentaStore } from '../../stores/ventas'
+import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 import MesaFormModal from '../../components/mesas/MesaFormModal.vue'
 
@@ -12,9 +13,24 @@ const ventaStore = useVentaStore()
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
 
+const ocupandoMesa = ref<any>(null)
+const productos = ref<any[]>([])
+const busqueda = ref('')
+const mostrarSelector = ref(false)
+const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
+
 onMounted(() => {
   mesaStore.fetchMesas()
+  api.get('/productos').then(({ data }) => productos.value = data)
 })
+
+const filtrados = computed(() => {
+  if (!busqueda.value) return productos.value
+  const q = busqueda.value.toLowerCase()
+  return productos.value.filter((p: any) => p.nombre.toLowerCase().includes(q))
+})
+
+const totalPedido = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))
 
 function abrirModal(mesa?: any) {
   editando.value = mesa ?? null
@@ -32,14 +48,52 @@ async function eliminar(id: number) {
   }
 }
 
-async function ocuparMesa(mesa: any) {
-  try {
-    await ventaStore.createVenta({ mesaId: mesa.id })
-    await mesaStore.fetchMesas()
-    router.push('/pedidos')
-  } catch (error) {
-    console.error('Error al ocupar mesa:', error)
+function abrirPedido(mesa: any) {
+  ocupandoMesa.value = mesa
+  seleccionados.value = []
+  busqueda.value = ''
+  mostrarSelector.value = false
+}
+
+function cerrarPedido() {
+  ocupandoMesa.value = null
+  seleccionados.value = []
+}
+
+function agregarProducto(producto: any) {
+  const ex = seleccionados.value.find((d) => d.productoId === producto.id)
+  if (ex) {
+    ex.cantidad++
+    ex.subtotal = ex.cantidad * ex.precioUnitario
+  } else {
+    seleccionados.value.push({
+      productoId: producto.id,
+      nombre: producto.nombre,
+      cantidad: 1,
+      precioUnitario: Number(producto.precioVenta),
+      subtotal: Number(producto.precioVenta),
+    })
   }
+  mostrarSelector.value = false
+}
+
+function quitarSeleccion(i: number) {
+  seleccionados.value.splice(i, 1)
+}
+
+async function guardarPedido() {
+  if (!ocupandoMesa.value || !seleccionados.value.length) return
+  const venta = await ventaStore.createVenta({ mesaId: ocupandoMesa.value.id })
+  await ventaStore.addProductos(
+    venta.id,
+    seleccionados.value.map((d) => ({
+      productoId: d.productoId,
+      cantidad: d.cantidad,
+      precioUnitario: d.precioUnitario,
+    }))
+  )
+  await mesaStore.fetchMesas()
+  cerrarPedido()
 }
 
 function verPedido(mesa: any) {
@@ -70,7 +124,7 @@ function estadoColor(estado: string) {
             <p v-if="mesa.ubicacion" class="text-muted small">{{ mesa.ubicacion }}</p>
             <span :class="`badge bg-${estadoColor(mesa.estado)}`">{{ mesa.estado }}</span>
             <div class="mt-2">
-              <button v-if="mesa.estado === 'disponible'" class="btn btn-sm btn-success me-1" @click="ocuparMesa(mesa)">Ocupar</button>
+              <button v-if="mesa.estado === 'disponible'" class="btn btn-sm btn-success me-1" @click="abrirPedido(mesa)">Ocupar</button>
               <button v-if="mesa.estado === 'ocupada'" class="btn btn-sm btn-warning me-1" @click="verPedido(mesa)">Ver Pedido</button>
               <button class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(mesa)">Editar</button>
               <button class="btn btn-sm btn-outline-danger" @click="eliminar(mesa.id)">Eliminar</button>
@@ -85,6 +139,39 @@ function estadoColor(estado: string) {
 
     <ModalBase v-if="modalAbierto" id="mesaModal" :titulo="editando ? 'Editar Mesa' : 'Nueva Mesa'" @cerrar="cerrarModal">
       <MesaFormModal :mesa="editando" :abierto="modalAbierto" @cerrar="cerrarModal" @guardado="mesaStore.fetchMesas()" />
+    </ModalBase>
+
+    <ModalBase v-if="ocupandoMesa" id="pedidoModal" titulo="Pedido - Mesa #{{ ocupandoMesa.numero }}" @cerrar="cerrarPedido">
+      <div>
+        <button type="button" class="btn btn-sm btn-outline-success mb-2" @click="mostrarSelector = !mostrarSelector">
+          + Agregar Producto
+        </button>
+
+        <div v-if="mostrarSelector">
+          <input v-model="busqueda" class="form-control form-control-sm mb-1" placeholder="Buscar...">
+          <div style="max-height: 150px; overflow-y: auto;">
+            <button v-for="p in filtrados" :key="p.id" type="button"
+              class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1"
+              @click="agregarProducto(p)">
+              {{ p.nombre }} - ${{ p.precioVenta }}
+            </button>
+            <p v-if="!filtrados.length" class="text-muted small">Sin resultados</p>
+          </div>
+        </div>
+
+        <div v-for="(d, i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2 mb-1">
+          <span class="flex-grow-1 small">{{ d.nombre }}</span>
+          <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
+            @input="d.subtotal = d.cantidad * d.precioUnitario">
+          <span class="small">${{ Number(d.subtotal).toFixed(2) }}</span>
+          <button class="btn btn-sm btn-danger" @click="quitarSeleccion(i)">X</button>
+        </div>
+
+        <h5 class="text-end mt-2">Total: ${{ totalPedido.toFixed(2) }}</h5>
+        <button class="btn btn-success w-100 mt-2" :disabled="!seleccionados.length" @click="guardarPedido">
+          Guardar Pedido
+        </button>
+      </div>
     </ModalBase>
   </div>
 </template>

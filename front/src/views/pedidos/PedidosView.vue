@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import api from '../../services/api'
 import { useVentaStore } from '../../stores/ventas'
+import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 
 const ventaStore = useVentaStore()
@@ -14,7 +14,7 @@ const productos = ref<any[]>([])
 const busqueda = ref('')
 const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
 
-onMounted(async () => {
+async function cargarDatos() {
   try {
     const [ventasRes, prodRes] = await Promise.all([
       api.get('/ventas?estado=abierta'),
@@ -25,7 +25,9 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error al cargar pedidos:', error)
   }
-})
+}
+
+onMounted(cargarDatos)
 
 const filtrados = computed(() => {
   if (!busqueda.value) return productos.value
@@ -33,7 +35,7 @@ const filtrados = computed(() => {
   return productos.value.filter((p: any) => p.nombre.toLowerCase().includes(q))
 })
 
-const totalSeleccion = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))
+const totalAgregar = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))
 
 function abrirAgregar(venta: any) {
   agregandoAVenta.value = venta
@@ -49,13 +51,12 @@ function agregarProducto(producto: any) {
     ex.subtotal = ex.cantidad * ex.precioUnitario
   } else {
     seleccionados.value.push({
-      productoId: producto.id,
-      nombre: producto.nombre,
-      cantidad: 1,
+      productoId: producto.id, nombre: producto.nombre, cantidad: 1,
       precioUnitario: Number(producto.precioVenta),
       subtotal: Number(producto.precioVenta),
     })
   }
+  mostrarSelector.value = false
 }
 
 function quitarSeleccion(i: number) {
@@ -66,16 +67,11 @@ async function guardarProductos() {
   if (!agregandoAVenta.value || !seleccionados.value.length) return
   await ventaStore.addProductos(
     agregandoAVenta.value.id,
-    seleccionados.value.map((d) => ({
-      productoId: d.productoId,
-      cantidad: d.cantidad,
-      precioUnitario: d.precioUnitario,
-    }))
+    seleccionados.value.map((d) => ({ productoId: d.productoId, cantidad: d.cantidad, precioUnitario: d.precioUnitario }))
   )
   agregandoAVenta.value = null
   seleccionados.value = []
-  const { data } = await api.get('/ventas?estado=abierta')
-  ventasAbiertas.value = data
+  await cargarDatos()
 }
 
 function abrirCobro(venta: any) {
@@ -87,14 +83,13 @@ async function confirmarCobro() {
   if (!cobrandoVenta.value) return
   await ventaStore.cobrarVenta(cobrandoVenta.value.id, metodoPago.value)
   cobrandoVenta.value = null
-  const { data } = await api.get('/ventas?estado=abierta')
-  ventasAbiertas.value = data
+  await cargarDatos()
 }
 </script>
 
 <template>
   <div class="container mt-4">
-    <h2>Pedidos Activos (Mesas Ocupadas)</h2>
+    <h2>Pedidos Activos</h2>
 
     <div v-if="!ventasAbiertas.length" class="text-center mt-4">
       <p>No hay pedidos activos</p>
@@ -111,12 +106,7 @@ async function confirmarCobro() {
           <div class="card-body">
             <table class="table table-sm mb-2">
               <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Cant</th>
-                  <th>P.U.</th>
-                  <th>Subtotal</th>
-                </tr>
+                <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th></tr>
               </thead>
               <tbody>
                 <tr v-for="d in v.DetalleVentas" :key="d.id">
@@ -127,7 +117,6 @@ async function confirmarCobro() {
                 </tr>
               </tbody>
             </table>
-
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-warning" @click="abrirAgregar(v)">+ Agregar Producto</button>
               <button class="btn btn-sm btn-success" @click="abrirCobro(v)">Cobrar</button>
@@ -137,36 +126,30 @@ async function confirmarCobro() {
       </div>
     </div>
 
-    <!-- Modal agregar productos -->
     <ModalBase v-if="agregandoAVenta" id="addProductosModal" titulo="Agregar Productos" @cerrar="agregandoAVenta = null">
       <div>
-        <input v-model="busqueda" class="form-control mb-2" placeholder="Buscar producto...">
-        <div style="max-height: 150px; overflow-y: auto;">
+        <input v-model="busqueda" class="form-control mb-2" placeholder="Buscar...">
+        <div style="max-height:150px;overflow-y:auto">
           <button v-for="p in filtrados" :key="p.id" type="button"
             class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1"
-            @click="agregarProducto(p)">
-            {{ p.nombre }} - ${{ p.precioVenta }}
-          </button>
+            @click="agregarProducto(p)">{{ p.nombre }} - ${{ p.precioVenta }}</button>
         </div>
-
-        <div v-for="(d, i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2">
+        <div v-for="(d,i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2">
           <span class="flex-grow-1 small">{{ d.nombre }}</span>
           <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
             @input="d.subtotal = d.cantidad * d.precioUnitario">
           <span class="small">${{ Number(d.subtotal).toFixed(2) }}</span>
           <button class="btn btn-sm btn-danger" @click="quitarSeleccion(i)">X</button>
         </div>
-
         <button class="btn btn-primary w-100 mt-2" :disabled="!seleccionados.length" @click="guardarProductos">
-          Agregar (Total: ${{ totalSeleccion.toFixed(2) }})
+          Agregar (${{ totalAgregar.toFixed(2) }})
         </button>
       </div>
     </ModalBase>
 
-    <!-- Modal cobrar -->
-    <ModalBase v-if="cobrandoVenta" id="cobroModal" titulo="Cobrar Venta" @cerrar="cobrandoVenta = null">
+    <ModalBase v-if="cobrandoVenta" id="cobroModal" titulo="Cobrar" @cerrar="cobrandoVenta = null">
       <div>
-        <p><strong>Total a cobrar: ${{ cobrandoVenta.total }}</strong></p>
+        <p><strong>Total: ${{ cobrandoVenta.total }}</strong></p>
         <div class="mb-3">
           <label class="form-label">Metodo de Pago</label>
           <select v-model="metodoPago" class="form-select">
