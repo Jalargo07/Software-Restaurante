@@ -61,17 +61,21 @@ function quitar(index: number) {
 const total = computed(() => detalles.value.reduce((s, d) => s + d.subtotal, 0))
 
 async function cobrar() {
-  await ventaStore.createVentaRapida({
-    mesaId: modoRapido.value ? undefined : (mesaId.value || undefined),
-    metodoPago: metodoPago.value,
-    productos: detalles.value.map((d) => ({
-      productoId: d.productoId,
-      cantidad: d.cantidad,
-      precioUnitario: d.precioUnitario,
-    })),
-  })
-  emit('guardado')
-  emit('cerrar')
+  try {
+    await ventaStore.createVentaRapida({
+      mesaId: modoRapido.value ? undefined : (mesaId.value || undefined),
+      metodoPago: metodoPago.value,
+      productos: detalles.value.map((d) => ({
+        productoId: d.productoId,
+        cantidad: d.cantidad,
+        precioUnitario: d.precioUnitario,
+      })),
+    })
+    emit('guardado')
+    emit('cerrar')
+  } catch (error) {
+    console.error('Error al crear venta rapida:', error)
+  }
 }
 </script>
 

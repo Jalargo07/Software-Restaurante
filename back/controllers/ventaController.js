@@ -155,7 +155,9 @@ const crearRapida = async (req, res) => {
 
     let total = 0;
     for (const item of productos) {
-      total += item.cantidad * (item.precioUnitario || 0);
+      const prod = await Producto.findByPk(item.productoId, { transaction: t });
+      const precio = item.precioUnitario || (prod ? Number(prod.precioVenta) : 0);
+      total += item.cantidad * precio;
     }
 
     const venta = await Venta.create({

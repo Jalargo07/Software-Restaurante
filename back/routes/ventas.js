@@ -31,8 +31,8 @@ const validarRapida = [
 
 router.get('/', ventaController.obtenerTodas);
 router.get('/:id', ventaController.obtenerPorId);
-router.post('/', validarVenta, validar, ventaController.crear);
 router.post('/rapida', validarRapida, validar, ventaController.crearRapida);
+router.post('/', validarVenta, validar, ventaController.crear);
 router.post('/:id/productos', validarProductos, validar, ventaController.agregarProductos);
 router.put('/:id/cobrar', validarCobro, validar, ventaController.cobrar);
 

@@ -17,12 +17,16 @@ const busqueda = ref('')
 const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
 
 onMounted(async () => {
-  const [ventasRes, prodRes] = await Promise.all([
-    api.get('/ventas?estado=abierta'),
-    api.get('/productos'),
-  ])
-  ventasAbiertas.value = ventasRes.data
-  productos.value = prodRes.data
+  try {
+    const [ventasRes, prodRes] = await Promise.all([
+      api.get('/ventas?estado=abierta'),
+      api.get('/productos'),
+    ])
+    ventasAbiertas.value = ventasRes.data
+    productos.value = prodRes.data
+  } catch (error) {
+    console.error('Error al cargar pedidos:', error)
+  }
 })
 
 const filtrados = computed(() => {
@@ -32,11 +36,6 @@ const filtrados = computed(() => {
 })
 
 const totalSeleccion = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))
-
-async function ocuparMesa(mesaId: number) {
-  const venta = await ventaStore.createVenta({ mesaId })
-  await router.push('/pedidos')
-}
 
 function abrirAgregar(venta: any) {
   agregandoAVenta.value = venta

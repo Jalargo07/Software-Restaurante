@@ -33,8 +33,13 @@ async function eliminar(id: number) {
 }
 
 async function ocuparMesa(mesa: any) {
-  await ventaStore.createVenta({ mesaId: mesa.id })
-  router.push('/pedidos')
+  try {
+    await ventaStore.createVenta({ mesaId: mesa.id })
+    await mesaStore.fetchMesas()
+    router.push('/pedidos')
+  } catch (error) {
+    console.error('Error al ocupar mesa:', error)
+  }
 }
 
 function verPedido(mesa: any) {

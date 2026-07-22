@@ -7,24 +7,24 @@ const DetalleVenta = require('./DetalleVenta');
 const Usuario = require('./Usuario');
 
 // Compra -> DetalleCompra
-Compra.hasMany(DetalleCompra);
-DetalleCompra.belongsTo(Compra);
+Compra.hasMany(DetalleCompra, { foreignKey: 'CompraId' });
+DetalleCompra.belongsTo(Compra, { foreignKey: 'CompraId' });
 
 // Producto -> DetalleCompra
-Producto.hasMany(DetalleCompra);
-DetalleCompra.belongsTo(Producto);
+Producto.hasMany(DetalleCompra, { foreignKey: 'ProductoId' });
+DetalleCompra.belongsTo(Producto, { foreignKey: 'ProductoId' });
 
 // Mesa -> Venta
 Mesa.hasMany(Venta, { foreignKey: 'mesaId' });
 Venta.belongsTo(Mesa, { foreignKey: 'mesaId' });
 
 // Venta -> DetalleVenta
-Venta.hasMany(DetalleVenta);
-DetalleVenta.belongsTo(Venta);
+Venta.hasMany(DetalleVenta, { foreignKey: 'VentaId' });
+DetalleVenta.belongsTo(Venta, { foreignKey: 'VentaId' });
 
 // Producto -> DetalleVenta
-Producto.hasMany(DetalleVenta);
-DetalleVenta.belongsTo(Producto);
+Producto.hasMany(DetalleVenta, { foreignKey: 'ProductoId' });
+DetalleVenta.belongsTo(Producto, { foreignKey: 'ProductoId' });
 
 module.exports = {
   Mesa,
