@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
+import type { Compra, CompraCreatePayload, CompraUpdatePayload } from '../types'
 
 export const useCompraStore = defineStore('compras', {
   state: () => ({
-    compras: [] as any[],
+    compras: [] as Compra[],
     loading: false,
   }),
   actions: {
@@ -16,7 +17,7 @@ export const useCompraStore = defineStore('compras', {
         this.loading = false
       }
     },
-    async createCompra(compra: { proveedorId: number; observaciones?: string; detalles: { productoId: number; cantidad: number; precioUnitario: number }[] }) {
+    async createCompra(compra: CompraCreatePayload) {
       const { data } = await api.post('/compras', compra)
       this.compras.unshift(data)
       return data
@@ -27,7 +28,7 @@ export const useCompraStore = defineStore('compras', {
       if (idx !== -1) this.compras[idx] = data
       return data
     },
-    async actualizarCompra(id: number, compra: { proveedorId?: number; observaciones?: string; detalles?: { productoId: number; cantidad: number; precioUnitario: number }[] }) {
+    async actualizarCompra(id: number, compra: CompraUpdatePayload) {
       const { data } = await api.put(`/compras/${id}`, compra)
       const idx = this.compras.findIndex((c) => c.id === id)
       if (idx !== -1) this.compras[idx] = data

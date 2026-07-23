@@ -1,17 +1,11 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
 import { useToastStore } from './toast'
-
-interface AuditoriaFiltros {
-  usuario?: string
-  entidad?: string
-  desde?: string
-  hasta?: string
-}
+import type { Auditoria, AuditoriaFiltros, PaginatedResponse } from '../types'
 
 export const useAuditoriaStore = defineStore('auditoria', {
   state: () => ({
-    logs: [] as any[],
+    logs: [] as Auditoria[],
     total: 0,
     page: 1,
     totalPages: 1,
@@ -28,7 +22,7 @@ export const useAuditoriaStore = defineStore('auditoria', {
         if (this.filtros.entidad) params.entidad = this.filtros.entidad
         if (this.filtros.desde) params.desde = this.filtros.desde
         if (this.filtros.hasta) params.hasta = this.filtros.hasta
-        const { data } = await api.get('/auditoria', { params })
+        const { data } = await api.get<PaginatedResponse<Auditoria>>('/auditoria', { params })
         this.logs = data.logs
         this.total = data.total
         this.page = data.page

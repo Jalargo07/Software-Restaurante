@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
+import type { Venta, MetodoPago, VentaProductoPayload } from '../types'
 
 export const useVentaStore = defineStore('ventas', {
   state: () => ({
-    ventas: [] as any[],
+    ventas: [] as Venta[],
     loading: false,
   }),
   actions: {
@@ -22,18 +23,18 @@ export const useVentaStore = defineStore('ventas', {
       this.ventas.unshift(res.data)
       return res.data
     },
-    async createVentaRapida(data: { mesaId?: number; metodoPago: string; productos: { productoId: number; cantidad: number; precioUnitario?: number }[] }) {
+    async createVentaRapida(data: { mesaId?: number; metodoPago: MetodoPago; productos: VentaProductoPayload[] }) {
       const res = await api.post('/ventas/rapida', data)
       this.ventas.unshift(res.data)
       return res.data
     },
-    async addProductos(ventaId: number, productos: { productoId: number; cantidad: number; precioUnitario?: number }[]) {
+    async addProductos(ventaId: number, productos: VentaProductoPayload[]) {
       const res = await api.post(`/ventas/${ventaId}/productos`, { productos })
       const idx = this.ventas.findIndex((v) => v.id === ventaId)
       if (idx !== -1) this.ventas[idx] = res.data
       return res.data
     },
-    async cobrarVenta(ventaId: number, metodoPago: string) {
+    async cobrarVenta(ventaId: number, metodoPago: MetodoPago) {
       const res = await api.put(`/ventas/${ventaId}/cobrar`, { metodoPago })
       const idx = this.ventas.findIndex((v) => v.id === ventaId)
       if (idx !== -1) this.ventas[idx] = res.data

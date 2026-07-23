@@ -1,29 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
-
-export interface DetalleComanda {
-  id: number
-  cantidad: number
-  precioUnitario: number
-  subtotal: number
-  estadoComanda: 'pendiente' | 'en_preparacion' | 'listo'
-  Producto?: { id: number; nombre: string }
-  VentaId: number
-}
-
-export interface ComandaVenta {
-  id: number
-  total: number
-  cliente?: string
-  createdAt: string
-  Mesa?: { id: number; numero: number }
-  DetalleVentas?: DetalleComanda[]
-  DetalleVenta?: DetalleComanda[]
-}
+import type { Venta, EstadoComanda } from '../types'
 
 export const useComandaStore = defineStore('comandas', {
   state: () => ({
-    comandas: [] as ComandaVenta[],
+    comandas: [] as Venta[],
     loading: false,
   }),
   actions: {
@@ -36,11 +17,11 @@ export const useComandaStore = defineStore('comandas', {
         this.loading = false
       }
     },
-    agregarComanda(venta: any) {
+    agregarComanda(venta: Venta) {
       const existe = this.comandas.find(c => c.id === venta.id)
       if (!existe) this.comandas.unshift(venta)
     },
-    actualizarComandaLocal(venta: any) {
+    actualizarComandaLocal(venta: Venta) {
       const index = this.comandas.findIndex(c => c.id === venta.id)
       if (index !== -1) {
         const detalles = venta.DetalleVentas || venta.DetalleVenta || []
@@ -54,7 +35,7 @@ export const useComandaStore = defineStore('comandas', {
     removerComandaPorVentaId(ventaId: number) {
       this.comandas = this.comandas.filter(c => c.id !== ventaId)
     },
-    async actualizarEstado(detalleId: number, estado: 'pendiente' | 'en_preparacion' | 'listo') {
+    async actualizarEstado(detalleId: number, estado: EstadoComanda) {
       const { data } = await api.put(`/comandas/${detalleId}/estado`, { estadoComanda: estado })
       const index = this.comandas.findIndex((c) => c.id === data.id)
       if (index !== -1) {

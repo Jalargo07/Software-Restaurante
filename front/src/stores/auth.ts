@@ -1,13 +1,7 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
 import type { AxiosError } from 'axios'
-
-interface Usuario {
-  id: number
-  nombre: string
-  email: string
-  rol: string
-}
+import type { Usuario } from '../types'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({

@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
+import type { ResumenCaja, CorteCaja } from '../types'
 
 export const useCorteStore = defineStore('cortes', {
   state: () => ({
-    resumen: null as any,
-    cortes: [] as any[],
+    resumen: null as ResumenCaja | null,
+    cortes: [] as CorteCaja[],
     loading: false,
   }),
   actions: {

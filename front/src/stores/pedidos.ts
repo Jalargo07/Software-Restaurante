@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
+import type { Venta, VentaProductoPayload } from '../types'
 
 export const usePedidoStore = defineStore('pedidos', {
   state: () => ({
-    pedidos: [] as any[],
+    pedidos: [] as Venta[],
     loading: false,
   }),
   actions: {
@@ -26,13 +27,13 @@ export const usePedidoStore = defineStore('pedidos', {
       await api.delete(`/ventas/${id}`)
       this.pedidos = this.pedidos.filter((p) => p.id !== id)
     },
-    async addProductos(ventaId: number, productos: { productoId: number; cantidad: number; precioUnitario?: number }[]) {
+    async addProductos(ventaId: number, productos: VentaProductoPayload[]) {
       const { data } = await api.post(`/ventas/${ventaId}/productos`, { productos })
       const index = this.pedidos.findIndex((p) => p.id === ventaId)
       if (index !== -1) this.pedidos[index] = data
       return data
     },
-    async updatePedido(id: number, dataPedido: any) {
+    async updatePedido(id: number, dataPedido: { cliente?: string; mesaId?: number | null }) {
       const { data } = await api.put(`/ventas/${id}`, dataPedido)
       const index = this.pedidos.findIndex((p) => p.id === id)
       if (index !== -1) this.pedidos[index] = data

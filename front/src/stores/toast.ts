@@ -1,10 +1,5 @@
 import { defineStore } from 'pinia'
-
-export interface Toast {
-  id: number
-  message: string
-  type: 'success' | 'error' | 'info' | 'warning'
-}
+import type { Toast } from '../types'
 
 export const useToastStore = defineStore('toast', {
   state: () => ({

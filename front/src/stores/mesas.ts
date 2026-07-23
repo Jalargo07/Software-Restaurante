@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
+import type { Mesa, MesaCreatePayload, MesaUpdatePayload } from '../types'
 
 export const useMesaStore = defineStore('mesas', {
   state: () => ({
-    mesas: [] as any[],
+    mesas: [] as Mesa[],
     loading: false,
   }),
   actions: {
@@ -16,12 +17,12 @@ export const useMesaStore = defineStore('mesas', {
         this.loading = false
       }
     },
-    async createMesa(mesa: any) {
+    async createMesa(mesa: MesaCreatePayload) {
       const { data } = await api.post('/mesas', mesa)
       this.mesas.push(data)
       return data
     },
-    async updateMesa(id: number, mesa: any) {
+    async updateMesa(id: number, mesa: MesaUpdatePayload) {
       const { data } = await api.put(`/mesas/${id}`, mesa)
       const index = this.mesas.findIndex((m) => m.id === id)
       if (index !== -1) this.mesas[index] = data

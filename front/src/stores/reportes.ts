@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
 import { useExcelExport } from '../composables/useExcelExport'
+import type { ReporteVentasHoy, ProductoMasVendido, VentasPorDia, ResumenCaja } from '../types'
 
 export const useReporteStore = defineStore('reportes', {
   state: () => ({
-    ventasHoy: { total: 0, cantidad: 0 } as { total: number; cantidad: number },
-    ventasPorDia: [] as any[],
-    productosMasVendidos: [] as any[],
-    comprasMes: { total: 0, cantidad: 0 } as { total: number; cantidad: number },
+    ventasHoy: { total: 0, cantidad: 0 } as ReporteVentasHoy,
+    ventasPorDia: [] as VentasPorDia[],
+    productosMasVendidos: [] as ProductoMasVendido[],
+    comprasMes: { total: 0, cantidad: 0 } as ResumenCaja,
     loading: false,
     exportando: false,
   }),

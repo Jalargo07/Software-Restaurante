@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
+import type { Receta, RecetaCreatePayload, RecetaUpdatePayload } from '../types'
 
 export const useRecetaStore = defineStore('recetas', {
   state: () => ({
-    recetas: [] as any[],
+    recetas: [] as Receta[],
     loading: false,
   }),
   actions: {
@@ -16,12 +17,12 @@ export const useRecetaStore = defineStore('recetas', {
         this.loading = false
       }
     },
-    async createReceta(receta: any) {
+    async createReceta(receta: RecetaCreatePayload) {
       const { data } = await api.post('/recetas', receta)
       await this.fetchRecetas()
       return data
     },
-    async updateReceta(id: number, receta: any) {
+    async updateReceta(id: number, receta: RecetaUpdatePayload) {
       const { data } = await api.put(`/recetas/${id}`, receta)
       await this.fetchRecetas()
       return data
