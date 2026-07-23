@@ -27,21 +27,19 @@ function salir() {
 
 const navItems = computed(() => {
   const items = [
-    { path: '/', icon: '📊', label: 'Dashboard' },
-    { path: '/mesas', icon: '🪑', label: 'Mesas' },
-    { path: '/pedidos', icon: '📋', label: 'Pedidos' },
-    { path: '/inventario', icon: '📦', label: 'Inventario' },
-    { path: '/compras', icon: '🛒', label: 'Compras' },
-    { path: '/ventas', icon: '💰', label: 'Ventas' },
-    { path: '/proveedores', icon: '🏢', label: 'Proveedores' },
-    { path: '/comandas', icon: '👨‍🍳', label: 'Cocina' },
-    { path: '/recetas', icon: '📖', label: 'Recetas' },
+    { path: '/', icon: '📊', label: 'Dashboard', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
+    { path: '/mesas', icon: '🪑', label: 'Mesas', roles: ['admin', 'mesero', 'cajero'] },
+    { path: '/pedidos', icon: '📋', label: 'Pedidos', roles: ['admin', 'mesero', 'cajero'] },
+    { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin', 'mesero'] },
+    { path: '/compras', icon: '🛒', label: 'Compras', roles: ['admin'] },
+    { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
+    { path: '/proveedores', icon: '🏢', label: 'Proveedores', roles: ['admin', 'mesero'] },
+    { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
+    { path: '/recetas', icon: '📖', label: 'Recetas', roles: ['admin'] },
+    { path: '/usuarios', icon: '👥', label: 'Usuarios', roles: ['admin'] },
+    { path: '/auditoria', icon: '📋', label: 'Auditoría', roles: ['admin'] },
   ]
-  if (authStore.isAdmin) {
-    items.push({ path: '/usuarios', icon: '👥', label: 'Usuarios' })
-    items.push({ path: '/auditoria', icon: '📋', label: 'Auditoría' })
-  }
-  return items
+  return items.filter(item => item.roles.includes(authStore.user?.rol || ''))
 })
 
 function isActive(path: string) {

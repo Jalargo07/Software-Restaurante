@@ -2,10 +2,12 @@
 import { onMounted, ref, computed } from 'vue'
 import { useUsuarioStore } from '../../stores/usuarios'
 import { useToastStore } from '../../stores/toast'
+import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 
 const usuarioStore = useUsuarioStore()
 const toast = useToastStore()
+const { canCreate, canEdit, canDelete } = useRoles()
 const modalAbierto = ref(false)
 const usuarioEditando = ref<any>(null)
 const guardando = ref(false)
@@ -93,7 +95,7 @@ function rolBadge(rol: string) {
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
       <h2>Usuarios</h2>
-      <button class="btn btn-primary" @click="abrirCrear">+ Nuevo Usuario</button>
+      <button v-if="canCreate" class="btn btn-primary" @click="abrirCrear">+ Nuevo Usuario</button>
     </div>
 
     <div v-if="usuarioStore.loading" class="text-center mt-4">
@@ -123,8 +125,8 @@ function rolBadge(rol: string) {
             </span>
           </td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-1" @click="abrirEditar(u)">Editar</button>
-            <button class="btn btn-sm btn-outline-danger" @click="toggleActivo(u)">
+            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirEditar(u)">Editar</button>
+            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="toggleActivo(u)">
               {{ u.activo ? 'Desactivar' : 'Activar' }}
             </button>
           </td>

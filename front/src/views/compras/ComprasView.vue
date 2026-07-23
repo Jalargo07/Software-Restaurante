@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useCompraStore } from '../../stores/compras'
 import { useReporteStore } from '../../stores/reportes'
 import { useToastStore } from '../../stores/toast'
+import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 import CompraFormModal from '../../components/compras/CompraFormModal.vue'
 import CompraDetailModal from '../../components/compras/CompraDetailModal.vue'
@@ -10,6 +11,7 @@ import CompraDetailModal from '../../components/compras/CompraDetailModal.vue'
 const compraStore = useCompraStore()
 const reporteStore = useReporteStore()
 const toast = useToastStore()
+const { canCreate, canEdit, canDelete } = useRoles()
 const modalFormAbierto = ref(false)
 const modalEditando = ref(false)
 const compraEditando = ref<any>(null)
@@ -77,7 +79,7 @@ async function exportarExcel() {
           <span v-if="reporteStore.exportando" class="spinner-border spinner-border-sm me-1"></span>
           Exportar Excel
         </button>
-        <button class="btn btn-primary" @click="modalFormAbierto = true">+ Nueva Compra</button>
+        <button v-if="canCreate" class="btn btn-primary" @click="modalFormAbierto = true">+ Nueva Compra</button>
       </div>
     </div>
 
@@ -128,9 +130,9 @@ async function exportarExcel() {
           </td>
             <td>
               <button class="btn btn-sm btn-outline-info me-1" @click="verDetalle(c)">Ver</button>
-              <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-primary me-1" @click="editarCompra(c)">Editar</button>
-              <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-success me-1" @click="recibirCompra(c.id)">Recibir</button>
-              <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-danger" @click="cancelarCompra(c.id)">Cancelar</button>
+              <button v-if="c.estado === 'pendiente' && canEdit" class="btn btn-sm btn-outline-primary me-1" @click="editarCompra(c)">Editar</button>
+              <button v-if="c.estado === 'pendiente' && canEdit" class="btn btn-sm btn-outline-success me-1" @click="recibirCompra(c.id)">Recibir</button>
+              <button v-if="c.estado === 'pendiente' && canDelete" class="btn btn-sm btn-outline-danger" @click="cancelarCompra(c.id)">Cancelar</button>
             </td>
         </tr>
       </tbody>

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useVentaStore } from '../../stores/ventas'
 import { useReporteStore } from '../../stores/reportes'
 import { useToastStore } from '../../stores/toast'
+import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 import VentaFormModal from '../../components/ventas/VentaFormModal.vue'
 import VentaDetailModal from '../../components/ventas/VentaDetailModal.vue'
@@ -12,6 +13,7 @@ const router = useRouter()
 const ventaStore = useVentaStore()
 const reporteStore = useReporteStore()
 const toast = useToastStore()
+const { isAdmin, isMesero } = useRoles()
 const modalFormAbierto = ref(false)
 const detalleVenta = ref<any>(null)
 const filtroEstado = ref('')
@@ -45,11 +47,11 @@ async function exportarExcel() {
     <div class="d-flex justify-content-between align-items-center">
       <h2>Ventas</h2>
       <div>
-        <button class="btn btn-success me-2" @click="exportarExcel" :disabled="reporteStore.exportando">
+        <button v-if="isAdmin" class="btn btn-success me-2" @click="exportarExcel" :disabled="reporteStore.exportando">
           <span v-if="reporteStore.exportando" class="spinner-border spinner-border-sm me-1"></span>
           Exportar Excel
         </button>
-        <button class="btn btn-success" @click="modalFormAbierto = true">+ Nueva Venta</button>
+        <button v-if="isAdmin || isMesero" class="btn btn-success" @click="modalFormAbierto = true">+ Nueva Venta</button>
       </div>
     </div>
 

@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { useRecetaStore } from '../../stores/recetas'
 import { useToastStore } from '../../stores/toast'
+import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 import RecetaFormModal from '../../components/recetas/RecetaFormModal.vue'
 
 const recetaStore = useRecetaStore()
 const toast = useToastStore()
+const { canCreate, canEdit, canDelete } = useRoles()
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
 
@@ -40,7 +42,7 @@ async function eliminar(id: number) {
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
       <h2>Recetas</h2>
-      <button class="btn btn-primary" @click="abrirModal()">+ Nueva Receta</button>
+      <button v-if="canCreate" class="btn btn-primary" @click="abrirModal()">+ Nueva Receta</button>
     </div>
 
     <div v-if="recetaStore.loading" class="text-center mt-4">
@@ -72,8 +74,8 @@ async function eliminar(id: number) {
             </ul>
           </td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(r)">Editar</button>
-            <button class="btn btn-sm btn-outline-danger" @click="eliminar(r.id)">X</button>
+            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(r)">Editar</button>
+            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="eliminar(r.id)">X</button>
           </td>
         </tr>
       </tbody>

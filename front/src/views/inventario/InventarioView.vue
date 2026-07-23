@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { useProductoStore } from '../../stores/productos'
 import { useToastStore } from '../../stores/toast'
+import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 import ProductoFormModal from '../../components/productos/ProductoFormModal.vue'
 
 const productoStore = useProductoStore()
 const toast = useToastStore()
+const { canCreate, canEdit, canDelete } = useRoles()
 const categoriaFiltro = ref('')
 const tipoFiltro = ref('')
 const modalAbierto = ref(false)
@@ -51,7 +53,7 @@ async function eliminar(id: number) {
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
       <h2>Inventario</h2>
-      <button class="btn btn-primary" @click="abrirModal()">+ Nuevo Producto</button>
+      <button v-if="canCreate" class="btn btn-primary" @click="abrirModal()">+ Nuevo Producto</button>
     </div>
 
     <div class="mt-3 d-flex gap-2">
@@ -109,8 +111,8 @@ async function eliminar(id: number) {
             </span>
           </td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
-            <button class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
+            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
+            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
           </td>
         </tr>
       </tbody>
