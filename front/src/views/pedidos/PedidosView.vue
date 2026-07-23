@@ -218,7 +218,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
     <ModalBase v-if="agregandoAVenta" id="addProductosModal" titulo="Agregar Productos" @cerrar="agregandoAVenta = null">
       <div>
         <input v-model="busqueda" class="form-control mb-2" placeholder="Buscar...">
-        <div style="max-height:150px;overflow-y:auto">
+        <div class="productos-lista" style="max-height:150px;overflow-y:auto">
           <button v-for="p in filtrados" :key="p.id" type="button"
             class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1"
             @click="agregarProducto(p)">
@@ -227,7 +227,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
             {{ p.nombre }} - ${{ p.precioVenta }}
           </button>
         </div>
-        <div v-for="(d,i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2">
+        <div v-for="(d,i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2 productos-seleccionados">
           <span class="flex-grow-1 small">{{ d.nombre }}</span>
           <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
             @input="d.subtotal = d.cantidad * d.precioUnitario">
@@ -287,3 +287,19 @@ async function eliminarProducto(ventaId: number, detalle: any) {
     </ModalBase>
   </div>
 </template>
+
+<style scoped>
+[data-theme="dark"] .productos-lista .btn-outline-secondary {
+  color: #e4e4e7;
+  border-color: #52525b;
+}
+
+[data-theme="dark"] .productos-lista .btn-outline-secondary:hover {
+  background-color: #3f3f46;
+  border-color: #71717a;
+}
+
+[data-theme="dark"] .productos-seleccionados .flex-grow-1 {
+  color: #e4e4e7;
+}
+</style>
