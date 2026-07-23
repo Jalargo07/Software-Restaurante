@@ -30,9 +30,10 @@ onMounted(async () => {
 })
 
 const filtrados = computed(() => {
-  if (!busqueda.value) return productos.value
+  let resultado = productos.value.filter((p: any) => p.tipo !== 'insumo')
+  if (!busqueda.value) return resultado
   const q = busqueda.value.toLowerCase()
-  return productos.value.filter((p: any) =>
+  return resultado.filter((p: any) =>
     p.nombre.toLowerCase().includes(q)
   )
 })

@@ -33,9 +33,10 @@ async function cargarDatos() {
 onMounted(cargarDatos)
 
 const filtrados = computed(() => {
-  if (!busqueda.value) return productos.value
+  let resultado = productos.value.filter((p: any) => p.tipo !== 'insumo')
+  if (!busqueda.value) return resultado
   const q = busqueda.value.toLowerCase()
-  return productos.value.filter((p: any) => p.nombre.toLowerCase().includes(q))
+  return resultado.filter((p: any) => p.nombre.toLowerCase().includes(q))
 })
 
 const totalAgregar = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))

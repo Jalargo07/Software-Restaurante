@@ -2,6 +2,12 @@
 import { ref, computed, onMounted } from 'vue'
 import api from '../../services/api'
 
+const props = withDefaults(defineProps<{
+  soloVentas?: boolean
+}>(), {
+  soloVentas: false
+})
+
 const emit = defineEmits<{
   seleccionar: [producto: any]
 }>()
@@ -15,9 +21,13 @@ onMounted(async () => {
 })
 
 const filtrados = computed(() => {
-  if (!busqueda.value) return productos.value
+  let resultado = productos.value
+  if (props.soloVentas) {
+    resultado = resultado.filter((p: any) => p.tipo !== 'insumo')
+  }
+  if (!busqueda.value) return resultado
   const q = busqueda.value.toLowerCase()
-  return productos.value.filter((p: any) =>
+  return resultado.filter((p: any) =>
     p.nombre.toLowerCase().includes(q) || p.categoria.toLowerCase().includes(q)
   )
 })
