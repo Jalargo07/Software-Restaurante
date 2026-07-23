@@ -38,13 +38,13 @@ const validarDetalle = [
 
 router.get('/', authenticateToken, ventaController.obtenerTodas);
 router.get('/:id', authenticateToken, ventaController.obtenerPorId);
-router.post('/rapida', authenticateToken, authorizeRole(rolesVenta), validarRapida, validar, ventaController.crearRapida);
-router.post('/', authenticateToken, authorizeRole(rolesVenta), validarVenta, validar, ventaController.crear);
-router.post('/:id/productos', authenticateToken, authorizeRole(rolesVenta), validarProductos, validar, ventaController.agregarProductos);
-router.put('/:id/cobrar', authenticateToken, authorizeRole(rolesVenta), validarCobro, validar, ventaController.cobrar);
-router.put('/:id', authenticateToken, authorizeRole(rolesVenta), ventaController.actualizar);
-router.delete('/:id', authenticateToken, authorizeRole(rolesVenta), ventaController.cancelar);
-router.put('/:id/detalle/:detalleId', authenticateToken, authorizeRole(rolesVenta), validarDetalle, ventaController.actualizarDetalle);
-router.delete('/:id/detalle/:detalleId', authenticateToken, authorizeRole(rolesVenta), ventaController.eliminarDetalle);
+router.post('/rapida', authenticateToken, authorizeRole(...rolesVenta), validarRapida, validar, ventaController.crearRapida);
+router.post('/', authenticateToken, authorizeRole(...rolesVenta), validarVenta, validar, ventaController.crear);
+router.post('/:id/productos', authenticateToken, authorizeRole(...rolesVenta), validarProductos, validar, ventaController.agregarProductos);
+router.put('/:id/cobrar', authenticateToken, authorizeRole(...rolesVenta), validarCobro, validar, ventaController.cobrar);
+router.put('/:id', authenticateToken, authorizeRole(...rolesVenta), ventaController.actualizar);
+router.delete('/:id', authenticateToken, authorizeRole(...rolesVenta), ventaController.cancelar);
+router.put('/:id/detalle/:detalleId', authenticateToken, authorizeRole(...rolesVenta), validarDetalle, ventaController.actualizarDetalle);
+router.delete('/:id/detalle/:detalleId', authenticateToken, authorizeRole(...rolesVenta), ventaController.eliminarDetalle);
 
 module.exports = router;
