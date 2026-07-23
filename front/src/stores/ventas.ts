@@ -5,15 +5,24 @@ import type { Venta, MetodoPago, VentaProductoPayload } from '../types'
 export const useVentaStore = defineStore('ventas', {
   state: () => ({
     ventas: [] as Venta[],
+    total: 0,
+    pagina: 1,
+    paginas: 1,
+    limite: 10,
     loading: false,
   }),
   actions: {
-    async fetchVentas(estado?: string) {
+    async fetchVentas(pagina = 1, limite = 10, estado?: string) {
       this.loading = true
       try {
-        const params = estado ? { estado } : {}
+        const params: any = { pagina, limite }
+        if (estado) params.estado = estado
         const { data } = await api.get('/ventas', { params })
-        this.ventas = data
+        this.ventas = data.data
+        this.total = data.total
+        this.pagina = data.pagina
+        this.paginas = data.paginas
+        this.limite = data.limite
       } finally {
         this.loading = false
       }

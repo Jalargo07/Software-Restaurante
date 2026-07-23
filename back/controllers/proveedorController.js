@@ -1,10 +1,32 @@
 const { Proveedor, Compra, DetalleCompra, Producto } = require('../models');
+const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
 
 const obtenerTodos = async (req, res) => {
   try {
-    const proveedores = await Proveedor.findAll({ where: { activo: true } });
-    res.json(proveedores);
+    const { pagina = 1, limite = 10, buscar } = req.query;
+    const limit = Number(limite);
+    const offset = (Number(pagina) - 1) * limit;
+
+    const where = { activo: true };
+    if (buscar) {
+      where.nombre = { [Op.like]: `%${buscar}%` };
+    }
+
+    const { count, rows } = await Proveedor.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['nombre', 'ASC']],
+    });
+
+    res.json({
+      data: rows,
+      total: count,
+      pagina: Number(pagina),
+      paginas: Math.ceil(count / limit) || 1,
+      limite: limit,
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener proveedores' });
   }

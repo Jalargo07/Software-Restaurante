@@ -5,14 +5,24 @@ import type { Proveedor, ProveedorCreatePayload, ProveedorUpdatePayload } from '
 export const useProveedorStore = defineStore('proveedores', {
   state: () => ({
     proveedores: [] as Proveedor[],
+    total: 0,
+    pagina: 1,
+    paginas: 1,
+    limite: 10,
     loading: false,
   }),
   actions: {
-    async fetchProveedores() {
+    async fetchProveedores(pagina = 1, limite = 10, buscar?: string) {
       this.loading = true
       try {
-        const { data } = await api.get('/proveedores')
-        this.proveedores = data
+        const params: any = { pagina, limite }
+        if (buscar) params.buscar = buscar
+        const { data } = await api.get('/proveedores', { params })
+        this.proveedores = data.data
+        this.total = data.total
+        this.pagina = data.pagina
+        this.paginas = data.paginas
+        this.limite = data.limite
       } finally {
         this.loading = false
       }

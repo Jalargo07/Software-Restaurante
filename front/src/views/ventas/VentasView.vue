@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVentaStore } from '../../stores/ventas'
 import { useReporteStore } from '../../stores/reportes'
@@ -19,14 +19,42 @@ const detalleVenta = ref<any>(null)
 const filtroEstado = ref('')
 const filtroDesde = ref('')
 const filtroHasta = ref('')
+const paginaActual = ref(1)
 
 onMounted(() => {
-  ventaStore.fetchVentas()
+  cargarVentas()
 })
 
-function filtrar() {
-  ventaStore.fetchVentas(filtroEstado.value || undefined)
+function cargarVentas() {
+  ventaStore.fetchVentas(paginaActual.value, 10, filtroEstado.value || undefined)
 }
+
+function filtrar() {
+  paginaActual.value = 1
+  cargarVentas()
+}
+
+watch(paginaActual, () => {
+  cargarVentas()
+})
+
+watch(filtroEstado, () => {
+  paginaActual.value = 1
+  cargarVentas()
+})
+
+const ventasFiltradas = computed(() => {
+  let res = ventaStore.ventas
+  if (filtroDesde.value) {
+    res = res.filter(v => new Date(v.createdAt) >= new Date(filtroDesde.value))
+  }
+  if (filtroHasta.value) {
+    const hasta = new Date(filtroHasta.value)
+    hasta.setHours(23, 59, 59, 999)
+    res = res.filter(v => new Date(v.createdAt) <= hasta)
+  }
+  return res
+})
 
 function continuarVenta(v: any) {
   router.push('/pedidos')
@@ -77,40 +105,57 @@ async function exportarExcel() {
       <span class="spinner-border text-primary"></span>
     </div>
 
-    <table v-else class="table table-striped mt-3">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Tipo</th>
-          <th>Fecha</th>
-          <th>Total</th>
-          <th>Metodo Pago</th>
-          <th>Estado</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="v in ventaStore.ventas" :key="v.id">
-          <td>{{ v.id }}</td>
-          <td>{{ v.Mesa ? 'Mesa #' + v.Mesa.numero : 'Fast Food' }}</td>
-          <td>{{ new Date(v.createdAt).toLocaleDateString() }}</td>
-          <td>${{ v.total }}</td>
-          <td>{{ v.metodoPago || '-' }}</td>
-          <td>
-            <span :class="`badge bg-${v.estado === 'cerrada' ? 'success' : 'warning'}`">
-              {{ v.estado }}
-            </span>
-          </td>
-          <td>
-            <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-warning me-1" @click="continuarVenta(v)">Continuar</button>
-            <button class="btn btn-sm btn-outline-info" @click="detalleVenta = v">Ver</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-else>
+      <table class="table table-striped mt-3">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Metodo Pago</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="v in ventasFiltradas" :key="v.id">
+            <td>{{ v.id }}</td>
+            <td>{{ v.Mesa ? 'Mesa #' + v.Mesa.numero : 'Fast Food' }}</td>
+            <td>{{ new Date(v.createdAt).toLocaleDateString() }}</td>
+            <td>${{ v.total }}</td>
+            <td>{{ v.metodoPago || '-' }}</td>
+            <td>
+              <span :class="`badge bg-${v.estado === 'cerrada' ? 'success' : 'warning'}`">
+                {{ v.estado }}
+              </span>
+            </td>
+            <td>
+              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-warning me-1" @click="continuarVenta(v)">Continuar</button>
+              <button class="btn btn-sm btn-outline-info" @click="detalleVenta = v">Ver</button>
+            </td>
+          </tr>
+          <tr v-if="ventasFiltradas.length === 0">
+            <td colspan="7" class="text-center text-muted py-3">No se encontraron ventas</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div v-if="ventaStore.paginas > 1" class="d-flex justify-content-between align-items-center mt-3">
+        <span class="text-muted">Página {{ ventaStore.pagina }} de {{ ventaStore.paginas }}</span>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-outline-secondary" :disabled="paginaActual <= 1" @click="paginaActual--">
+            Anterior
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" :disabled="paginaActual >= ventaStore.paginas" @click="paginaActual++">
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </template>
 
     <ModalBase v-if="modalFormAbierto" id="ventaFormModal" titulo="Nueva Venta" @cerrar="modalFormAbierto = false">
-      <VentaFormModal @cerrar="modalFormAbierto = false" @guardado="ventaStore.fetchVentas()" />
+      <VentaFormModal @cerrar="modalFormAbierto = false" @guardado="cargarVentas()" />
     </ModalBase>
 
     <ModalBase v-if="detalleVenta" id="ventaDetailModal" titulo="Detalle de Venta #{{ detalleVenta.id }}" @cerrar="detalleVenta = null">

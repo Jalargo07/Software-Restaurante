@@ -5,14 +5,28 @@ const { registrarAuditoria } = require('../utils/auditoria');
 
 const obtenerTodas = async (req, res) => {
   try {
+    const { pagina = 1, limite = 10 } = req.query;
+    const limit = Number(limite);
+    const offset = (Number(pagina) - 1) * limit;
+
     const where = {};
     if (req.query.estado) where.estado = req.query.estado;
-    const ventas = await Venta.findAll({
+
+    const { count, rows } = await Venta.findAndCountAll({
       where,
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
+      limit,
+      offset,
       order: [['createdAt', 'DESC']],
     });
-    res.json(ventas);
+
+    res.json({
+      data: rows,
+      total: count,
+      pagina: Number(pagina),
+      paginas: Math.ceil(count / limit) || 1,
+      limite: limit,
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener ventas' });
   }
