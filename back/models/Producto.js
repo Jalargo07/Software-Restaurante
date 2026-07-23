@@ -39,6 +39,11 @@ const Producto = sequelize.define('Producto', {
     type: DataTypes.ENUM('unidad', 'kg', 'litro', 'docena'),
     defaultValue: 'unidad',
   },
+  tipo: {
+    type: DataTypes.ENUM('insumo', 'compuesto', 'directo'),
+    defaultValue: 'directo',
+    allowNull: false,
+  },
   activo: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,

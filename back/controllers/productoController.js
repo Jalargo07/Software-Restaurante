@@ -4,11 +4,12 @@ const { registrarAuditoria } = require('../utils/auditoria');
 
 const obtenerTodos = async (req, res) => {
   try {
-    const { categoria, buscar, activo } = req.query;
+    const { categoria, buscar, activo, tipo } = req.query;
     const where = {};
     if (activo !== undefined) where.activo = activo === 'true';
     else where.activo = true;
     if (categoria) where.categoria = categoria;
+    if (tipo) where.tipo = tipo;
     if (buscar) where.nombre = { [Op.like]: `%${buscar}%` };
 
     const productos = await Producto.findAll({ where });
@@ -54,6 +55,15 @@ const actualizar = async (req, res) => {
     if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
 
     const datos = { ...req.body };
+
+    if (datos.tipo && datos.tipo !== producto.tipo) {
+      const receta = await require('../models').Receta.findOne({ where: { productoId: producto.id } });
+      if (receta) {
+        return res.status(400).json({
+          error: `No se puede cambiar el tipo de "${producto.nombre}" porque tiene una receta asociada. Eliminá la receta primero.`,
+        });
+      }
+    }
 
     await producto.update(datos);
 

@@ -1,4 +1,4 @@
-const { Venta, DetalleVenta, Producto, Mesa } = require('../models');
+const { Venta, DetalleVenta, Producto, Mesa, Receta, DetalleReceta } = require('../models');
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
@@ -118,8 +118,54 @@ const cobrar = async (req, res) => {
 
     for (const detalle of detalles) {
       if (detalle.Producto) {
-        const nuevoStock = detalle.Producto.stock - detalle.cantidad;
-        await detalle.Producto.update({ stock: nuevoStock }, { transaction: t });
+        const producto = detalle.Producto;
+
+        if (producto.tipo === 'compuesto') {
+          const receta = await Receta.findOne({
+            where: { productoId: producto.id },
+            transaction: t,
+          });
+
+          if (!receta) {
+            await t.rollback();
+            return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
+          }
+
+          const ingredientes = await DetalleReceta.findAll({
+            where: { recetaId: receta.id },
+            transaction: t,
+          });
+
+          for (const ingrediente of ingredientes) {
+            const insumo = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
+            if (!insumo) {
+              await t.rollback();
+              return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
+            }
+
+            const cantidadNecesaria = Number(ingrediente.cantidad) * Number(detalle.cantidad);
+            const mermaFactor = 1 + Number(ingrediente.merma) / 100;
+            const totalRequerido = Math.ceil(cantidadNecesaria * mermaFactor);
+
+            if (insumo.stock < totalRequerido) {
+              await t.rollback();
+              return res.status(400).json({
+                error: `Stock insuficiente de "${insumo.nombre}": necesita ${totalRequerido}, disponible ${insumo.stock}`,
+              });
+            }
+
+            await insumo.update({ stock: insumo.stock - totalRequerido }, { transaction: t });
+          }
+        } else {
+          if (Number(producto.stock) < Number(detalle.cantidad)) {
+            await t.rollback();
+            return res.status(400).json({
+              error: `Stock insuficiente de "${producto.nombre}": necesitás ${detalle.cantidad}, tenés ${producto.stock}`,
+            });
+          }
+          const nuevoStock = producto.stock - detalle.cantidad;
+          await producto.update({ stock: nuevoStock }, { transaction: t });
+        }
       }
     }
 
@@ -195,7 +241,51 @@ const crearRapida = async (req, res) => {
         subtotal,
       }, { transaction: t });
 
-      await producto.update({ stock: producto.stock - item.cantidad }, { transaction: t });
+      if (producto.tipo === 'compuesto') {
+        const receta = await Receta.findOne({
+          where: { productoId: producto.id },
+          transaction: t,
+        });
+
+        if (!receta) {
+          await t.rollback();
+          return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
+        }
+
+        const ingredientes = await DetalleReceta.findAll({
+          where: { recetaId: receta.id },
+          transaction: t,
+        });
+
+        for (const ingrediente of ingredientes) {
+          const insumo = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
+          if (!insumo) {
+            await t.rollback();
+            return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
+          }
+
+          const cantidadNecesaria = Number(ingrediente.cantidad) * Number(item.cantidad);
+          const mermaFactor = 1 + Number(ingrediente.merma) / 100;
+          const totalRequerido = Math.ceil(cantidadNecesaria * mermaFactor);
+
+          if (insumo.stock < totalRequerido) {
+            await t.rollback();
+            return res.status(400).json({
+              error: `Stock insuficiente de "${insumo.nombre}": necesita ${totalRequerido}, disponible ${insumo.stock}`,
+            });
+          }
+
+          await insumo.update({ stock: insumo.stock - totalRequerido }, { transaction: t });
+        }
+      } else {
+        if (Number(producto.stock) < Number(item.cantidad)) {
+          await t.rollback();
+          return res.status(400).json({
+            error: `Stock insuficiente de "${producto.nombre}": necesitás ${item.cantidad}, tenés ${producto.stock}`,
+          });
+        }
+        await producto.update({ stock: producto.stock - item.cantidad }, { transaction: t });
+      }
     }
 
     if (mesaId) {

@@ -35,6 +35,7 @@ const navItems = computed(() => {
     { path: '/ventas', icon: '💰', label: 'Ventas' },
     { path: '/proveedores', icon: '🏢', label: 'Proveedores' },
     { path: '/comandas', icon: '👨‍🍳', label: 'Cocina' },
+    { path: '/recetas', icon: '📖', label: 'Recetas' },
   ]
   if (authStore.isAdmin) {
     items.push({ path: '/usuarios', icon: '👥', label: 'Usuarios' })

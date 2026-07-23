@@ -7,6 +7,8 @@ const DetalleVenta = require('./DetalleVenta');
 const Usuario = require('./Usuario');
 const Proveedor = require('./Proveedor');
 const Auditoria = require('./Auditoria');
+const Receta = require('./Receta');
+const DetalleReceta = require('./DetalleReceta');
 
 // Compra -> DetalleCompra
 Compra.hasMany(DetalleCompra, { foreignKey: 'CompraId' });
@@ -32,6 +34,18 @@ DetalleVenta.belongsTo(Producto, { foreignKey: 'ProductoId' });
 Proveedor.hasMany(Compra, { foreignKey: 'proveedorId' });
 Compra.belongsTo(Proveedor, { foreignKey: 'proveedorId' });
 
+// Receta -> DetalleReceta
+Receta.hasMany(DetalleReceta, { foreignKey: 'recetaId' });
+DetalleReceta.belongsTo(Receta, { foreignKey: 'recetaId' });
+
+// Producto -> Receta
+Producto.hasOne(Receta, { foreignKey: 'productoId' });
+Receta.belongsTo(Producto, { foreignKey: 'productoId' });
+
+// DetalleReceta -> insumo (Producto)
+DetalleReceta.belongsTo(Producto, { foreignKey: 'insumoId', as: 'insumo' });
+Producto.hasMany(DetalleReceta, { foreignKey: 'insumoId', as: 'insumosEnRecetas' });
+
 // Usuario -> Auditoria
 Usuario.hasMany(Auditoria, { foreignKey: 'usuarioId' });
 Auditoria.belongsTo(Usuario, { foreignKey: 'usuarioId' });
@@ -46,4 +60,6 @@ module.exports = {
   Usuario,
   Proveedor,
   Auditoria,
+  Receta,
+  DetalleReceta,
 };

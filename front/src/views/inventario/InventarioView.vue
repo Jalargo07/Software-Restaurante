@@ -8,6 +8,7 @@ import ProductoFormModal from '../../components/productos/ProductoFormModal.vue'
 const productoStore = useProductoStore()
 const toast = useToastStore()
 const categoriaFiltro = ref('')
+const tipoFiltro = ref('')
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
 
@@ -17,6 +18,11 @@ onMounted(() => {
 
 function filtrar() {
   productoStore.fetchProductos(categoriaFiltro.value || undefined)
+}
+
+function productosFiltrados() {
+  if (!tipoFiltro.value) return productoStore.productos
+  return productoStore.productos.filter((p: any) => p.tipo === tipoFiltro.value)
 }
 
 function abrirModal(producto?: any) {
@@ -48,13 +54,19 @@ async function eliminar(id: number) {
       <button class="btn btn-primary" @click="abrirModal()">+ Nuevo Producto</button>
     </div>
 
-    <div class="mt-3">
+    <div class="mt-3 d-flex gap-2">
       <select class="form-select w-auto" v-model="categoriaFiltro" @change="filtrar">
         <option value="">Todas las categorias</option>
         <option value="bebida">Bebidas</option>
         <option value="comida">Comida</option>
         <option value="insumo">Insumos</option>
         <option value="postre">Postres</option>
+      </select>
+      <select class="form-select w-auto" v-model="tipoFiltro">
+        <option value="">Todos los tipos</option>
+        <option value="directo">Directo</option>
+        <option value="insumo">Insumo</option>
+        <option value="compuesto">Compuesto</option>
       </select>
     </div>
 
@@ -66,6 +78,7 @@ async function eliminar(id: number) {
       <thead>
         <tr>
           <th>Nombre</th>
+          <th>Tipo</th>
           <th>Categoria</th>
           <th>Precio Compra</th>
           <th>Precio Venta</th>
@@ -75,8 +88,17 @@ async function eliminar(id: number) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="p in productoStore.productos" :key="p.id">
+        <tr v-for="p in productosFiltrados()" :key="p.id">
           <td>{{ p.nombre }}</td>
+          <td>
+            <span :class="{
+              'badge bg-primary': p.tipo === 'compuesto',
+              'badge bg-warning text-dark': p.tipo === 'insumo',
+              'badge bg-secondary': p.tipo === 'directo' || !p.tipo
+            }">
+              {{ p.tipo || 'directo' }}
+            </span>
+          </td>
           <td>{{ p.categoria }}</td>
           <td>${{ p.precioCompra }}</td>
           <td>${{ p.precioVenta }}</td>

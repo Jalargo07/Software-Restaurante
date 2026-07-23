@@ -15,7 +15,7 @@ const emit = defineEmits<{
 const store = useProductoStore()
 const guardando = ref(false)
 const form = ref({
-  nombre: '', descripcion: '', categoria: 'comida',
+  nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
   precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
 })
 
@@ -24,7 +24,7 @@ watch(() => props.abierto, (val) => {
     form.value = { ...props.producto }
   } else if (val) {
     form.value = {
-      nombre: '', descripcion: '', categoria: 'comida',
+      nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
       precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
     }
   }
@@ -75,6 +75,14 @@ async function guardar() {
           <option value="docena">Docena</option>
         </select>
       </div>
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Tipo</label>
+      <select v-model="form.tipo" class="form-select">
+        <option value="directo">Directo</option>
+        <option value="insumo">Insumo</option>
+        <option value="compuesto">Compuesto</option>
+      </select>
     </div>
     <div class="row mb-2">
       <div class="col">
