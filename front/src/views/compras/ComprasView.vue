@@ -16,6 +16,12 @@ onMounted(() => {
 function verDetalle(compra: any) {
   detalleCompra.value = compra
 }
+
+async function cancelarCompra(id: number) {
+  if (confirm('Cancelar esta compra?')) {
+    await compraStore.cancelarCompra(id)
+  }
+}
 </script>
 
 <template>
@@ -39,7 +45,7 @@ function verDetalle(compra: any) {
       <tbody>
         <tr v-for="c in compraStore.compras" :key="c.id">
           <td>{{ c.id }}</td>
-          <td>{{ c.proveedor }}</td>
+          <td>{{ c.proveedor?.nombre || c.Proveedor?.nombre || c.proveedor }}</td>
           <td>{{ new Date(c.fecha).toLocaleDateString() }}</td>
           <td>${{ c.total }}</td>
           <td>
@@ -47,9 +53,10 @@ function verDetalle(compra: any) {
               {{ c.estado }}
             </span>
           </td>
-          <td>
-            <button class="btn btn-sm btn-outline-info" @click="verDetalle(c)">Ver</button>
-          </td>
+            <td>
+              <button class="btn btn-sm btn-outline-info me-1" @click="verDetalle(c)">Ver</button>
+              <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-danger" @click="cancelarCompra(c.id)">Cancelar</button>
+            </td>
         </tr>
       </tbody>
     </table>

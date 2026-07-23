@@ -11,7 +11,7 @@ const emit = defineEmits<{
 <template>
   <div>
     <p><strong>Mesa:</strong> #{{ venta.Mesa?.numero }}</p>
-    <p><strong>Fecha:</strong> {{ new Date(venta.fecha).toLocaleString() }}</p>
+    <p><strong>Fecha:</strong> {{ new Date(venta.createdAt).toLocaleString() }}</p>
     <p><strong>Metodo Pago:</strong> {{ venta.metodoPago || '-' }}</p>
     <p><strong>Estado:</strong> {{ venta.estado }}</p>
 

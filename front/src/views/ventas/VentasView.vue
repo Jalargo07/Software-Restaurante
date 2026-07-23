@@ -56,7 +56,7 @@ function continuarVenta(v: any) {
         <tr v-for="v in ventaStore.ventas" :key="v.id">
           <td>{{ v.id }}</td>
           <td>{{ v.Mesa ? 'Mesa #' + v.Mesa.numero : 'Fast Food' }}</td>
-          <td>{{ new Date(v.fecha).toLocaleDateString() }}</td>
+          <td>{{ new Date(v.createdAt).toLocaleDateString() }}</td>
           <td>${{ v.total }}</td>
           <td>{{ v.metodoPago || '-' }}</td>
           <td>

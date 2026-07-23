@@ -35,5 +35,7 @@ router.post('/rapida', validarRapida, validar, ventaController.crearRapida);
 router.post('/', validarVenta, validar, ventaController.crear);
 router.post('/:id/productos', validarProductos, validar, ventaController.agregarProductos);
 router.put('/:id/cobrar', validarCobro, validar, ventaController.cobrar);
+router.put('/:id', ventaController.actualizar);
+router.delete('/:id', ventaController.cancelar);
 
 module.exports = router;

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useVentaStore } from '../../stores/ventas'
+import { usePedidoStore } from '../../stores/pedidos'
 import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
+import PedidoFormModal from '../../components/pedidos/PedidoFormModal.vue'
 
-const ventaStore = useVentaStore()
-const ventasAbiertas = ref<any[]>([])
+const pedidoStore = usePedidoStore()
+const filtroEstado = ref('')
 const cobrandoVenta = ref<any>(null)
 const metodoPago = ref('efectivo')
 const agregandoAVenta = ref<any>(null)
@@ -13,14 +14,12 @@ const mostrarSelector = ref(false)
 const productos = ref<any[]>([])
 const busqueda = ref('')
 const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
+const modalNuevoAbierto = ref(false)
 
 async function cargarDatos() {
   try {
-    const [ventasRes, prodRes] = await Promise.all([
-      api.get('/ventas?estado=abierta'),
-      api.get('/productos'),
-    ])
-    ventasAbiertas.value = ventasRes.data
+    await pedidoStore.fetchPedidos(filtroEstado.value || undefined)
+    const prodRes = await api.get('/productos')
     productos.value = prodRes.data
   } catch (error) {
     console.error('Error al cargar pedidos:', error)
@@ -65,7 +64,7 @@ function quitarSeleccion(i: number) {
 
 async function guardarProductos() {
   if (!agregandoAVenta.value || !seleccionados.value.length) return
-  await ventaStore.addProductos(
+  await pedidoStore.addProductos(
     agregandoAVenta.value.id,
     seleccionados.value.map((d) => ({ productoId: d.productoId, cantidad: d.cantidad, precioUnitario: d.precioUnitario }))
   )
@@ -81,29 +80,51 @@ function abrirCobro(venta: any) {
 
 async function confirmarCobro() {
   if (!cobrandoVenta.value) return
-  await ventaStore.cobrarVenta(cobrandoVenta.value.id, metodoPago.value)
+  await api.put(`/ventas/${cobrandoVenta.value.id}/cobrar`, { metodoPago: metodoPago.value })
   cobrandoVenta.value = null
   await cargarDatos()
+}
+
+async function cancelarPedido(id: number) {
+  if (confirm('Cancelar este pedido?')) {
+    await pedidoStore.cancelarPedido(id)
+  }
+}
+
+function cambiarFiltro() {
+  cargarDatos()
 }
 </script>
 
 <template>
   <div class="container mt-4">
-    <h2>Pedidos Activos</h2>
-
-    <div v-if="!ventasAbiertas.length" class="text-center mt-4">
-      <p>No hay pedidos activos</p>
-      <router-link to="/mesas" class="btn btn-primary">Ir a Mesas</router-link>
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>Pedidos</h2>
+      <button class="btn btn-primary" @click="modalNuevoAbierto = true">+ Nuevo Pedido</button>
     </div>
 
-    <div class="row mt-3" v-for="v in ventasAbiertas" :key="v.id">
+    <div class="mt-3">
+      <select class="form-select w-auto" v-model="filtroEstado" @change="cambiarFiltro">
+        <option value="">Todos</option>
+        <option value="abierta">Activos</option>
+        <option value="cerrada">Cerrados</option>
+        <option value="cancelada">Cancelados</option>
+      </select>
+    </div>
+
+    <div v-if="!pedidoStore.pedidos.length" class="text-center mt-4">
+      <p>No hay pedidos</p>
+    </div>
+
+    <div class="row mt-3" v-for="v in pedidoStore.pedidos" :key="v.id">
       <div class="col-12 mb-3">
-        <div class="card border-danger">
-          <div class="card-header d-flex justify-content-between align-items-center bg-danger text-white">
+        <div class="card" :class="v.estado === 'cancelada' ? 'border-secondary' : 'border-danger'">
+          <div class="card-header d-flex justify-content-between align-items-center" :class="v.estado === 'cancelada' ? 'bg-secondary' : 'bg-danger'" style="color:white">
             <strong>Mesa #{{ v.Mesa?.numero || 'Fast Food' }}</strong>
             <span>Total: ${{ v.total }}</span>
           </div>
           <div class="card-body">
+            <p v-if="v.Cliente?.nombre || v.cliente"><strong>Cliente:</strong> {{ v.Cliente?.nombre || v.cliente }}</p>
             <table class="table table-sm mb-2">
               <thead>
                 <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th></tr>
@@ -118,13 +139,18 @@ async function confirmarCobro() {
               </tbody>
             </table>
             <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-warning" @click="abrirAgregar(v)">+ Agregar Producto</button>
-              <button class="btn btn-sm btn-success" @click="abrirCobro(v)">Cobrar</button>
+              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-warning" @click="abrirAgregar(v)">+ Agregar Producto</button>
+              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-success" @click="abrirCobro(v)">Cobrar</button>
+              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-outline-danger" @click="cancelarPedido(v.id)">Cancelar</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <ModalBase v-if="modalNuevoAbierto" id="nuevoPedidoModal" titulo="Nuevo Pedido" @cerrar="modalNuevoAbierto = false">
+      <PedidoFormModal @cerrar="modalNuevoAbierto = false" @guardado="cargarDatos" />
+    </ModalBase>
 
     <ModalBase v-if="agregandoAVenta" id="addProductosModal" titulo="Agregar Productos" @cerrar="agregandoAVenta = null">
       <div>

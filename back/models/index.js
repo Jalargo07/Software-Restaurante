@@ -5,6 +5,7 @@ const DetalleCompra = require('./DetalleCompra');
 const Venta = require('./Venta');
 const DetalleVenta = require('./DetalleVenta');
 const Usuario = require('./Usuario');
+const Proveedor = require('./Proveedor');
 
 // Compra -> DetalleCompra
 Compra.hasMany(DetalleCompra, { foreignKey: 'CompraId' });
@@ -26,6 +27,10 @@ DetalleVenta.belongsTo(Venta, { foreignKey: 'VentaId' });
 Producto.hasMany(DetalleVenta, { foreignKey: 'ProductoId' });
 DetalleVenta.belongsTo(Producto, { foreignKey: 'ProductoId' });
 
+// Proveedor -> Compra
+Proveedor.hasMany(Compra, { foreignKey: 'proveedorId' });
+Compra.belongsTo(Proveedor, { foreignKey: 'proveedorId' });
+
 module.exports = {
   Mesa,
   Producto,
@@ -34,4 +39,5 @@ module.exports = {
   Venta,
   DetalleVenta,
   Usuario,
+  Proveedor,
 };

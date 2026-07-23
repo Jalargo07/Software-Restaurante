@@ -1,48 +1,73 @@
 <script setup lang="ts">
-import { RouterView, RouterLink, useRouter } from 'vue-router'
+import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
+import { ref, onMounted } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
+const theme = ref(localStorage.getItem('theme') || 'light')
+
+onMounted(() => {
+  document.documentElement.setAttribute('data-theme', theme.value)
+})
+
+function toggleTheme() {
+  theme.value = theme.value === 'light' ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-theme', theme.value)
+  localStorage.setItem('theme', theme.value)
+}
 
 function salir() {
   authStore.logout()
   router.push('/login')
 }
+
+const navItems = [
+  { path: '/', icon: '📊', label: 'Dashboard' },
+  { path: '/mesas', icon: '🪑', label: 'Mesas' },
+  { path: '/pedidos', icon: '📋', label: 'Pedidos' },
+  { path: '/inventario', icon: '📦', label: 'Inventario' },
+  { path: '/compras', icon: '🛒', label: 'Compras' },
+  { path: '/ventas', icon: '💰', label: 'Ventas' },
+  { path: '/proveedores', icon: '🏢', label: 'Proveedores' },
+]
+
+function isActive(path: string) {
+  if (path === '/') return route.path === '/'
+  return route.path.startsWith(path)
+}
 </script>
 
 <template>
-  <div class="d-flex" style="height: 100vh;">
-    <nav v-if="authStore.isAuthenticated" class="d-flex flex-column bg-dark text-white p-3"
-      style="width: 220px; flex-shrink: 0;">
-      <h5 class="text-center mb-4 mt-2">Restaurante</h5>
+  <div class="app-layout">
+    <main class="main-content">
+      <div class="content-container">
+        <RouterView />
+      </div>
+    </main>
 
-      <ul class="nav flex-column flex-grow-1">
-        <li class="nav-item">
-          <RouterLink class="nav-link text-white" to="/mesas">Mesas</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link text-white" to="/pedidos">Pedidos</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link text-white" to="/inventario">Inventario</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link text-white" to="/compras">Compras</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link text-white" to="/ventas">Ventas</RouterLink>
-        </li>
-      </ul>
+    <nav v-if="authStore.isAuthenticated" class="bottom-nav">
+      <RouterLink
+        v-for="item in navItems"
+        :key="item.path"
+        :to="item.path"
+        class="nav-item"
+        :class="{ active: isActive(item.path) }"
+      >
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </RouterLink>
 
-      <div class="border-top border-secondary pt-2 mt-auto">
-        <small class="d-block text-center">{{ authStore.user?.nombre }} ({{ authStore.user?.rol }})</small>
-        <button class="btn btn-outline-light btn-sm w-100 mt-1" @click="salir">Salir</button>
+      <button class="theme-btn" @click="toggleTheme" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
+        {{ theme === 'light' ? '🌙' : '☀️' }}
+      </button>
+
+      <div class="user-section">
+        <span>{{ authStore.user?.nombre }}</span>
+        <button class="logout-btn" @click="salir">Salir</button>
       </div>
     </nav>
-
-    <main class="flex-grow-1 overflow-auto" style="background: #f5f5f5;">
-      <RouterView />
-    </main>
   </div>
 </template>

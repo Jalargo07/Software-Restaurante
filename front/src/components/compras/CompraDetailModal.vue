@@ -10,7 +10,7 @@ const emit = defineEmits<{
 
 <template>
   <div>
-    <p><strong>Proveedor:</strong> {{ compra.proveedor }}</p>
+    <p><strong>Proveedor:</strong> {{ compra.Proveedor?.nombre || compra.proveedor }}</p>
     <p><strong>Fecha:</strong> {{ new Date(compra.fecha).toLocaleString() }}</p>
     <p><strong>Estado:</strong> {{ compra.estado }}</p>
     <p v-if="compra.observaciones"><strong>Observaciones:</strong> {{ compra.observaciones }}</p>

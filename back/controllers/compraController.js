@@ -1,10 +1,10 @@
-const { Compra, DetalleCompra, Producto } = require('../models');
+const { Compra, DetalleCompra, Producto, Proveedor } = require('../models');
 const sequelize = require('../config/database');
 
 const obtenerTodas = async (req, res) => {
   try {
     const compras = await Compra.findAll({
-      include: [{ model: DetalleCompra, include: [Producto] }],
+      include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
       order: [['fecha', 'DESC']],
     });
     res.json(compras);
@@ -16,7 +16,7 @@ const obtenerTodas = async (req, res) => {
 const obtenerPorId = async (req, res) => {
   try {
     const compra = await Compra.findByPk(req.params.id, {
-      include: [{ model: DetalleCompra, include: [Producto] }],
+      include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
     });
     if (!compra) return res.status(404).json({ error: 'Compra no encontrada' });
     res.json(compra);
@@ -28,12 +28,12 @@ const obtenerPorId = async (req, res) => {
 const crear = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { proveedor, observaciones, detalles } = req.body;
+    const { proveedorId, observaciones, detalles } = req.body;
 
     const total = detalles.reduce((sum, d) => sum + d.cantidad * d.precioUnitario, 0);
 
     const compra = await Compra.create(
-      { proveedor, total, observaciones },
+      { proveedorId, total, observaciones },
       { transaction: t }
     );
 
@@ -61,7 +61,7 @@ const crear = async (req, res) => {
     await t.commit();
 
     const compraCompleta = await Compra.findByPk(compra.id, {
-      include: [{ model: DetalleCompra, include: [Producto] }],
+      include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
     });
 
     res.status(201).json(compraCompleta);
@@ -71,8 +71,23 @@ const crear = async (req, res) => {
   }
 };
 
+const cancelar = async (req, res) => {
+  try {
+    const compra = await Compra.findByPk(req.params.id);
+    if (!compra) return res.status(404).json({ error: 'Compra no encontrada' });
+    if (compra.estado === 'cancelada') return res.status(400).json({ error: 'La compra ya está cancelada' });
+    if (compra.estado === 'recibida') return res.status(400).json({ error: 'No se puede cancelar una compra recibida' });
+
+    await compra.update({ estado: 'cancelada' });
+    res.json({ message: 'Compra cancelada' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al cancelar compra' });
+  }
+};
+
 module.exports = {
   obtenerTodas,
   obtenerPorId,
   crear,
+  cancelar,
 };

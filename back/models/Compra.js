@@ -7,8 +7,8 @@ const Compra = sequelize.define('Compra', {
     primaryKey: true,
     autoIncrement: true,
   },
-  proveedor: {
-    type: DataTypes.STRING,
+  proveedorId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   fecha: {

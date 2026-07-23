@@ -1,0 +1,42 @@
+import { defineStore } from 'pinia'
+import api from '../services/api'
+
+export const usePedidoStore = defineStore('pedidos', {
+  state: () => ({
+    pedidos: [] as any[],
+    loading: false,
+  }),
+  actions: {
+    async fetchPedidos(estado?: string) {
+      this.loading = true
+      try {
+        const params = estado ? { estado } : {}
+        const { data } = await api.get('/ventas', { params })
+        this.pedidos = data
+      } finally {
+        this.loading = false
+      }
+    },
+    async createPedido(mesaId?: number) {
+      const { data } = await api.post('/ventas', { mesaId })
+      this.pedidos.unshift(data)
+      return data
+    },
+    async cancelarPedido(id: number) {
+      await api.delete(`/ventas/${id}`)
+      this.pedidos = this.pedidos.filter((p) => p.id !== id)
+    },
+    async addProductos(ventaId: number, productos: { productoId: number; cantidad: number; precioUnitario?: number }[]) {
+      const { data } = await api.post(`/ventas/${ventaId}/productos`, { productos })
+      const index = this.pedidos.findIndex((p) => p.id === ventaId)
+      if (index !== -1) this.pedidos[index] = data
+      return data
+    },
+    async updatePedido(id: number, dataPedido: any) {
+      const { data } = await api.put(`/ventas/${id}`, dataPedido)
+      const index = this.pedidos.findIndex((p) => p.id === id)
+      if (index !== -1) this.pedidos[index] = data
+      return data
+    },
+  },
+})

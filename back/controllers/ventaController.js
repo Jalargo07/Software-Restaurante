@@ -9,7 +9,7 @@ const obtenerTodas = async (req, res) => {
     const ventas = await Venta.findAll({
       where,
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
-      order: [['fecha', 'DESC']],
+      order: [['createdAt', 'DESC']],
     });
     res.json(ventas);
   } catch (error) {
@@ -206,6 +206,46 @@ const crearRapida = async (req, res) => {
   }
 };
 
+const actualizar = async (req, res) => {
+  try {
+    const venta = await Venta.findByPk(req.params.id);
+    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+
+    const { cliente, mesaId } = req.body;
+    const datos = {};
+    if (cliente !== undefined) datos.cliente = cliente;
+    if (mesaId !== undefined) datos.mesaId = mesaId;
+
+    await venta.update(datos);
+
+    const ventaCompleta = await Venta.findByPk(venta.id, {
+      include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
+    });
+
+    res.json(ventaCompleta);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar venta' });
+  }
+};
+
+const cancelar = async (req, res) => {
+  try {
+    const venta = await Venta.findByPk(req.params.id);
+    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+
+    await venta.update({ estado: 'cancelada' });
+
+    if (venta.mesaId) {
+      await Mesa.update({ estado: 'disponible' }, { where: { id: venta.mesaId } });
+    }
+
+    res.json({ message: 'Venta cancelada' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al cancelar venta' });
+  }
+};
+
 module.exports = {
   obtenerTodas,
   obtenerPorId,
@@ -213,4 +253,6 @@ module.exports = {
   agregarProductos,
   cobrar,
   crearRapida,
+  actualizar,
+  cancelar,
 };

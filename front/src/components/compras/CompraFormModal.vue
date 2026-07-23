@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useCompraStore } from '../../stores/compras'
 import ProductoSelector from '../common/ProductoSelector.vue'
+import ProveedorSelector from '../common/ProveedorSelector.vue'
 
 const emit = defineEmits<{
   cerrar: []
@@ -9,10 +10,18 @@ const emit = defineEmits<{
 }>()
 
 const compraStore = useCompraStore()
-const proveedor = ref('')
+const proveedorId = ref<number | null>(null)
+const proveedorNombre = ref('')
 const observaciones = ref('')
 const detalles = ref<any[]>([])
 const mostrarSelector = ref(false)
+const mostrarProveedorSelector = ref(false)
+
+function seleccionarProveedor(proveedor: any) {
+  proveedorId.value = proveedor.id
+  proveedorNombre.value = proveedor.nombre
+  mostrarProveedorSelector.value = false
+}
 
 function agregarProducto(producto: any) {
   const existente = detalles.value.find((d) => d.productoId === producto.id)
@@ -39,7 +48,7 @@ const total = computed(() => detalles.value.reduce((s, d) => s + d.subtotal, 0))
 
 async function guardar() {
   await compraStore.createCompra({
-    proveedor: proveedor.value,
+    proveedorId: proveedorId.value!,
     observaciones: observaciones.value || undefined,
     detalles: detalles.value.map((d) => ({
       productoId: d.productoId,
@@ -56,7 +65,16 @@ async function guardar() {
   <form @submit.prevent="guardar">
     <div class="mb-2">
       <label class="form-label">Proveedor</label>
-      <input v-model="proveedor" class="form-control" required placeholder="Nombre del proveedor">
+      <div v-if="!proveedorNombre">
+        <button type="button" class="btn btn-outline-secondary w-100" @click="mostrarProveedorSelector = !mostrarProveedorSelector">
+          Seleccionar Proveedor
+        </button>
+        <ProveedorSelector v-if="mostrarProveedorSelector" @seleccionar="seleccionarProveedor" />
+      </div>
+      <div v-else class="d-flex align-items-center gap-2">
+        <span class="badge bg-info">{{ proveedorNombre }}</span>
+        <button type="button" class="btn btn-sm btn-outline-danger" @click="proveedorId = null; proveedorNombre = ''">X</button>
+      </div>
     </div>
     <div class="mb-2">
       <label class="form-label">Observaciones</label>

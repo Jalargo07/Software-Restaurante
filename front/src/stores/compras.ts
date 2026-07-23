@@ -16,10 +16,14 @@ export const useCompraStore = defineStore('compras', {
         this.loading = false
       }
     },
-    async createCompra(compra: { proveedor: string; observaciones?: string; detalles: { productoId: number; cantidad: number; precioUnitario: number }[] }) {
+    async createCompra(compra: { proveedorId: number; observaciones?: string; detalles: { productoId: number; cantidad: number; precioUnitario: number }[] }) {
       const { data } = await api.post('/compras', compra)
       this.compras.unshift(data)
       return data
+    },
+    async cancelarCompra(id: number) {
+      await api.delete(`/compras/${id}`)
+      this.compras = this.compras.filter((c) => c.id !== id)
     },
   },
 })
