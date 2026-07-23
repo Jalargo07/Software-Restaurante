@@ -13,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useProveedorStore()
+const guardando = ref(false)
 const form = ref({
   nombre: '', telefono: '', email: '', direccion: '',
 })
@@ -28,13 +29,18 @@ watch(() => props.abierto, (val) => {
 })
 
 async function guardar() {
-  if (props.proveedor) {
-    await store.updateProveedor(props.proveedor.id, form.value)
-  } else {
-    await store.createProveedor(form.value)
+  guardando.value = true
+  try {
+    if (props.proveedor) {
+      await store.updateProveedor(props.proveedor.id, form.value)
+    } else {
+      await store.createProveedor(form.value)
+    }
+    emit('guardado')
+    emit('cerrar')
+  } finally {
+    guardando.value = false
   }
-  emit('guardado')
-  emit('cerrar')
 }
 </script>
 
@@ -56,6 +62,9 @@ async function guardar() {
       <label class="form-label">Dirección</label>
       <input v-model="form.direccion" class="form-control">
     </div>
-    <button type="submit" class="btn btn-primary w-100 mt-2">{{ proveedor ? 'Actualizar' : 'Crear' }} Proveedor</button>
+    <button type="submit" class="btn btn-primary w-100 mt-2" :disabled="guardando">
+      <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+      {{ guardando ? 'Guardando...' : (proveedor ? 'Actualizar' : 'Crear') + ' Proveedor' }}
+    </button>
   </form>
 </template>

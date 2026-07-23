@@ -1,22 +1,25 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import api from '../services/api'
+import { useReporteStore } from '../stores/reportes'
+import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
+import MesasChart from '../components/common/chart-Mesas.vue'
+import TopProductosChart from '../components/common/chart-TopProductos.vue'
+
+const reporteStore = useReporteStore()
 
 const stats = ref({
   mesasDisponibles: 0,
   mesasOcupadas: 0,
   productosBajoStock: 0,
   totalProductos: 0,
-  ventasHoy: 0,
-  ventasTotal: 0,
   pedidosActivos: 0,
 })
 
 onMounted(async () => {
-  const [mesas, productos, ventas, pedidos] = await Promise.all([
+  const [mesas, productos, pedidos] = await Promise.all([
     api.get('/mesas'),
     api.get('/productos'),
-    api.get('/ventas'),
     api.get('/ventas?estado=abierta'),
   ])
 
@@ -25,88 +28,118 @@ onMounted(async () => {
     mesasOcupadas: mesas.data.filter((m: any) => m.estado === 'ocupada').length,
     productosBajoStock: productos.data.filter((p: any) => p.stock <= p.stockMinimo).length,
     totalProductos: productos.data.length,
-    ventasHoy: ventas.data.filter((v: any) => {
-      const hoy = new Date()
-      const fechaV = new Date(v.fecha)
-      return fechaV.toDateString() === hoy.toDateString()
-    }).length,
-    ventasTotal: ventas.data.length,
     pedidosActivos: pedidos.data.length,
   }
+
+  reporteStore.fetchAll()
 })
 </script>
 
 <template>
   <div class="container mt-4">
-    <h1>Dashboard - Restaurante</h1>
+    <h1 class="mb-4">Dashboard</h1>
 
-    <div class="row mt-4">
-      <div class="col-md-3 mb-3">
-        <div class="card border-success">
-          <div class="card-body text-center">
-            <h3 class="text-success">{{ stats.mesasDisponibles }}</h3>
-            <p class="card-text">Mesas Disponibles</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="card border-danger">
-          <div class="card-body text-center">
-            <h3 class="text-danger">{{ stats.mesasOcupadas }}</h3>
-            <p class="card-text">Mesas Ocupadas</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="card border-warning">
-          <div class="card-body text-center">
-            <h3 class="text-warning">{{ stats.productosBajoStock }}</h3>
-            <p class="card-text">Productos con Stock Bajo</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="card border-info">
-          <div class="card-body text-center">
-            <h3 class="text-info">{{ stats.pedidosActivos }}</h3>
-            <p class="card-text">Pedidos Activos</p>
-          </div>
-        </div>
-      </div>
+    <div v-if="reporteStore.loading && stats.pedidosActivos === 0" class="text-center mt-5">
+      <span class="spinner-border text-primary"></span>
     </div>
 
-    <div class="row mt-4">
-      <div class="col-md-3 mb-3">
-        <router-link to="/mesas" class="card text-decoration-none text-dark">
-          <div class="card-body text-center">
-            <h5 class="card-title">Gestionar Mesas</h5>
-            <p>{{ stats.mesasDisponibles }} disponibles / {{ stats.mesasOcupadas }} ocupadas</p>
+    <template v-else>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-1 fw-bold text-success">{{ stats.mesasDisponibles }}</div>
+              <div class="text-muted small">Mesas Libres</div>
+            </div>
           </div>
-        </router-link>
-      </div>
-      <div class="col-md-3 mb-3">
-        <router-link to="/pedidos" class="card text-decoration-none text-dark border-danger">
-          <div class="card-body text-center">
-            <h5 class="card-title text-danger">Pedidos Activos</h5>
-            <p>{{ stats.pedidosActivos }} mesas con cuenta abierta</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-1 fw-bold text-danger">{{ stats.mesasOcupadas }}</div>
+              <div class="text-muted small">Mesas Ocupadas</div>
+            </div>
           </div>
-        </router-link>
-      </div>
-      <div class="col-md-3 mb-3">
-        <router-link to="/inventario" class="card text-decoration-none text-dark">
-          <div class="card-body text-center">
-            <h5 class="card-title">Inventario</h5>
-            <p>{{ stats.totalProductos }} productos</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-1 fw-bold text-primary">${{ Number(reporteStore.ventasHoy.total).toFixed(0) }}</div>
+              <div class="text-muted small">Ventas Hoy ({{ reporteStore.ventasHoy.cantidad }})</div>
+            </div>
           </div>
-        </router-link>
-      </div>
-      <div class="col-md-3 mb-3">
-        <router-link to="/compras" class="card text-decoration-none text-dark">
-          <div class="card-body text-center">
-            <h5 class="card-title">Compras</h5>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-1 fw-bold text-info">{{ stats.pedidosActivos }}</div>
+              <div class="text-muted small">Pedidos Activos</div>
+            </div>
           </div>
-        </router-link>
+        </div>
       </div>
-    </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-4 fw-bold text-warning">{{ stats.productosBajoStock }}</div>
+              <div class="text-muted small">Stock Bajo</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-4 fw-bold text-secondary">${{ Number(reporteStore.comprasMes.total).toFixed(0) }}</div>
+              <div class="text-muted small">Compras Mes ({{ reporteStore.comprasMes.cantidad }})</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-4 fw-bold text-dark">{{ reporteStore.productosMasVendidos[0]?.nombre || '-' }}</div>
+              <div class="text-muted small">Top Producto</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="fs-4 fw-bold text-success">{{ reporteStore.ventasPorDia[0]?.cantidad || 0 }}</div>
+              <div class="text-muted small">Ventas Último Día</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold">Ventas por Día</div>
+            <div class="card-body">
+              <VentasPorDiaChart :data="reporteStore.ventasPorDia" />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold">Estado Mesas</div>
+            <div class="card-body">
+              <MesasChart :disponibles="stats.mesasDisponibles" :ocupadas="stats.mesasOcupadas" />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent fw-semibold">Top Productos</div>
+            <div class="card-body">
+              <TopProductosChart :data="reporteStore.productosMasVendidos" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>

@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useCompraStore } from '../../stores/compras'
+import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import CompraFormModal from '../../components/compras/CompraFormModal.vue'
 import CompraDetailModal from '../../components/compras/CompraDetailModal.vue'
 
 const compraStore = useCompraStore()
+const toast = useToastStore()
 const modalFormAbierto = ref(false)
+const modalEditando = ref(false)
+const compraEditando = ref<any>(null)
 const detalleCompra = ref<any>(null)
+const filtroEstado = ref('')
+
+const comprasFiltradas = computed(() => {
+  if (!filtroEstado.value) return compraStore.compras
+  return compraStore.compras.filter((c) => c.estado === filtroEstado.value)
+})
 
 onMounted(() => {
   compraStore.fetchCompras()
@@ -17,9 +27,30 @@ function verDetalle(compra: any) {
   detalleCompra.value = compra
 }
 
+function editarCompra(compra: any) {
+  compraEditando.value = compra
+  modalEditando.value = true
+}
+
+async function recibirCompra(id: number) {
+  if (confirm('¿Recibir esta compra? Se actualizará el stock automáticamente.')) {
+    try {
+      await compraStore.recibirCompra(id)
+      toast.success('Compra recibida y stock actualizado')
+    } catch {
+      toast.error('Error al recibir compra')
+    }
+  }
+}
+
 async function cancelarCompra(id: number) {
   if (confirm('Cancelar esta compra?')) {
-    await compraStore.cancelarCompra(id)
+    try {
+      await compraStore.cancelarCompra(id)
+      toast.success('Compra cancelada')
+    } catch {
+      toast.error('Error al cancelar compra')
+    }
   }
 }
 </script>
@@ -31,7 +62,20 @@ async function cancelarCompra(id: number) {
       <button class="btn btn-primary" @click="modalFormAbierto = true">+ Nueva Compra</button>
     </div>
 
-    <table class="table table-striped mt-3">
+    <div class="mt-3">
+      <select class="form-select w-auto" v-model="filtroEstado">
+        <option value="">Todas</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="recibida">Recibidas</option>
+        <option value="cancelada">Canceladas</option>
+      </select>
+    </div>
+
+    <div v-if="compraStore.loading" class="text-center mt-4">
+      <span class="spinner-border text-primary"></span>
+    </div>
+
+    <table v-else class="table table-striped mt-3">
       <thead>
         <tr>
           <th>ID</th>
@@ -43,7 +87,7 @@ async function cancelarCompra(id: number) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="c in compraStore.compras" :key="c.id">
+        <tr v-for="c in comprasFiltradas" :key="c.id">
           <td>{{ c.id }}</td>
           <td>{{ c.proveedor?.nombre || c.Proveedor?.nombre || c.proveedor }}</td>
           <td>{{ new Date(c.fecha).toLocaleDateString() }}</td>
@@ -55,6 +99,8 @@ async function cancelarCompra(id: number) {
           </td>
             <td>
               <button class="btn btn-sm btn-outline-info me-1" @click="verDetalle(c)">Ver</button>
+              <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-primary me-1" @click="editarCompra(c)">Editar</button>
+              <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-success me-1" @click="recibirCompra(c.id)">Recibir</button>
               <button v-if="c.estado === 'pendiente'" class="btn btn-sm btn-outline-danger" @click="cancelarCompra(c.id)">Cancelar</button>
             </td>
         </tr>
@@ -66,7 +112,11 @@ async function cancelarCompra(id: number) {
     </ModalBase>
 
     <ModalBase v-if="detalleCompra" id="compraDetailModal" titulo="Detalle de Compra #{{ detalleCompra.id }}" @cerrar="detalleCompra = null">
-      <CompraDetailModal :compra="detalleCompra" @cerrar="detalleCompra = null" />
+      <CompraDetailModal :compra="detalleCompra" @cerrar="detalleCompra = null" @actualizado="compraStore.fetchCompras()" />
+    </ModalBase>
+
+    <ModalBase v-if="modalEditando" id="compraEditModal" titulo="Editar Compra #{{ compraEditando.id }}" @cerrar="modalEditando = false">
+      <CompraFormModal :compra="compraEditando" @cerrar="modalEditando = false; compraEditando = null" @guardado="compraStore.fetchCompras(); modalEditando = false; compraEditando = null" />
     </ModalBase>
   </div>
 </template>

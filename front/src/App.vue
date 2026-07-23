@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import ToastContainer from './components/common/ToastContainer.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -24,15 +25,21 @@ function salir() {
   router.push('/login')
 }
 
-const navItems = [
-  { path: '/', icon: '📊', label: 'Dashboard' },
-  { path: '/mesas', icon: '🪑', label: 'Mesas' },
-  { path: '/pedidos', icon: '📋', label: 'Pedidos' },
-  { path: '/inventario', icon: '📦', label: 'Inventario' },
-  { path: '/compras', icon: '🛒', label: 'Compras' },
-  { path: '/ventas', icon: '💰', label: 'Ventas' },
-  { path: '/proveedores', icon: '🏢', label: 'Proveedores' },
-]
+const navItems = computed(() => {
+  const items = [
+    { path: '/', icon: '📊', label: 'Dashboard' },
+    { path: '/mesas', icon: '🪑', label: 'Mesas' },
+    { path: '/pedidos', icon: '📋', label: 'Pedidos' },
+    { path: '/inventario', icon: '📦', label: 'Inventario' },
+    { path: '/compras', icon: '🛒', label: 'Compras' },
+    { path: '/ventas', icon: '💰', label: 'Ventas' },
+    { path: '/proveedores', icon: '🏢', label: 'Proveedores' },
+  ]
+  if (authStore.isAdmin) {
+    items.push({ path: '/usuarios', icon: '👥', label: 'Usuarios' })
+  }
+  return items
+})
 
 function isActive(path: string) {
   if (path === '/') return route.path === '/'
@@ -69,5 +76,6 @@ function isActive(path: string) {
         <button class="logout-btn" @click="salir">Salir</button>
       </div>
     </nav>
+    <ToastContainer />
   </div>
 </template>

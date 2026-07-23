@@ -13,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useProductoStore()
+const guardando = ref(false)
 const form = ref({
   nombre: '', descripcion: '', categoria: 'comida',
   precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
@@ -30,13 +31,18 @@ watch(() => props.abierto, (val) => {
 })
 
 async function guardar() {
-  if (props.producto) {
-    await store.updateProducto(props.producto.id, form.value)
-  } else {
-    await store.createProducto(form.value)
+  guardando.value = true
+  try {
+    if (props.producto) {
+      await store.updateProducto(props.producto.id, form.value)
+    } else {
+      await store.createProducto(form.value)
+    }
+    emit('guardado')
+    emit('cerrar')
+  } finally {
+    guardando.value = false
   }
-  emit('guardado')
-  emit('cerrar')
 }
 </script>
 
@@ -90,6 +96,9 @@ async function guardar() {
         <input v-model.number="form.stockMinimo" type="number" class="form-control" min="0">
       </div>
     </div>
-    <button type="submit" class="btn btn-primary w-100 mt-2">{{ producto ? 'Actualizar' : 'Crear' }} Producto</button>
+    <button type="submit" class="btn btn-primary w-100 mt-2" :disabled="guardando">
+      <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+      {{ guardando ? 'Guardando...' : (producto ? 'Actualizar' : 'Crear') + ' Producto' }}
+    </button>
   </form>
 </template>

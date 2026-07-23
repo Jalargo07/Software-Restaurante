@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useProductoStore } from '../../stores/productos'
+import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import ProductoFormModal from '../../components/productos/ProductoFormModal.vue'
 
 const productoStore = useProductoStore()
+const toast = useToastStore()
 const categoriaFiltro = ref('')
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
@@ -29,7 +31,12 @@ function cerrarModal() {
 
 async function eliminar(id: number) {
   if (confirm('Desactivar este producto?')) {
-    await productoStore.desactivarProducto(id)
+    try {
+      await productoStore.desactivarProducto(id)
+      toast.success('Producto desactivado')
+    } catch {
+      toast.error('Error al desactivar producto')
+    }
   }
 }
 </script>
@@ -51,7 +58,11 @@ async function eliminar(id: number) {
       </select>
     </div>
 
-    <table class="table table-striped mt-3">
+    <div v-if="productoStore.loading" class="text-center mt-4">
+      <span class="spinner-border text-primary"></span>
+    </div>
+
+    <table v-else class="table table-striped mt-3">
       <thead>
         <tr>
           <th>Nombre</th>

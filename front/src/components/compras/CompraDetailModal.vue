@@ -1,11 +1,31 @@
 <script setup lang="ts">
-defineProps<{
+import { useCompraStore } from '../../stores/compras'
+import { useToastStore } from '../../stores/toast'
+
+const props = defineProps<{
   compra: any
 }>()
 
 const emit = defineEmits<{
   cerrar: []
+  actualizado: []
 }>()
+
+const compraStore = useCompraStore()
+const toast = useToastStore()
+
+async function recibir() {
+  if (confirm('¿Recibir esta compra? Se actualizará el stock automáticamente.')) {
+    try {
+      await compraStore.recibirCompra(props.compra.id)
+      toast.success('Compra recibida y stock actualizado')
+      emit('actualizado')
+      emit('cerrar')
+    } catch {
+      toast.error('Error al recibir compra')
+    }
+  }
+}
 </script>
 
 <template>
@@ -40,6 +60,9 @@ const emit = defineEmits<{
       </tfoot>
     </table>
 
-    <button class="btn btn-secondary w-100" @click="emit('cerrar')">Cerrar</button>
+    <div class="d-flex gap-2">
+      <button v-if="compra.estado === 'pendiente'" class="btn btn-success flex-grow-1" @click="recibir">Recibir Compra</button>
+      <button class="btn btn-secondary flex-grow-1" @click="emit('cerrar')">Cerrar</button>
+    </div>
   </div>
 </template>

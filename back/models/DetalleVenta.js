@@ -19,6 +19,10 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
+  estadoComanda: {
+    type: DataTypes.ENUM('pendiente', 'en_preparacion', 'listo'),
+    defaultValue: 'pendiente',
+  },
 });
 
 module.exports = DetalleVenta;

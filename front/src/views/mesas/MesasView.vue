@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMesaStore } from '../../stores/mesas'
 import { useVentaStore } from '../../stores/ventas'
+import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 import MesaFormModal from '../../components/mesas/MesaFormModal.vue'
@@ -10,6 +11,7 @@ import MesaFormModal from '../../components/mesas/MesaFormModal.vue'
 const router = useRouter()
 const mesaStore = useMesaStore()
 const ventaStore = useVentaStore()
+const toast = useToastStore()
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
 
@@ -44,7 +46,12 @@ function cerrarModal() {
 
 async function eliminar(id: number) {
   if (confirm('Eliminar esta mesa?')) {
-    await mesaStore.deleteMesa(id)
+    try {
+      await mesaStore.deleteMesa(id)
+      toast.success('Mesa eliminada')
+    } catch {
+      toast.error('Error al eliminar mesa')
+    }
   }
 }
 
@@ -83,17 +90,22 @@ function quitarSeleccion(i: number) {
 
 async function guardarPedido() {
   if (!ocupandoMesa.value || !seleccionados.value.length) return
-  const venta = await ventaStore.createVenta({ mesaId: ocupandoMesa.value.id })
-  await ventaStore.addProductos(
-    venta.id,
-    seleccionados.value.map((d) => ({
-      productoId: d.productoId,
-      cantidad: d.cantidad,
-      precioUnitario: d.precioUnitario,
-    }))
-  )
-  await mesaStore.fetchMesas()
-  cerrarPedido()
+  try {
+    const venta = await ventaStore.createVenta({ mesaId: ocupandoMesa.value.id })
+    await ventaStore.addProductos(
+      venta.id,
+      seleccionados.value.map((d) => ({
+        productoId: d.productoId,
+        cantidad: d.cantidad,
+        precioUnitario: d.precioUnitario,
+      }))
+    )
+    await mesaStore.fetchMesas()
+    toast.success('Pedido guardado')
+    cerrarPedido()
+  } catch {
+    toast.error('Error al guardar pedido')
+  }
 }
 
 function verPedido(mesa: any) {
@@ -115,7 +127,11 @@ function estadoColor(estado: string) {
       <button class="btn btn-primary" @click="abrirModal()">+ Nueva Mesa</button>
     </div>
 
-    <div class="row mt-3" v-if="mesaStore.mesas.length">
+    <div v-if="mesaStore.loading" class="text-center mt-4">
+      <span class="spinner-border text-primary"></span>
+    </div>
+
+    <div class="row mt-3" v-else-if="mesaStore.mesas.length">
       <div class="col-md-3 mb-3" v-for="mesa in mesaStore.mesas" :key="mesa.id">
         <div class="card">
           <div class="card-body text-center">
@@ -133,7 +149,7 @@ function estadoColor(estado: string) {
         </div>
       </div>
     </div>
-    <div v-else class="text-center mt-4">
+    <div v-else-if="!mesaStore.loading" class="text-center mt-4">
       <p>No hay mesas registradas</p>
     </div>
 

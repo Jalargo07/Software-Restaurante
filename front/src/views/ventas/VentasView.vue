@@ -2,12 +2,14 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVentaStore } from '../../stores/ventas'
+import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import VentaFormModal from '../../components/ventas/VentaFormModal.vue'
 import VentaDetailModal from '../../components/ventas/VentaDetailModal.vue'
 
 const router = useRouter()
 const ventaStore = useVentaStore()
+const toast = useToastStore()
 const modalFormAbierto = ref(false)
 const detalleVenta = ref<any>(null)
 const filtroEstado = ref('')
@@ -40,7 +42,11 @@ function continuarVenta(v: any) {
       </select>
     </div>
 
-    <table class="table table-striped mt-3">
+    <div v-if="ventaStore.loading" class="text-center mt-4">
+      <span class="spinner-border text-primary"></span>
+    </div>
+
+    <table v-else class="table table-striped mt-3">
       <thead>
         <tr>
           <th>ID</th>

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useProveedorStore } from '../../stores/proveedores'
+import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import ProveedorFormModal from '../../components/proveedores/ProveedorFormModal.vue'
 
 const proveedorStore = useProveedorStore()
+const toast = useToastStore()
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
 
@@ -24,7 +26,12 @@ function cerrarModal() {
 
 async function eliminar(id: number) {
   if (confirm('Desactivar este proveedor?')) {
-    await proveedorStore.desactivarProveedor(id)
+    try {
+      await proveedorStore.desactivarProveedor(id)
+      toast.success('Proveedor desactivado')
+    } catch {
+      toast.error('Error al desactivar proveedor')
+    }
   }
 }
 </script>
@@ -36,7 +43,11 @@ async function eliminar(id: number) {
       <button class="btn btn-primary" @click="abrirModal()">+ Nuevo Proveedor</button>
     </div>
 
-    <table class="table table-striped mt-3">
+    <div v-if="proveedorStore.loading" class="text-center mt-4">
+      <span class="spinner-border text-primary"></span>
+    </div>
+
+    <table v-else class="table table-striped mt-3">
       <thead>
         <tr>
           <th>Nombre</th>

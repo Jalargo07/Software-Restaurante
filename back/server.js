@@ -16,6 +16,8 @@ app.use('/api/compras', require('./routes/compras'));
 app.use('/api/ventas', require('./routes/ventas'));
 app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/proveedores', require('./routes/proveedores'));
+app.use('/api/reportes', require('./routes/reportes'));
+app.use('/api/comandas', require('./routes/comandas'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });

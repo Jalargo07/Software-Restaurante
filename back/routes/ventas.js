@@ -2,8 +2,11 @@ const { Router } = require('express');
 const ventaController = require('../controllers/ventaController');
 const { body } = require('express-validator');
 const validar = require('../middleware/validar');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 const router = Router();
+
+const rolesVenta = ['admin', 'mesero', 'cajero'];
 
 const validarVenta = [
   body('mesaId').optional({ nullable: true }).isInt({ min: 1 }).withMessage('El ID de la mesa debe ser un entero positivo'),
@@ -29,13 +32,13 @@ const validarRapida = [
   body('metodoPago').isIn(['efectivo', 'tarjeta', 'transferencia']).withMessage('Método de pago inválido'),
 ];
 
-router.get('/', ventaController.obtenerTodas);
-router.get('/:id', ventaController.obtenerPorId);
-router.post('/rapida', validarRapida, validar, ventaController.crearRapida);
-router.post('/', validarVenta, validar, ventaController.crear);
-router.post('/:id/productos', validarProductos, validar, ventaController.agregarProductos);
-router.put('/:id/cobrar', validarCobro, validar, ventaController.cobrar);
-router.put('/:id', ventaController.actualizar);
-router.delete('/:id', ventaController.cancelar);
+router.get('/', authenticateToken, ventaController.obtenerTodas);
+router.get('/:id', authenticateToken, ventaController.obtenerPorId);
+router.post('/rapida', authenticateToken, authorizeRole(rolesVenta), validarRapida, validar, ventaController.crearRapida);
+router.post('/', authenticateToken, authorizeRole(rolesVenta), validarVenta, validar, ventaController.crear);
+router.post('/:id/productos', authenticateToken, authorizeRole(rolesVenta), validarProductos, validar, ventaController.agregarProductos);
+router.put('/:id/cobrar', authenticateToken, authorizeRole(rolesVenta), validarCobro, validar, ventaController.cobrar);
+router.put('/:id', authenticateToken, authorizeRole(rolesVenta), ventaController.actualizar);
+router.delete('/:id', authenticateToken, authorizeRole(rolesVenta), ventaController.cancelar);
 
 module.exports = router;

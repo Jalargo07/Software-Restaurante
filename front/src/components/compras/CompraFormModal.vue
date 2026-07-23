@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCompraStore } from '../../stores/compras'
 import ProductoSelector from '../common/ProductoSelector.vue'
 import ProveedorSelector from '../common/ProveedorSelector.vue'
+
+const props = defineProps<{
+  compra?: any
+}>()
 
 const emit = defineEmits<{
   cerrar: []
@@ -10,12 +14,31 @@ const emit = defineEmits<{
 }>()
 
 const compraStore = useCompraStore()
+const guardando = ref(false)
 const proveedorId = ref<number | null>(null)
 const proveedorNombre = ref('')
 const observaciones = ref('')
 const detalles = ref<any[]>([])
 const mostrarSelector = ref(false)
 const mostrarProveedorSelector = ref(false)
+
+const esEdicion = computed(() => !!props.compra)
+
+onMounted(() => {
+  if (props.compra) {
+    const c = props.compra
+    proveedorId.value = c.proveedorId
+    proveedorNombre.value = c.Proveedor?.nombre || c.proveedor
+    observaciones.value = c.observaciones || ''
+    detalles.value = (c.DetalleCompras || c.detalles || []).map((d: any) => ({
+      productoId: d.ProductoId || d.productoId,
+      nombre: d.Producto?.nombre || d.nombre,
+      cantidad: d.cantidad,
+      precioUnitario: Number(d.precioUnitario),
+      subtotal: Number(d.subtotal),
+    }))
+  }
+})
 
 function seleccionarProveedor(proveedor: any) {
   proveedorId.value = proveedor.id
@@ -47,17 +70,34 @@ function quitarDetalle(index: number) {
 const total = computed(() => detalles.value.reduce((s, d) => s + d.subtotal, 0))
 
 async function guardar() {
-  await compraStore.createCompra({
-    proveedorId: proveedorId.value!,
-    observaciones: observaciones.value || undefined,
-    detalles: detalles.value.map((d) => ({
-      productoId: d.productoId,
-      cantidad: d.cantidad,
-      precioUnitario: d.precioUnitario,
-    })),
-  })
-  emit('guardado')
-  emit('cerrar')
+  guardando.value = true
+  try {
+    if (esEdicion.value) {
+      await compraStore.actualizarCompra(props.compra.id, {
+        proveedorId: proveedorId.value!,
+        observaciones: observaciones.value || undefined,
+        detalles: detalles.value.map((d) => ({
+          productoId: d.productoId,
+          cantidad: d.cantidad,
+          precioUnitario: d.precioUnitario,
+        })),
+      })
+    } else {
+      await compraStore.createCompra({
+        proveedorId: proveedorId.value!,
+        observaciones: observaciones.value || undefined,
+        detalles: detalles.value.map((d) => ({
+          productoId: d.productoId,
+          cantidad: d.cantidad,
+          precioUnitario: d.precioUnitario,
+        })),
+      })
+    }
+    emit('guardado')
+    emit('cerrar')
+  } finally {
+    guardando.value = false
+  }
 }
 </script>
 
@@ -99,7 +139,10 @@ async function guardar() {
     </div>
 
     <h5 class="text-end">Total: ${{ total.toFixed(2) }}</h5>
-    <button type="submit" class="btn btn-primary w-100" :disabled="!detalles.length">Registrar Compra</button>
+    <button type="submit" class="btn btn-primary w-100" :disabled="!detalles.length || guardando">
+      <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+      {{ guardando ? 'Guardando...' : esEdicion ? 'Actualizar Compra' : 'Registrar Compra' }}
+    </button>
   </form>
 </template>
 

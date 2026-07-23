@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { usePedidoStore } from '../../stores/pedidos'
+import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 import PedidoFormModal from '../../components/pedidos/PedidoFormModal.vue'
 
 const pedidoStore = usePedidoStore()
+const toast = useToastStore()
 const filtroEstado = ref('')
 const cobrandoVenta = ref<any>(null)
 const metodoPago = ref('efectivo')
@@ -64,13 +66,18 @@ function quitarSeleccion(i: number) {
 
 async function guardarProductos() {
   if (!agregandoAVenta.value || !seleccionados.value.length) return
-  await pedidoStore.addProductos(
-    agregandoAVenta.value.id,
-    seleccionados.value.map((d) => ({ productoId: d.productoId, cantidad: d.cantidad, precioUnitario: d.precioUnitario }))
-  )
-  agregandoAVenta.value = null
-  seleccionados.value = []
-  await cargarDatos()
+  try {
+    await pedidoStore.addProductos(
+      agregandoAVenta.value.id,
+      seleccionados.value.map((d) => ({ productoId: d.productoId, cantidad: d.cantidad, precioUnitario: d.precioUnitario }))
+    )
+    toast.success('Productos agregados')
+    agregandoAVenta.value = null
+    seleccionados.value = []
+    await cargarDatos()
+  } catch {
+    toast.error('Error al agregar productos')
+  }
 }
 
 function abrirCobro(venta: any) {
@@ -80,14 +87,24 @@ function abrirCobro(venta: any) {
 
 async function confirmarCobro() {
   if (!cobrandoVenta.value) return
-  await api.put(`/ventas/${cobrandoVenta.value.id}/cobrar`, { metodoPago: metodoPago.value })
-  cobrandoVenta.value = null
-  await cargarDatos()
+  try {
+    await api.put(`/ventas/${cobrandoVenta.value.id}/cobrar`, { metodoPago: metodoPago.value })
+    toast.success('Venta cobrada')
+    cobrandoVenta.value = null
+    await cargarDatos()
+  } catch {
+    toast.error('Error al cobrar venta')
+  }
 }
 
 async function cancelarPedido(id: number) {
   if (confirm('Cancelar este pedido?')) {
-    await pedidoStore.cancelarPedido(id)
+    try {
+      await pedidoStore.cancelarPedido(id)
+      toast.success('Pedido cancelado')
+    } catch {
+      toast.error('Error al cancelar pedido')
+    }
   }
 }
 
@@ -112,11 +129,15 @@ function cambiarFiltro() {
       </select>
     </div>
 
-    <div v-if="!pedidoStore.pedidos.length" class="text-center mt-4">
+    <div v-if="pedidoStore.loading" class="text-center mt-4">
+      <span class="spinner-border text-primary"></span>
+    </div>
+
+    <div v-else-if="!pedidoStore.pedidos.length" class="text-center mt-4">
       <p>No hay pedidos</p>
     </div>
 
-    <div class="row mt-3" v-for="v in pedidoStore.pedidos" :key="v.id">
+    <div v-else class="row mt-3" v-for="v in pedidoStore.pedidos" :key="v.id">
       <div class="col-12 mb-3">
         <div class="card" :class="v.estado === 'cerrada' ? 'border-success' : v.estado === 'cancelada' ? 'border-secondary' : 'border-danger'">
           <div class="card-header d-flex justify-content-between align-items-center" :class="v.estado === 'cerrada' ? 'bg-success' : v.estado === 'cancelada' ? 'bg-secondary' : 'bg-danger'" style="color:white">

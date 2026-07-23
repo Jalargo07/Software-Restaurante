@@ -21,9 +21,21 @@ export const useCompraStore = defineStore('compras', {
       this.compras.unshift(data)
       return data
     },
+    async recibirCompra(id: number) {
+      const { data } = await api.put(`/compras/${id}/recibir`)
+      const idx = this.compras.findIndex((c) => c.id === id)
+      if (idx !== -1) this.compras[idx] = data
+      return data
+    },
+    async actualizarCompra(id: number, compra: { proveedorId?: number; observaciones?: string; detalles?: { productoId: number; cantidad: number; precioUnitario: number }[] }) {
+      const { data } = await api.put(`/compras/${id}`, compra)
+      const idx = this.compras.findIndex((c) => c.id === id)
+      if (idx !== -1) this.compras[idx] = data
+      return data
+    },
     async cancelarCompra(id: number) {
       await api.delete(`/compras/${id}`)
-      this.compras = this.compras.filter((c) => c.id !== id)
+      await this.fetchCompras()
     },
   },
 })
