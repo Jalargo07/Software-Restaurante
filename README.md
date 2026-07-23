@@ -1,256 +1,121 @@
-# Restaurant Manager
+# 🍽️ Restaurant Manager
 
-Sistema de gestión integral para restaurantes con control de inventario, compras, ventas, administración de mesas, comandas de cocina y autenticación JWT. Soporta **dos modos de venta**: venta directa (mostrador) y venta por mesa.
+Sistema de gestión integral para restaurantes con control de inventario, compras, ventas, administración de mesas, comandas de cocina, recetas para productos compuestos (con merma e insumos), caja, auditoría, subida de imágenes con MinIO y autenticación JWT con roles. Soporta **dos modos de venta**: venta directa (mostrador) y venta por mesa.
 
-## Tecnologías
+---
+
+## 🚀 Tecnologías y Stack
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D" alt="Vue.js" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Pinia-F5DEB3?style=for-the-badge&logo=pinia&logoColor=black" alt="Pinia" />
+  <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
+  <img src="https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white" alt="Sequelize" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.io" />
+  <img src="https://img.shields.io/badge/MinIO-C72C30?style=for-the-badge&logo=minio&logoColor=white" alt="MinIO" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest" />
+</p>
 
 | Capa | Tecnologías |
 |------|-------------|
-| **Frontend** | Vue 3 + TypeScript + Vite + Pinia + Bootstrap 5 + Vue Router + Axios + Chart.js |
-| **Backend** | Node.js + Express 5 + Sequelize + SQLite + JWT + bcryptjs |
-| **Herramientas** | Nodemon, express-validator |
+| **Frontend** | Vue 3.5 (Composition API) + TypeScript + Vite + Pinia + Bootstrap 5.3 + Vue Router + Axios + Chart.js + Socket.IO Client |
+| **Backend** | Node.js 18+ + Express 5 + Sequelize 6 + SQLite / PostgreSQL + JWT + bcryptjs + Socket.IO + Multer + AWS SDK v3 / MinIO |
+| **Testing & DevOps** | Vitest + Supertest + Docker & Docker Compose + Nginx |
 
-## Requisitos
+---
+
+## 📋 Requisitos Previos
 
 - Node.js v18 o superior
-- npm (incluido con Node.js)
+- Docker y Docker Compose (opcional, para ejecución contenedorizada)
 
-## Instalación y ejecución
+---
 
-### Backend
+## 🛠️ Instalación y Ejecución Local
 
+### 1. Clonar el repositorio y configurar variables de entorno
+```bash
+git clone https://github.com/Jalargo07/Software-Restaurante.git
+cd Software-Restaurante
+```
+
+### 2. Backend
 ```bash
 cd back
 npm install
-npm run dev
+# Configurar .env basado en .env.example
+npm run seed  # Carga datos de prueba (productos, mesas, recetas, proveedores)
+npm run dev   # Inicia servidor en http://localhost:3000
 ```
 
-El servidor arranca en `http://localhost:3000`.
-
-### Frontend
-
+### 3. Frontend
 ```bash
 cd front
 npm install
-npm run dev
+npm run dev   # Inicia Vite en http://localhost:5173
 ```
 
-El frontend arranca en `http://localhost:5173`.
+---
 
-> ⚠️ El backend debe estar corriendo para que el frontend funcione correctamente.
+## 🐳 Ejecución con Docker
 
-## Credenciales por defecto
+Para levantar todo el ecosistema (Backend, Frontend con Nginx y MinIO) con un solo comando:
 
-| Email | Contraseña | Rol |
-|-------|-----------|-----|
-| admin@restaurant.com | admin123 | Administrador |
-
-## Estructura del proyecto
-
-```
-restaurant-manager/
-├── back/
-│   ├── config/           # Configuración de base de datos (SQLite)
-│   ├── controllers/      # Lógica de negocio
-│   │   ├── authController.js
-│   │   ├── compraController.js
-│   │   ├── comandaController.js
-│   │   ├── mesaController.js
-│   │   ├── productoController.js
-│   │   ├── proveedorController.js
-│   │   ├── reporteController.js
-│   │   └── ventaController.js
-│   ├── middleware/        # Validación, autenticación JWT y roles
-│   ├── models/           # Modelos Sequelize (8 modelos)
-│   ├── routes/           # Endpoints REST (8 routers)
-│   ├── server.js         # Punto de entrada
-│   └── package.json
-├── front/
-│   ├── src/
-│   │   ├── components/   # Componentes reutilizables
-│   │   │   ├── common/   # ModalBase, ToastContainer, charts
-│   │   │   ├── compras/  # CompraFormModal, CompraDetailModal
-│   │   │   ├── pedidos/  # PedidoFormModal
-│   │   │   ├── productos/# ProductoFormModal
-│   │   │   └── proveedores/ # ProveedorFormModal
-│   │   ├── router/       # Vue Router (9 rutas)
-│   │   ├── services/     # Cliente Axios con interceptor JWT
-│   │   ├── stores/       # Stores Pinia (9 stores)
-│   │   └── views/        # 9 vistas
-│   │       ├── auth/     # Login
-│   │       ├── compras/  # ComprasView
-│   │       ├── comandas/ # ComandasView (cocina)
-│   │       ├── inventario/# InventarioView
-│   │       ├── mesas/    # MesasView
-│   │       ├── pedidos/  # PedidosView
-│   │       ├── proveedores/ # ProveedoresView
-│   │       ├── usuarios/ # UsuariosView
-│   │       └── ventas/   # VentasView
-│   ├── index.html
-│   ├── vite.config.ts
-│   └── package.json
-└── README.md
+```bash
+docker compose up --build -d
 ```
 
-## API REST
+- **Frontend:** `http://localhost`
+- **Backend API:** `http://localhost:3000/api`
+- **MinIO Console:** `http://localhost:9001`
 
-Todas las rutas requieren JWT (`Authorization: Bearer <token>`) excepto login.
+---
 
-| Método | Ruta | Descripción | Acceso |
-|--------|------|-------------|--------|
-| POST | `/api/usuarios/login` | Login y obtener token | Público |
-| GET | `/api/usuarios` | Listar usuarios | Admin |
-| POST | `/api/usuarios` | Crear usuario | Admin |
-| PUT | `/api/usuarios/:id` | Editar usuario | Admin |
-| DELETE | `/api/usuarios/:id` | Eliminar usuario | Admin |
-| GET | `/api/productos` | Listar productos | Admin |
-| GET | `/api/productos/:id` | Obtener producto | Autenticado |
-| POST | `/api/productos` | Crear producto | Admin |
-| PUT | `/api/productos/:id` | Editar producto | Admin |
-| DELETE | `/api/productos/:id` | Eliminar producto | Admin |
-| GET | `/api/proveedores` | Listar proveedores | Admin |
-| POST | `/api/proveedores` | Crear proveedor | Admin |
-| PUT | `/api/proveedores/:id` | Editar proveedor | Admin |
-| DELETE | `/api/proveedores/:id` | Eliminar proveedor | Admin |
-| GET | `/api/mesas` | Listar mesas | Autenticado |
-| POST | `/api/mesas` | Crear mesa | Autenticado |
-| PUT | `/api/mesas/:id` | Editar mesa | Autenticado |
-| DELETE | `/api/mesas/:id` | Eliminar mesa | Autenticado |
-| GET | `/api/ventas` | Listar ventas | Autenticado |
-| GET | `/api/ventas/:id` | Obtener venta con detalles | Autenticado |
-| POST | `/api/ventas` | Crear venta | Mesero/Cajero/Admin |
-| POST | `/api/ventas/:id/productos` | Agregar producto a venta | Mesero/Cajero/Admin |
-| PUT | `/api/ventas/:id/cobrar` | Cobrar venta | Mesero/Cajero/Admin |
-| PUT | `/api/ventas/:id` | Editar venta | Autenticado |
-| DELETE | `/api/ventas/:id` | Cancelar venta | Autenticado |
-| GET | `/api/compras` | Listar compras | Autenticado |
-| POST | `/api/compras` | Crear compra | Admin |
-| PUT | `/api/compras/:id` | Editar compra pendiente | Admin |
-| PUT | `/api/compras/:id/recibir` | Recibir compra (actualiza stock) | Admin |
-| DELETE | `/api/compras/:id` | Cancelar compra | Admin |
-| GET | `/api/comandas` | Obtener comandas pendientes | Autenticado |
-| PUT | `/api/comandas/:id/estado` | Actualizar estado comanda | Cocinero/Admin |
-| GET | `/api/reportes/ventas-hoy` | Resumen ventas del día | Autenticado |
-| GET | `/api/reportes/ventas-por-dia` | Ventas de últimos 7 días | Autenticado |
-| GET | `/api/reportes/productos-mas-vendidos` | Top 10 productos vendidos | Autenticado |
-| GET | `/api/reportes/compras-mes` | Compras del mes actual | Autenticado |
-| GET | `/api/health` | Health check | Público |
+## 🔐 Credenciales por Defecto
 
-## Funcionalidades principales
+| Email | Contraseña | Rol | Acceso |
+|-------|------------|-----|--------|
+| `admin@restaurant.com` | `admin123` | `admin` | Acceso total al sistema y gestión de usuarios |
 
-### Autenticación y roles
-- JWT con 4 roles: `admin`, `mesero`, `cajero`, `cocinero
-- Rutas protegidas por rol con `authorizeRole`
-- Seed automático del usuario admin al iniciar
+---
 
-### Inventario
-- CRUD completo de productos con categoría, precio, stock
-- Indicador de stock bajo
-- Filtro por categoría
+## 🧪 Pruebas Automatizadas
 
-### Compras
-- Crear compra con detalle de productos y proveedor
-- Editar compra mientras esté pendiente
-- Recibir compra: actualiza stock automáticamente con transacción
-- Cancelar compra
-- Filtro por estado (pendiente/recibida/cancelada)
+El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (30 tests distribuidos en 5 suites: auth, productos, ventas, compras y recetas).
 
-### Ventas
-- Venta directa (mostrador): creación rápida sin mesa
-- Venta por mesa: asigna productos a una mesa específica
-- Cobrar venta: cierra y registra el pago
-- Agregar/eliminar productos de venta abierta
-- Cancelar venta
+```bash
+cd back
+npm test          # Ejecuta todos los tests una vez
+npm run test:watch  # Ejecuta en modo watch
+```
 
-### Mesas
-- Grid visual con estados: libre, ocupada, reservada
-- Crear/editar/eliminar mesas
-- Modal para crear pedido directo desde mesa
+---
 
-### Pedidos (Cocina)
-- Cards por venta abierta con lista de productos
-- Agregar productos al pedido
-- Cobrar desde el detalle del pedido
-- Cancelar pedido
+## 🌟 Características Principales
 
-### Comandas (Cocina)
-- Vista de cocina con cards por venta
-- Badges de estado: pendiente → en_preparación → listo
-- Avanzar estado con un clic
-- Filtro por estado de comanda
-- Auto-refresh cada 30 segundos
-- Acceso restringido a cocineros y admins
+- **Gestión de Roles & Permisos:** Admin, Mesero, Cajero, Cocinero con control estricto en rutas y vistas.
+- **Inventario Avanzado:** Tipos de producto (`insumo`, `compuesto`, `directo`), gestión de stock mínimo y fotos con MinIO.
+- **Recetas e Ingredientes:** Productos compuestos con descuento automático de insumos en inventario y cálculo de merma.
+- **Comandas en Tiempo Real:** Notificaciones instantáneas a cocina mediante WebSockets (Socket.IO).
+- **Caja / Corte de Caja:** Resumen por método de pago (efectivo, tarjeta, transferencia), cierre de caja e historial.
+- **Auditoría y Reportes:** Registro automático de acciones (crear, editar, eliminar, cobrar, recibir) con filtros, paginación y exportación a Excel (`.xlsx`).
+- **Dashboard Estadístico:** 8 tarjetas de estadísticas y gráficos interactivos con Chart.js.
 
-### Usuarios
-- CRUD completo (crear, editar, activar/desactivar)
-- Solo visible para administradores
-- Toggle activo/inactivo
+---
 
-### Dashboard
-- 8 tarjetas de estadísticas (ventas hoy, ticket promedio, mesas ocupadas, etc.)
-- Gráfico de barras: ventas de últimos 7 días
-- Gráfico doughnut: distribución de mesas
-- Gráfico de barras horizontal: top 10 productos vendidos
-
-### UX
-- Bottom navigation con íconos (Usuarios visible solo para admin)
-- Toggle claro/oscuro con persistencia en localStorage
-- Toast notifications (success, error, info, warning)
-- Loading states con spinners
-- Modales reutilizables
-
-## Modelos de datos
-
-| Modelo | Campos clave |
-|--------|-------------|
-| Usuario | nombre, email (unique), password (hash), rol, activo |
-| Producto | nombre, categoría, precio compra, precio venta, stock, stockMinimo, unidad, activo |
-| Proveedor | nombre, contacto, teléfono, email, dirección |
-| Mesa | número (unique), capacidad, estado (libre/ocupada/reservada) |
-| Venta | total, estado (abierta/cerrada/cancelada), modo (mesa/mostrador), MesaId |
-| DetalleVenta | cantidad, precioUnitario, subtotal, VentaId, ProductoId, estadoComanda |
-| Compra | total, estado (pendiente/recibida/cancelada), ProveedorId, fechaRecepcion |
-| DetalleCompra | cantidad, precioUnitario, subtotal, CompraId, ProductoId |
-
-### Exportar Excel
-- Botón "Exportar Excel" en Dashboard, VentasView y ComprasView
-- Genera archivos .xlsx con resumen y detalle
-- Filtros por fecha (Desde/Hasta)
-- Solo accesible por admin
-
-### Historial de compras por proveedor
-- Botón "Historial" en cada fila de ProveedoresView
-- Modal con resumen (total compras, monto total, promedio)
-- Tabla detallada de compras del proveedor
-- Botón exportar historial a Excel
-
-### Auditoría
-- Modelo `Auditoria` con: usuario, acción, entidad, ID entidad, detalles, IP
-- Logging automático en 5 controllers (ventas, compras, productos, proveedores, usuarios)
-- Vista con tabla de logs, filtros (usuario, entidad, fecha), paginación
-- Badge de color por acción (crear=verde, editar=azul, eliminar=rojo, etc.)
-- Exportar logs a Excel
-- Solo accesible por admin
-
-## Sprints
+## 📊 Sprints Completados
 
 | Sprint | Estado | Descripción |
 |--------|--------|-------------|
-| Sprint 1 | ✅ Completado | CRUD productos, proveedores, mesas, ventas, auth |
-| Sprint 2 | ✅ Completado | Compras recibir/editar, Dashboard reportes y gráficos |
-| Sprint 3 | ✅ Completado | Gestión usuarios, Sistema comandas/cocina |
-| Sprint 4 | ✅ Completado | Exportar Excel, Historial compras proveedor, Logs auditoría |
-
-## Bugs conocidos
-
-1. **Stock negativo**: Al cobrar/crear venta rápida se descuenta stock sin validar suficiente
-2. **sync alter SQLite**: `ALTER TABLE` limitado; si falla, borrar `database.sqlite` y reiniciar
-3. **Filtro ventas**: No incluye opción "Canceladas" en VentasView
-
-## Futuro
-
-- PWA
-- Split bill (dividir cuenta)
-- Docker
-- Paginación
-- PostgreSQL como DB alternativa
+| **Sprint 1** | ✅ Completado | CRUD de productos, proveedores, mesas, ventas y autenticación JWT |
+| **Sprint 2** | ✅ Completado | Recepción/edición de compras, Dashboard con reportes y gráficos |
+| **Sprint 3** | ✅ Completado | Gestión frontend de usuarios y sistema de comandas/cocina en tiempo real |
+| **Sprint 4** | ✅ Completado | Exportación a Excel, historial de compras por proveedor y logs de auditoría |
+| **Sprint 5** | ✅ Completado | Recetas de productos compuestos, roles en frontend, WebSockets, caja y Docker |
+| **Sprint 6** | 🔄 En curso | PWA, Split Bill, Paginación avanzada y soporte multibase de datos |
