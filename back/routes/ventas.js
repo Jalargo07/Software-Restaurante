@@ -32,6 +32,10 @@ const validarRapida = [
   body('metodoPago').isIn(['efectivo', 'tarjeta', 'transferencia']).withMessage('Método de pago inválido'),
 ];
 
+const validarDetalle = [
+  body('cantidad').isInt({ min: 1 }).withMessage('La cantidad debe ser al menos 1'),
+];
+
 router.get('/', authenticateToken, ventaController.obtenerTodas);
 router.get('/:id', authenticateToken, ventaController.obtenerPorId);
 router.post('/rapida', authenticateToken, authorizeRole(rolesVenta), validarRapida, validar, ventaController.crearRapida);
@@ -40,5 +44,7 @@ router.post('/:id/productos', authenticateToken, authorizeRole(rolesVenta), vali
 router.put('/:id/cobrar', authenticateToken, authorizeRole(rolesVenta), validarCobro, validar, ventaController.cobrar);
 router.put('/:id', authenticateToken, authorizeRole(rolesVenta), ventaController.actualizar);
 router.delete('/:id', authenticateToken, authorizeRole(rolesVenta), ventaController.cancelar);
+router.put('/:id/detalle/:detalleId', authenticateToken, authorizeRole(rolesVenta), validarDetalle, ventaController.actualizarDetalle);
+router.delete('/:id/detalle/:detalleId', authenticateToken, authorizeRole(rolesVenta), ventaController.eliminarDetalle);
 
 module.exports = router;

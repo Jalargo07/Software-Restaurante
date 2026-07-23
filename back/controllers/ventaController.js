@@ -361,6 +361,82 @@ const cancelar = async (req, res) => {
   }
 };
 
+const actualizarDetalle = async (req, res) => {
+  try {
+    const venta = await Venta.findByPk(req.params.id);
+    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+
+    const detalle = await DetalleVenta.findByPk(req.params.detalleId);
+    if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
+    if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
+
+    const { cantidad } = req.body;
+    const subtotal = cantidad * Number(detalle.precioUnitario);
+
+    await detalle.update({ cantidad, subtotal });
+
+    const detalles = await DetalleVenta.findAll({ where: { VentaId: venta.id } });
+    const nuevoTotal = detalles.reduce((sum, d) => sum + Number(d.subtotal), 0);
+    await venta.update({ total: nuevoTotal });
+
+    await registrarAuditoria({
+      req,
+      accion: 'actualizar_detalle',
+      entidad: 'DetalleVenta',
+      entidadId: detalle.id,
+      detalles: { cantidad, subtotal, ventaId: venta.id },
+    });
+
+    const ventaCompleta = await Venta.findByPk(venta.id, {
+      include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
+    });
+
+    res.json(ventaCompleta);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar detalle' });
+  }
+};
+
+const eliminarDetalle = async (req, res) => {
+  try {
+    const venta = await Venta.findByPk(req.params.id);
+    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+
+    const detalle = await DetalleVenta.findByPk(req.params.detalleId);
+    if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
+    if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
+
+    const count = await DetalleVenta.count({ where: { VentaId: venta.id } });
+    if (count <= 1) return res.status(400).json({ error: 'No se puede eliminar el último detalle de la venta' });
+
+    const datosAnteriores = { cantidad: detalle.cantidad, subtotal: Number(detalle.subtotal), ProductoId: detalle.ProductoId };
+
+    await detalle.destroy();
+
+    const detalles = await DetalleVenta.findAll({ where: { VentaId: venta.id } });
+    const nuevoTotal = detalles.reduce((sum, d) => sum + Number(d.subtotal), 0);
+    await venta.update({ total: nuevoTotal });
+
+    await registrarAuditoria({
+      req,
+      accion: 'eliminar_detalle',
+      entidad: 'DetalleVenta',
+      entidadId: detalle.id,
+      detalles: { ...datosAnteriores, ventaId: venta.id },
+    });
+
+    const ventaCompleta = await Venta.findByPk(venta.id, {
+      include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
+    });
+
+    res.json(ventaCompleta);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar detalle' });
+  }
+};
+
 module.exports = {
   obtenerTodas,
   obtenerPorId,
@@ -370,4 +446,6 @@ module.exports = {
   crearRapida,
   actualizar,
   cancelar,
+  actualizarDetalle,
+  eliminarDetalle,
 };

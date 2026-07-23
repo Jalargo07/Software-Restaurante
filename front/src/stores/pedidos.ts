@@ -38,5 +38,17 @@ export const usePedidoStore = defineStore('pedidos', {
       if (index !== -1) this.pedidos[index] = data
       return data
     },
+    async editarDetalle(ventaId: number, detalleId: number, cantidad: number) {
+      const { data } = await api.put(`/ventas/${ventaId}/detalle/${detalleId}`, { cantidad })
+      const index = this.pedidos.findIndex((p) => p.id === ventaId)
+      if (index !== -1) this.pedidos[index] = data
+      return data
+    },
+    async eliminarDetalle(ventaId: number, detalleId: number) {
+      const { data } = await api.delete(`/ventas/${ventaId}/detalle/${detalleId}`)
+      const index = this.pedidos.findIndex((p) => p.id === ventaId)
+      if (index !== -1) this.pedidos[index] = data
+      return data
+    },
   },
 })

@@ -17,6 +17,8 @@ const productos = ref<any[]>([])
 const busqueda = ref('')
 const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
 const modalNuevoAbierto = ref(false)
+const editandoDetalle = ref<any>(null)
+const cantidadEditar = ref(1)
 
 async function cargarDatos() {
   try {
@@ -111,6 +113,38 @@ async function cancelarPedido(id: number) {
 function cambiarFiltro() {
   cargarDatos()
 }
+
+function abrirEditarCantidad(detalle: any) {
+  editandoDetalle.value = detalle
+  cantidadEditar.value = detalle.cantidad
+}
+
+async function guardarCantidad() {
+  if (!editandoDetalle.value) return
+  try {
+    await pedidoStore.editarDetalle(
+      editandoDetalle.value.VentaId,
+      editandoDetalle.value.id,
+      cantidadEditar.value
+    )
+    toast.success('Cantidad actualizada')
+    editandoDetalle.value = null
+    await cargarDatos()
+  } catch {
+    toast.error('Error al actualizar cantidad')
+  }
+}
+
+async function eliminarProducto(ventaId: number, detalle: any) {
+  if (!confirm(`Eliminar "${detalle.Producto?.nombre}" de la venta?`)) return
+  try {
+    await pedidoStore.eliminarDetalle(ventaId, detalle.id)
+    toast.success('Producto eliminado')
+    await cargarDatos()
+  } catch {
+    toast.error('Error al eliminar producto')
+  }
+}
 </script>
 
 <template>
@@ -148,7 +182,7 @@ function cambiarFiltro() {
             <p v-if="v.cliente"><strong>Cliente:</strong> {{ v.cliente }}</p>
             <table class="table table-sm mb-2">
               <thead>
-                <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th></tr>
+                <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th><th v-if="v.estado === 'abierta'">Acciones</th></tr>
               </thead>
               <tbody>
                 <tr v-for="d in (v.DetalleVentas || v.DetalleVenta || [])" :key="d.id">
@@ -156,6 +190,13 @@ function cambiarFiltro() {
                   <td>{{ d.cantidad }}</td>
                   <td>${{ d.precioUnitario }}</td>
                   <td>${{ d.subtotal }}</td>
+                  <td v-if="v.estado === 'abierta'" class="text-nowrap">
+                    <button class="btn btn-sm btn-outline-secondary me-1" :disabled="d.cantidad <= 1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad - 1).then(() => cargarDatos())">-</button>
+                    <span class="mx-1">{{ d.cantidad }}</span>
+                    <button class="btn btn-sm btn-outline-secondary me-1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad + 1).then(() => cargarDatos())">+</button>
+                    <button class="btn btn-sm btn-outline-primary me-1" @click="abrirEditarCantidad(d)">&#9998;</button>
+                    <button class="btn btn-sm btn-outline-danger" @click="eliminarProducto(v.id, d)">&#128465;</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -224,6 +265,19 @@ function cambiarFiltro() {
           </select>
         </div>
         <button class="btn btn-success w-100" @click="confirmarCobro">Confirmar Cobro</button>
+      </div>
+    </ModalBase>
+
+    <ModalBase v-if="editandoDetalle" id="editarCantidadModal" titulo="Editar Cantidad" @cerrar="editandoDetalle = null">
+      <div>
+        <p><strong>Producto:</strong> {{ editandoDetalle.Producto?.nombre }}</p>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <button class="btn btn-outline-secondary" :disabled="cantidadEditar <= 1" @click="cantidadEditar--">-</button>
+          <input v-model.number="cantidadEditar" type="number" min="1" class="form-control w-25 text-center">
+          <button class="btn btn-outline-secondary" @click="cantidadEditar++">+</button>
+        </div>
+        <p><strong>Subtotal:</strong> ${{ (cantidadEditar * editandoDetalle.precioUnitario).toFixed(2) }}</p>
+        <button class="btn btn-primary w-100" @click="guardarCantidad">Guardar</button>
       </div>
     </ModalBase>
   </div>
