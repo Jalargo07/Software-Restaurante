@@ -44,6 +44,7 @@ const crear = async (req, res) => {
     }
 
     const insumoIds = new Set();
+    const insumosMap = new Map();
     for (const d of detalles) {
       if (!d.insumoId) return res.status(400).json({ error: 'Cada ingrediente debe tener un insumoId' });
       if (Number(d.cantidad) <= 0) return res.status(400).json({ error: `La cantidad del insumo ${d.insumoId} debe ser mayor a 0` });
@@ -56,6 +57,7 @@ const crear = async (req, res) => {
       const insumo = await Producto.findByPk(d.insumoId);
       if (!insumo) return res.status(400).json({ error: `Insumo id ${d.insumoId} no encontrado` });
       if (insumo.tipo !== 'insumo') return res.status(400).json({ error: `El producto id ${d.insumoId} debe ser tipo insumo` });
+      insumosMap.set(d.insumoId, insumo);
     }
 
     const receta = await Receta.create({ nombre, porciones, productoId });
@@ -65,7 +67,7 @@ const crear = async (req, res) => {
       insumoId: d.insumoId,
       cantidad: d.cantidad,
       unidad: d.unidad || 'unidad',
-      merma: insumo.merma || 0,
+      merma: insumosMap.get(d.insumoId).merma || 0,
     }));
     await DetalleReceta.bulkCreate(detallesData);
 
@@ -99,6 +101,7 @@ const actualizar = async (req, res) => {
       }
 
       const insumoIds = new Set();
+      const insumosMap = new Map();
       for (const d of detalles) {
         if (!d.insumoId) return res.status(400).json({ error: 'Cada ingrediente debe tener un insumoId' });
         if (Number(d.cantidad) <= 0) return res.status(400).json({ error: `La cantidad del insumo ${d.insumoId} debe ser mayor a 0` });
@@ -111,6 +114,7 @@ const actualizar = async (req, res) => {
         const insumo = await Producto.findByPk(d.insumoId);
         if (!insumo) return res.status(400).json({ error: `Insumo id ${d.insumoId} no encontrado` });
         if (insumo.tipo !== 'insumo') return res.status(400).json({ error: `El producto id ${d.insumoId} debe ser tipo insumo` });
+        insumosMap.set(d.insumoId, insumo);
       }
     }
 
@@ -124,8 +128,8 @@ const actualizar = async (req, res) => {
         insumoId: d.insumoId,
         cantidad: d.cantidad,
         unidad: d.unidad || 'unidad',
-      merma: insumo.merma || 0,
-    }));
+        merma: insumosMap.get(d.insumoId).merma || 0,
+      }));
     await DetalleReceta.bulkCreate(detallesData);
     }
 
