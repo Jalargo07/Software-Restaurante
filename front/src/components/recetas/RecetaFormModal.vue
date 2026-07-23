@@ -22,12 +22,10 @@ const guardando = ref(false)
 interface DetalleForm {
   insumoId: number | null
   cantidad: number
-  unidad: string
   merma: number
 }
 
 const form = ref({
-  nombre: '',
   porciones: 1,
   productoId: null as number | null,
   detalles: [] as DetalleForm[],
@@ -41,19 +39,16 @@ watch(() => props.abierto, async (val) => {
     await cargarProductos()
     if (props.receta) {
       form.value = {
-        nombre: props.receta.nombre,
         porciones: props.receta.porciones,
         productoId: props.receta.productoId,
         detalles: (props.receta.DetalleRecetas || []).map((d: any) => ({
           insumoId: d.insumoId,
           cantidad: d.cantidad,
-          unidad: d.unidad,
           merma: d.merma,
         })),
       }
     } else {
       form.value = {
-        nombre: '',
         porciones: 1,
         productoId: null,
         detalles: [],
@@ -73,7 +68,7 @@ async function cargarProductos() {
 }
 
 function agregarIngrediente() {
-  form.value.detalles.push({ insumoId: null, cantidad: 1, unidad: 'unidad', merma: 0 })
+  form.value.detalles.push({ insumoId: null, cantidad: 1, merma: 0 })
 }
 
 function quitarIngrediente(index: number) {
@@ -85,10 +80,6 @@ async function guardar() {
     toast.warning('Seleccioná un producto compuesto')
     return
   }
-  if (!form.value.nombre.trim()) {
-    toast.warning('Ingresá un nombre para la receta')
-    return
-  }
   if (form.value.detalles.length === 0) {
     toast.warning('Agregá al menos un ingrediente')
     return
@@ -96,11 +87,25 @@ async function guardar() {
 
   guardando.value = true
   try {
+    const productoSeleccionado = productos.value.find((p) => p.id === form.value.productoId)
+    const nombreReceta = `Receta ${productoSeleccionado?.nombre || ''}`
+    const detalles = form.value.detalles
+      .filter((d) => d.insumoId !== null)
+      .map((d) => {
+        const insumo = insumos.value.find((i) => i.id === d.insumoId)
+        return {
+          insumoId: d.insumoId!,
+          cantidad: d.cantidad,
+          unidad: insumo?.unidad || 'unidad',
+          merma: d.merma,
+        }
+      })
+    const payload = { ...form.value, nombre: nombreReceta, detalles }
     if (props.receta) {
-      await store.updateReceta(props.receta.id, form.value)
+      await store.updateReceta(props.receta.id, payload)
       toast.success('Receta actualizada')
     } else {
-      await store.createReceta(form.value)
+      await store.createReceta(payload)
       toast.success('Receta creada')
     }
     emit('guardado')
@@ -123,11 +128,7 @@ async function guardar() {
       </select>
     </div>
     <div class="row mb-2">
-      <div class="col">
-        <label class="form-label">Nombre Receta</label>
-        <input v-model="form.nombre" class="form-control" required>
-      </div>
-      <div class="col">
+      <div class="col-3">
         <label class="form-label">Porciones</label>
         <input v-model.number="form.porciones" type="number" min="1" class="form-control" required>
       </div>
@@ -154,13 +155,7 @@ async function guardar() {
         <input v-model.number="d.cantidad" type="number" step="0.01" min="0.01" class="form-control form-control-sm" placeholder="Cant." required>
       </div>
       <div class="col-2">
-        <select v-model="d.unidad" class="form-select form-select-sm">
-          <option value="kg">Kg</option>
-          <option value="g">g</option>
-          <option value="litro">Litro</option>
-          <option value="ml">ml</option>
-          <option value="unidad">Unidad</option>
-        </select>
+        <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
       </div>
       <div class="col-2">
         <input v-model.number="d.merma" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" placeholder="Merma %">

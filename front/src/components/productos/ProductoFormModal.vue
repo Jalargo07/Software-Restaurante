@@ -23,7 +23,6 @@ const guardando = ref(false)
 interface DetalleRecetaForm {
   insumoId: number | null
   cantidad: number
-  unidad: string
   merma: number
 }
 
@@ -33,7 +32,6 @@ const form = ref({
 })
 
 const recetaForm = ref({
-  nombre: '',
   porciones: 1,
   detalles: [] as DetalleRecetaForm[],
 })
@@ -59,22 +57,20 @@ watch(() => props.abierto, async (val) => {
         if (receta) {
           recetaExistenteId.value = receta.id
           recetaForm.value = {
-            nombre: receta.nombre,
             porciones: receta.porciones,
             detalles: (receta.DetalleRecetas || []).map((d: any) => ({
               insumoId: d.insumoId,
               cantidad: d.cantidad,
-              unidad: d.unidad,
               merma: d.merma,
             })),
           }
         } else {
           recetaExistenteId.value = null
-          recetaForm.value = { nombre: '', porciones: 1, detalles: [] }
+          recetaForm.value = { porciones: 1, detalles: [] }
         }
       } else {
         recetaExistenteId.value = null
-        recetaForm.value = { nombre: '', porciones: 1, detalles: [] }
+        recetaForm.value = { porciones: 1, detalles: [] }
       }
     } else {
       form.value = {
@@ -83,7 +79,7 @@ watch(() => props.abierto, async (val) => {
       }
       previewUrl.value = ''
       recetaExistenteId.value = null
-      recetaForm.value = { nombre: '', porciones: 1, detalles: [] }
+      recetaForm.value = { porciones: 1, detalles: [] }
     }
     archivo.value = null
   }
@@ -110,7 +106,7 @@ async function subirImagen(): Promise<string | null> {
 }
 
 function agregarIngrediente() {
-  recetaForm.value.detalles.push({ insumoId: null, cantidad: 1, unidad: 'unidad', merma: 0 })
+  recetaForm.value.detalles.push({ insumoId: null, cantidad: 1, merma: 0 })
 }
 
 function quitarIngrediente(index: number) {
@@ -132,20 +128,24 @@ async function guardar() {
         await store.updateProducto(productoGuardado.id, { imagen: url })
       }
     }
-    if (form.value.tipo === 'compuesto' && recetaForm.value.nombre.trim() && recetaForm.value.detalles.length > 0) {
+    if (form.value.tipo === 'compuesto' && recetaForm.value.detalles.length > 0) {
       const detalles = recetaForm.value.detalles
         .filter((d) => d.insumoId !== null)
-        .map((d) => ({
-          insumoId: d.insumoId!,
-          cantidad: d.cantidad,
-          unidad: d.unidad,
-          merma: d.merma,
-        }))
+        .map((d) => {
+          const insumo = insumos.value.find((i) => i.id === d.insumoId)
+          return {
+            insumoId: d.insumoId!,
+            cantidad: d.cantidad,
+            unidad: insumo?.unidad || 'unidad',
+            merma: d.merma,
+          }
+        })
+      const nombreReceta = `Receta ${form.value.nombre}`
       if (recetaExistenteId.value) {
-        await recetaStore.updateReceta(recetaExistenteId.value, recetaForm.value)
+        await recetaStore.updateReceta(recetaExistenteId.value, { ...recetaForm.value, nombre: nombreReceta })
       } else {
         await recetaStore.createReceta({
-          nombre: recetaForm.value.nombre,
+          nombre: nombreReceta,
           porciones: recetaForm.value.porciones,
           productoId: productoGuardado.id,
           detalles,
@@ -238,10 +238,6 @@ async function guardar() {
         <button type="button" class="btn btn-sm btn-outline-success" @click="agregarIngrediente">+ Ingrediente</button>
       </div>
       <div class="row mb-2">
-        <div class="col">
-          <label class="form-label">Nombre Receta</label>
-          <input v-model="recetaForm.nombre" class="form-control form-control-sm" placeholder="Nombre de la receta">
-        </div>
         <div class="col-3">
           <label class="form-label">Porciones</label>
           <input v-model.number="recetaForm.porciones" type="number" min="1" class="form-control form-control-sm">
@@ -261,13 +257,7 @@ async function guardar() {
           <input v-model.number="d.cantidad" type="number" step="0.01" min="0.01" class="form-control form-control-sm" placeholder="Cant." required>
         </div>
         <div class="col-2">
-          <select v-model="d.unidad" class="form-select form-select-sm">
-            <option value="kg">Kg</option>
-            <option value="g">g</option>
-            <option value="litro">Litro</option>
-            <option value="ml">ml</option>
-            <option value="unidad">Unidad</option>
-          </select>
+          <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
         </div>
         <div class="col-2">
           <input v-model.number="d.merma" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" placeholder="Merma %">
