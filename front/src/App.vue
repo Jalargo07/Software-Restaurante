@@ -33,6 +33,7 @@ const navItems = computed(() => {
     { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin', 'mesero'] },
     { path: '/compras', icon: '🛒', label: 'Compras', roles: ['admin'] },
     { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
+    { path: '/caja', icon: '🏦', label: 'Caja', roles: ['admin', 'cajero'] },
     { path: '/proveedores', icon: '🏢', label: 'Proveedores', roles: ['admin', 'mesero'] },
     { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
     { path: '/recetas', icon: '📖', label: 'Recetas', roles: ['admin'] },
