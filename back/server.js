@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
 require('dotenv').config();
 const sequelize = require('./config/database');
@@ -25,6 +27,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
 });
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: 'http://localhost:5173', methods: ['GET', 'POST'] },
+});
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  console.log(`Socket conectado: ${socket.id}`);
+  socket.on('disconnect', () => console.log(`Socket desconectado: ${socket.id}`));
+});
+
 const startServer = async () => {
   try {
     await sequelize.authenticate();
@@ -45,7 +58,7 @@ const startServer = async () => {
       console.log('Admin user created: admin@restaurant.com / admin123');
     }
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   } catch (error) {

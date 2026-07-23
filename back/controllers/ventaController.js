@@ -90,6 +90,9 @@ const agregarProductos = async (req, res) => {
     });
 
     res.json(ventaCompleta);
+
+    const io = req.app.get('io');
+    if (io) io.emit('nueva-comanda', ventaCompleta);
   } catch (error) {
     res.status(500).json({ error: 'Error al agregar productos' });
   }
@@ -197,6 +200,9 @@ const cobrar = async (req, res) => {
     });
 
     res.json(ventaCompleta);
+
+    const io = req.app.get('io');
+    if (io) io.emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: 'Error al cobrar venta' });
@@ -356,6 +362,9 @@ const cancelar = async (req, res) => {
     });
 
     res.json({ message: 'Venta cancelada' });
+
+    const io = req.app.get('io');
+    if (io) io.emit('venta-cancelada', { id: venta.id });
   } catch (error) {
     res.status(500).json({ error: 'Error al cancelar venta' });
   }

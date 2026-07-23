@@ -44,6 +44,9 @@ const actualizarEstado = async (req, res) => {
     });
 
     res.json(venta);
+
+    const io = req.app.get('io');
+    if (io) io.emit('comanda-actualizada', venta);
   } catch (error) {
     res.status(500).json({ error: 'Error al actualizar comanda' });
   }

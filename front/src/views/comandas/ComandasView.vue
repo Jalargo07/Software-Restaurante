@@ -2,11 +2,11 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useComandaStore, type DetalleComanda } from '../../stores/comandas'
 import { useToastStore } from '../../stores/toast'
+import { connectSocket, disconnectSocket, socket } from '../../services/socket'
 
 const comandaStore = useComandaStore()
 const toast = useToastStore()
 const filtroEstado = ref<string>('')
-let intervalId: ReturnType<typeof setInterval> | null = null
 
 const estadoSiguiente: Record<string, string> = {
   pendiente: 'en_preparacion',
@@ -33,13 +33,29 @@ const estadoBorder: Record<string, string> = {
 
 onMounted(() => {
   comandaStore.fetchComandas()
-  intervalId = setInterval(() => {
-    comandaStore.fetchComandas()
-  }, 30000)
+  connectSocket()
+
+  socket.on('nueva-comanda', (venta) => {
+    comandaStore.agregarComanda(venta)
+    toast.info(`Nueva comanda — Mesa #${venta.Mesa?.numero || 'Fast Food'}`)
+  })
+  socket.on('comanda-actualizada', (venta) => {
+    comandaStore.actualizarComandaLocal(venta)
+  })
+  socket.on('venta-cerrada', ({ id }) => {
+    comandaStore.removerComandaPorVentaId(id)
+  })
+  socket.on('venta-cancelada', ({ id }) => {
+    comandaStore.removerComandaPorVentaId(id)
+  })
 })
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId)
+  socket.off('nueva-comanda')
+  socket.off('comanda-actualizada')
+  socket.off('venta-cerrada')
+  socket.off('venta-cancelada')
+  disconnectSocket()
 })
 
 const comandasFiltradas = computed(() => {
