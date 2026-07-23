@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useCompraStore } from '../../stores/compras'
+import { useReporteStore } from '../../stores/reportes'
 import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import CompraFormModal from '../../components/compras/CompraFormModal.vue'
 import CompraDetailModal from '../../components/compras/CompraDetailModal.vue'
 
 const compraStore = useCompraStore()
+const reporteStore = useReporteStore()
 const toast = useToastStore()
 const modalFormAbierto = ref(false)
 const modalEditando = ref(false)
 const compraEditando = ref<any>(null)
 const detalleCompra = ref<any>(null)
 const filtroEstado = ref('')
+const filtroDesde = ref('')
+const filtroHasta = ref('')
 
 const comprasFiltradas = computed(() => {
   if (!filtroEstado.value) return compraStore.compras
@@ -53,22 +57,47 @@ async function cancelarCompra(id: number) {
     }
   }
 }
+
+async function exportarExcel() {
+  try {
+    await reporteStore.exportarComprasExcel(filtroDesde.value || undefined, filtroHasta.value || undefined)
+    toast.success('Reporte de compras exportado')
+  } catch {
+    toast.error('Error al exportar')
+  }
+}
 </script>
 
 <template>
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
       <h2>Compras</h2>
-      <button class="btn btn-primary" @click="modalFormAbierto = true">+ Nueva Compra</button>
+      <div>
+        <button class="btn btn-success me-2" @click="exportarExcel" :disabled="reporteStore.exportando">
+          <span v-if="reporteStore.exportando" class="spinner-border spinner-border-sm me-1"></span>
+          Exportar Excel
+        </button>
+        <button class="btn btn-primary" @click="modalFormAbierto = true">+ Nueva Compra</button>
+      </div>
     </div>
 
-    <div class="mt-3">
-      <select class="form-select w-auto" v-model="filtroEstado">
-        <option value="">Todas</option>
-        <option value="pendiente">Pendientes</option>
-        <option value="recibida">Recibidas</option>
-        <option value="cancelada">Canceladas</option>
-      </select>
+    <div class="mt-3 row g-2 align-items-end">
+      <div class="col-auto">
+        <select class="form-select w-auto" v-model="filtroEstado">
+          <option value="">Todas</option>
+          <option value="pendiente">Pendientes</option>
+          <option value="recibida">Recibidas</option>
+          <option value="cancelada">Canceladas</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small">Desde</label>
+        <input type="date" class="form-control" v-model="filtroDesde" />
+      </div>
+      <div class="col-auto">
+        <label class="form-label small">Hasta</label>
+        <input type="date" class="form-control" v-model="filtroHasta" />
+      </div>
     </div>
 
     <div v-if="compraStore.loading" class="text-center mt-4">

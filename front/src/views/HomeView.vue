@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import api from '../services/api'
 import { useReporteStore } from '../stores/reportes'
+import { useToastStore } from '../stores/toast'
 import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
 import MesasChart from '../components/common/chart-Mesas.vue'
 import TopProductosChart from '../components/common/chart-TopProductos.vue'
 
 const reporteStore = useReporteStore()
+const toast = useToastStore()
 
 const stats = ref({
   mesasDisponibles: 0,
@@ -33,11 +35,27 @@ onMounted(async () => {
 
   reporteStore.fetchAll()
 })
+
+async function exportarVentasHoy() {
+  try {
+    const hoy = new Date().toISOString().slice(0, 10)
+    await reporteStore.exportarVentasExcel(hoy, hoy)
+    toast.success('Ventas de hoy exportadas')
+  } catch {
+    toast.error('Error al exportar')
+  }
+}
 </script>
 
 <template>
   <div class="container mt-4">
-    <h1 class="mb-4">Dashboard</h1>
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="mb-4">Dashboard</h1>
+      <button class="btn btn-success btn-sm" @click="exportarVentasHoy" :disabled="reporteStore.exportando">
+        <span v-if="reporteStore.exportando" class="spinner-border spinner-border-sm me-1"></span>
+        Exportar Excel
+      </button>
+    </div>
 
     <div v-if="reporteStore.loading && stats.pedidosActivos === 0" class="text-center mt-5">
       <span class="spinner-border text-primary"></span>

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVentaStore } from '../../stores/ventas'
+import { useReporteStore } from '../../stores/reportes'
 import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import VentaFormModal from '../../components/ventas/VentaFormModal.vue'
@@ -9,10 +10,13 @@ import VentaDetailModal from '../../components/ventas/VentaDetailModal.vue'
 
 const router = useRouter()
 const ventaStore = useVentaStore()
+const reporteStore = useReporteStore()
 const toast = useToastStore()
 const modalFormAbierto = ref(false)
 const detalleVenta = ref<any>(null)
 const filtroEstado = ref('')
+const filtroDesde = ref('')
+const filtroHasta = ref('')
 
 onMounted(() => {
   ventaStore.fetchVentas()
@@ -25,21 +29,46 @@ function filtrar() {
 function continuarVenta(v: any) {
   router.push('/pedidos')
 }
+
+async function exportarExcel() {
+  try {
+    await reporteStore.exportarVentasExcel(filtroDesde.value || undefined, filtroHasta.value || undefined)
+    toast.success('Reporte de ventas exportado')
+  } catch {
+    toast.error('Error al exportar')
+  }
+}
 </script>
 
 <template>
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
       <h2>Ventas</h2>
-      <button class="btn btn-success" @click="modalFormAbierto = true">+ Nueva Venta</button>
+      <div>
+        <button class="btn btn-success me-2" @click="exportarExcel" :disabled="reporteStore.exportando">
+          <span v-if="reporteStore.exportando" class="spinner-border spinner-border-sm me-1"></span>
+          Exportar Excel
+        </button>
+        <button class="btn btn-success" @click="modalFormAbierto = true">+ Nueva Venta</button>
+      </div>
     </div>
 
-    <div class="mt-3">
-      <select class="form-select w-auto" v-model="filtroEstado" @change="filtrar">
-        <option value="">Todas</option>
-        <option value="abierta">Abiertas</option>
-        <option value="cerrada">Cerradas</option>
-      </select>
+    <div class="mt-3 row g-2 align-items-end">
+      <div class="col-auto">
+        <select class="form-select w-auto" v-model="filtroEstado" @change="filtrar">
+          <option value="">Todas</option>
+          <option value="abierta">Abiertas</option>
+          <option value="cerrada">Cerradas</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small">Desde</label>
+        <input type="date" class="form-control" v-model="filtroDesde" />
+      </div>
+      <div class="col-auto">
+        <label class="form-label small">Hasta</label>
+        <input type="date" class="form-control" v-model="filtroHasta" />
+      </div>
     </div>
 
     <div v-if="ventaStore.loading" class="text-center mt-4">

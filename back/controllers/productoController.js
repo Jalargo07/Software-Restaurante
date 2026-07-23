@@ -1,5 +1,6 @@
 const { Producto } = require('../models');
 const { Op } = require('sequelize');
+const { registrarAuditoria } = require('../utils/auditoria');
 
 const obtenerTodos = async (req, res) => {
   try {
@@ -44,6 +45,15 @@ const crear = async (req, res) => {
     }
 
     const producto = await Producto.create(datos);
+
+    await registrarAuditoria({
+      req,
+      accion: 'crear',
+      entidad: 'Producto',
+      entidadId: producto.id,
+      detalles: { nombre: producto.nombre, categoria: producto.categoria },
+    });
+
     res.status(201).json(producto);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear producto' });
@@ -74,6 +84,15 @@ const actualizar = async (req, res) => {
     }
 
     await producto.update(datos);
+
+    await registrarAuditoria({
+      req,
+      accion: 'actualizar',
+      entidad: 'Producto',
+      entidadId: producto.id,
+      detalles: { nombre: producto.nombre, cambios: Object.keys(datos) },
+    });
+
     res.json(producto);
   } catch (error) {
     res.status(500).json({ error: 'Error al actualizar producto' });
@@ -85,6 +104,15 @@ const desactivar = async (req, res) => {
     const producto = await Producto.findByPk(req.params.id);
     if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
     await producto.update({ activo: false });
+
+    await registrarAuditoria({
+      req,
+      accion: 'desactivar',
+      entidad: 'Producto',
+      entidadId: producto.id,
+      detalles: { nombre: producto.nombre },
+    });
+
     res.json({ message: 'Producto desactivado' });
   } catch (error) {
     res.status(500).json({ error: 'Error al desactivar producto' });

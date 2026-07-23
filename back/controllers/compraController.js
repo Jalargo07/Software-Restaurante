@@ -1,5 +1,6 @@
 const { Compra, DetalleCompra, Producto, Proveedor } = require('../models');
 const sequelize = require('../config/database');
+const { registrarAuditoria } = require('../utils/auditoria');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -53,6 +54,14 @@ const crear = async (req, res) => {
 
     await t.commit();
 
+    await registrarAuditoria({
+      req,
+      accion: 'crear',
+      entidad: 'Compra',
+      entidadId: compra.id,
+      detalles: { total, proveedorId, cantidadDetalles: detalles.length },
+    });
+
     const compraCompleta = await Compra.findByPk(compra.id, {
       include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
     });
@@ -93,6 +102,14 @@ const recibir = async (req, res) => {
     }
 
     await t.commit();
+
+    await registrarAuditoria({
+      req,
+      accion: 'recibir',
+      entidad: 'Compra',
+      entidadId: compra.id,
+      detalles: { total: Number(compra.total) },
+    });
 
     const compraCompleta = await Compra.findByPk(compra.id, {
       include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
@@ -148,6 +165,14 @@ const actualizar = async (req, res) => {
     await compra.save({ transaction: t });
     await t.commit();
 
+    await registrarAuditoria({
+      req,
+      accion: 'actualizar',
+      entidad: 'Compra',
+      entidadId: compra.id,
+      detalles: { total: Number(compra.total), proveedorId: compra.proveedorId },
+    });
+
     const compraCompleta = await Compra.findByPk(compra.id, {
       include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
     });
@@ -167,6 +192,15 @@ const cancelar = async (req, res) => {
     if (compra.estado === 'recibida') return res.status(400).json({ error: 'No se puede cancelar una compra recibida' });
 
     await compra.update({ estado: 'cancelada' });
+
+    await registrarAuditoria({
+      req,
+      accion: 'cancelar',
+      entidad: 'Compra',
+      entidadId: compra.id,
+      detalles: { total: Number(compra.total) },
+    });
+
     res.json({ message: 'Compra cancelada' });
   } catch (error) {
     res.status(500).json({ error: 'Error al cancelar compra' });

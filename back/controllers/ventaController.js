@@ -1,6 +1,7 @@
 const { Venta, DetalleVenta, Producto, Mesa } = require('../models');
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
+const { registrarAuditoria } = require('../utils/auditoria');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -137,6 +138,14 @@ const cobrar = async (req, res) => {
 
     await t.commit();
 
+    await registrarAuditoria({
+      req,
+      accion: 'cobrar',
+      entidad: 'Venta',
+      entidadId: venta.id,
+      detalles: { total: Number(venta.total), metodoPago },
+    });
+
     const ventaCompleta = await Venta.findByPk(venta.id, {
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
     });
@@ -195,6 +204,14 @@ const crearRapida = async (req, res) => {
 
     await t.commit();
 
+    await registrarAuditoria({
+      req,
+      accion: 'crear_rapida',
+      entidad: 'Venta',
+      entidadId: venta.id,
+      detalles: { total, metodoPago, cantidadProductos: productos.length },
+    });
+
     const ventaCompleta = await Venta.findByPk(venta.id, {
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
     });
@@ -239,6 +256,14 @@ const cancelar = async (req, res) => {
     if (venta.mesaId) {
       await Mesa.update({ estado: 'disponible' }, { where: { id: venta.mesaId } });
     }
+
+    await registrarAuditoria({
+      req,
+      accion: 'cancelar',
+      entidad: 'Venta',
+      entidadId: venta.id,
+      detalles: { total: Number(venta.total) },
+    });
 
     res.json({ message: 'Venta cancelada' });
   } catch (error) {

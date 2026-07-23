@@ -4,11 +4,13 @@ import { useProveedorStore } from '../../stores/proveedores'
 import { useToastStore } from '../../stores/toast'
 import ModalBase from '../../components/common/ModalBase.vue'
 import ProveedorFormModal from '../../components/proveedores/ProveedorFormModal.vue'
+import ProveedorHistorialModal from '../../components/proveedores/ProveedorHistorialModal.vue'
 
 const proveedorStore = useProveedorStore()
 const toast = useToastStore()
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
+const historialProveedor = ref<{ id: number; nombre: string } | null>(null)
 
 onMounted(() => {
   proveedorStore.fetchProveedores()
@@ -22,6 +24,10 @@ function abrirModal(proveedor?: any) {
 function cerrarModal() {
   modalAbierto.value = false
   editando.value = null
+}
+
+function abrirHistorial(proveedor: any) {
+  historialProveedor.value = { id: proveedor.id, nombre: proveedor.nombre }
 }
 
 async function eliminar(id: number) {
@@ -70,6 +76,7 @@ async function eliminar(id: number) {
             </span>
           </td>
           <td>
+            <button class="btn btn-sm btn-outline-info me-1" @click="abrirHistorial(p)">Historial</button>
             <button class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
             <button class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
           </td>
@@ -79,6 +86,10 @@ async function eliminar(id: number) {
 
     <ModalBase v-if="modalAbierto" id="proveedorModal" :titulo="editando ? 'Editar Proveedor' : 'Nuevo Proveedor'" @cerrar="cerrarModal">
       <ProveedorFormModal :proveedor="editando" :abierto="modalAbierto" @cerrar="cerrarModal" @guardado="proveedorStore.fetchProveedores()" />
+    </ModalBase>
+
+    <ModalBase v-if="historialProveedor" id="proveedorHistorialModal" :titulo="`Historial - ${historialProveedor.nombre}`" @cerrar="historialProveedor = null">
+      <ProveedorHistorialModal :proveedor-id="historialProveedor.id" :proveedor-nombre="historialProveedor.nombre" @cerrar="historialProveedor = null" />
     </ModalBase>
   </div>
 </template>

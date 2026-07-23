@@ -38,6 +38,7 @@ const navItems = computed(() => {
   ]
   if (authStore.isAdmin) {
     items.push({ path: '/usuarios', icon: '👥', label: 'Usuarios' })
+    items.push({ path: '/auditoria', icon: '📋', label: 'Auditoría' })
   }
   return items
 })
