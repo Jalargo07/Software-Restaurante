@@ -30,6 +30,8 @@ Thumbs.db
 
 # OpenCode
 .opencode/
+.opencode.rar
+opencode.json
 
 # Informes internos
 INFORME_AGENTES.md
