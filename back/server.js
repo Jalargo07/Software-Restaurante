@@ -47,7 +47,7 @@ const startServer = async () => {
     await sequelize.sync({ alter: true });
     console.log('Models synced');
 
-    const { ensureBucket } = require('./config/minio');
+    const { ensureBucket } = require('./config/s3');
     await ensureBucket();
 
     // Seed admin user
