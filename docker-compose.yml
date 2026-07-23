@@ -1,0 +1,51 @@
+services:
+  backend:
+    build: ./back
+    container_name: restaurant-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - sqlite-data:/app/data
+    environment:
+      - PORT=3000
+      - JWT_SECRET=restaurant_secret_key_2026
+      - CORS_ORIGIN=http://localhost
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=restaurant-images
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  frontend:
+    build: ./front
+    container_name: restaurant-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  minio:
+    image: minio/minio:latest
+    container_name: restaurant-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sqlite-data:
+  minio-data:
