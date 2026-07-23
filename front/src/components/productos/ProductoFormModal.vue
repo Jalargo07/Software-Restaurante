@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useProductoStore } from '../../stores/productos'
+import { useRecetaStore } from '../../stores/recetas'
 import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
 
@@ -15,28 +16,77 @@ const emit = defineEmits<{
 }>()
 
 const store = useProductoStore()
+const recetaStore = useRecetaStore()
 const toast = useToastStore()
 const guardando = ref(false)
+
+interface DetalleRecetaForm {
+  insumoId: number | null
+  cantidad: number
+  unidad: string
+  merma: number
+}
+
 const form = ref({
   nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
   precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
 })
 
+const recetaForm = ref({
+  nombre: '',
+  porciones: 1,
+  detalles: [] as DetalleRecetaForm[],
+})
+
+const insumos = ref<any[]>([])
+const recetaExistenteId = ref<number | null>(null)
+const esNuevo = computed(() => !props.producto)
+
 const archivo = ref<File | null>(null)
 const previewUrl = ref('')
 
-watch(() => props.abierto, (val) => {
-  if (val && props.producto) {
-    form.value = { ...props.producto }
-    previewUrl.value = props.producto.imagen || ''
-  } else if (val) {
-    form.value = {
-      nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
-      precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
+watch(() => props.abierto, async (val) => {
+  if (val) {
+    await store.fetchProductos()
+    insumos.value = store.productos.filter((p: any) => p.tipo === 'insumo')
+
+    if (props.producto) {
+      form.value = { ...props.producto }
+      previewUrl.value = props.producto.imagen || ''
+      if (props.producto.tipo === 'compuesto') {
+        await recetaStore.fetchRecetas()
+        const receta = recetaStore.recetas.find((r: any) => r.productoId === props.producto!.id)
+        if (receta) {
+          recetaExistenteId.value = receta.id
+          recetaForm.value = {
+            nombre: receta.nombre,
+            porciones: receta.porciones,
+            detalles: (receta.DetalleRecetas || []).map((d: any) => ({
+              insumoId: d.insumoId,
+              cantidad: d.cantidad,
+              unidad: d.unidad,
+              merma: d.merma,
+            })),
+          }
+        } else {
+          recetaExistenteId.value = null
+          recetaForm.value = { nombre: '', porciones: 1, detalles: [] }
+        }
+      } else {
+        recetaExistenteId.value = null
+        recetaForm.value = { nombre: '', porciones: 1, detalles: [] }
+      }
+    } else {
+      form.value = {
+        nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
+        precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
+      }
+      previewUrl.value = ''
+      recetaExistenteId.value = null
+      recetaForm.value = { nombre: '', porciones: 1, detalles: [] }
     }
-    previewUrl.value = ''
+    archivo.value = null
   }
-  archivo.value = null
 })
 
 function onFileChange(e: Event) {
@@ -59,6 +109,14 @@ async function subirImagen(): Promise<string | null> {
   return data.url
 }
 
+function agregarIngrediente() {
+  recetaForm.value.detalles.push({ insumoId: null, cantidad: 1, unidad: 'unidad', merma: 0 })
+}
+
+function quitarIngrediente(index: number) {
+  recetaForm.value.detalles.splice(index, 1)
+}
+
 async function guardar() {
   guardando.value = true
   try {
@@ -66,12 +124,32 @@ async function guardar() {
     if (props.producto) {
       productoGuardado = await store.updateProducto(props.producto.id, form.value)
     } else {
-      productoGuardado = await store.createProducto(form.value)
+      productoGuardado = await store.createProducto({ ...form.value, stock: 0 })
     }
     if (archivo.value) {
       const url = await subirImagen()
       if (url) {
         await store.updateProducto(productoGuardado.id, { imagen: url })
+      }
+    }
+    if (form.value.tipo === 'compuesto' && recetaForm.value.nombre.trim() && recetaForm.value.detalles.length > 0) {
+      const detalles = recetaForm.value.detalles
+        .filter((d) => d.insumoId !== null)
+        .map((d) => ({
+          insumoId: d.insumoId!,
+          cantidad: d.cantidad,
+          unidad: d.unidad,
+          merma: d.merma,
+        }))
+      if (recetaExistenteId.value) {
+        await recetaStore.updateReceta(recetaExistenteId.value, recetaForm.value)
+      } else {
+        await recetaStore.createReceta({
+          nombre: recetaForm.value.nombre,
+          porciones: recetaForm.value.porciones,
+          productoId: productoGuardado.id,
+          detalles,
+        })
       }
     }
     toast.success(props.producto ? 'Producto actualizado' : 'Producto creado')
@@ -142,14 +220,64 @@ async function guardar() {
     </div>
     <div class="row mb-2">
       <div class="col">
-        <label class="form-label">Stock</label>
-        <input v-model.number="form.stock" type="number" class="form-control" min="0">
-      </div>
-      <div class="col">
         <label class="form-label">Stock Minimo</label>
         <input v-model.number="form.stockMinimo" type="number" class="form-control" min="0">
       </div>
+      <div v-if="!esNuevo" class="col">
+        <label class="form-label">Stock</label>
+        <input v-model.number="form.stock" type="number" class="form-control" min="0">
+      </div>
+      <div v-else class="col d-flex align-items-end">
+        <span class="text-muted small">Stock: 0 (se actualiza con compras)</span>
+      </div>
     </div>
+
+    <div v-if="form.tipo === 'compuesto'" class="border rounded p-3 mt-2 mb-2">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="form-label mb-0 fw-bold">Receta</label>
+        <button type="button" class="btn btn-sm btn-outline-success" @click="agregarIngrediente">+ Ingrediente</button>
+      </div>
+      <div class="row mb-2">
+        <div class="col">
+          <label class="form-label">Nombre Receta</label>
+          <input v-model="recetaForm.nombre" class="form-control form-control-sm" placeholder="Nombre de la receta">
+        </div>
+        <div class="col-3">
+          <label class="form-label">Porciones</label>
+          <input v-model.number="recetaForm.porciones" type="number" min="1" class="form-control form-control-sm">
+        </div>
+      </div>
+      <div v-if="recetaForm.detalles.length === 0" class="text-muted text-center mb-2">
+        Sin ingredientes
+      </div>
+      <div v-for="(d, i) in recetaForm.detalles" :key="i" class="row g-1 mb-1 align-items-end">
+        <div class="col-4">
+          <select v-model="d.insumoId" class="form-select form-select-sm" required>
+            <option :value="null" disabled>Insumo</option>
+            <option v-for="ins in insumos" :key="ins.id" :value="ins.id">{{ ins.nombre }}</option>
+          </select>
+        </div>
+        <div class="col-2">
+          <input v-model.number="d.cantidad" type="number" step="0.01" min="0.01" class="form-control form-control-sm" placeholder="Cant." required>
+        </div>
+        <div class="col-2">
+          <select v-model="d.unidad" class="form-select form-select-sm">
+            <option value="kg">Kg</option>
+            <option value="g">g</option>
+            <option value="litro">Litro</option>
+            <option value="ml">ml</option>
+            <option value="unidad">Unidad</option>
+          </select>
+        </div>
+        <div class="col-2">
+          <input v-model.number="d.merma" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" placeholder="Merma %">
+        </div>
+        <div class="col-2 text-end">
+          <button type="button" class="btn btn-sm btn-outline-danger" @click="quitarIngrediente(i)">X</button>
+        </div>
+      </div>
+    </div>
+
     <button type="submit" class="btn btn-primary w-100 mt-2" :disabled="guardando">
       <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
       {{ guardando ? 'Guardando...' : (producto ? 'Actualizar' : 'Crear') + ' Producto' }}
