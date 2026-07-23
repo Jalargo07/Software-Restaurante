@@ -87,7 +87,7 @@ watch(() => props.abierto, async (val) => {
     }
     archivo.value = null
   }
-})
+}, { immediate: true })
 
 function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement
