@@ -65,7 +65,7 @@ const crear = async (req, res) => {
       insumoId: d.insumoId,
       cantidad: d.cantidad,
       unidad: d.unidad || 'unidad',
-      merma: d.merma || 0,
+      merma: insumo.merma || 0,
     }));
     await DetalleReceta.bulkCreate(detallesData);
 
@@ -124,9 +124,9 @@ const actualizar = async (req, res) => {
         insumoId: d.insumoId,
         cantidad: d.cantidad,
         unidad: d.unidad || 'unidad',
-        merma: d.merma || 0,
-      }));
-      await DetalleReceta.bulkCreate(detallesData);
+      merma: insumo.merma || 0,
+    }));
+    await DetalleReceta.bulkCreate(detallesData);
     }
 
     const recetaCompleta = await Receta.findByPk(receta.id, {

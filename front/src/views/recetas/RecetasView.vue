@@ -69,7 +69,7 @@ async function eliminar(id: number) {
               <li v-for="d in r.DetalleRecetas" :key="d.id">
                 {{ d.insumo?.nombre ?? 'Insumo #' + d.insumoId }}
                 — {{ d.cantidad }} {{ d.unidad }}
-                <span v-if="d.merma > 0" class="text-muted">(merma {{ d.merma }}%)</span>
+                <span v-if="d.insumo?.merma > 0" class="text-muted">(merma {{ d.insumo.merma }}%)</span>
               </li>
             </ul>
           </td>

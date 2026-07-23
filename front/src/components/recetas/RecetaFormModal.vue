@@ -22,7 +22,6 @@ const guardando = ref(false)
 interface DetalleForm {
   insumoId: number | null
   cantidad: number
-  merma: number
 }
 
 const form = ref({
@@ -44,7 +43,6 @@ watch(() => props.abierto, async (val) => {
         detalles: (props.receta.DetalleRecetas || []).map((d: any) => ({
           insumoId: d.insumoId,
           cantidad: d.cantidad,
-          merma: d.merma,
         })),
       }
     } else {
@@ -68,7 +66,7 @@ async function cargarProductos() {
 }
 
 function agregarIngrediente() {
-  form.value.detalles.push({ insumoId: null, cantidad: 1, merma: 0 })
+  form.value.detalles.push({ insumoId: null, cantidad: 1 })
 }
 
 function quitarIngrediente(index: number) {
@@ -97,7 +95,6 @@ async function guardar() {
           insumoId: d.insumoId!,
           cantidad: d.cantidad,
           unidad: insumo?.unidad || 'unidad',
-          merma: d.merma,
         }
       })
     const payload = { ...form.value, nombre: nombreReceta, detalles }
@@ -156,9 +153,6 @@ async function guardar() {
       </div>
       <div class="col-2">
         <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
-      </div>
-      <div class="col-2">
-        <input v-model.number="d.merma" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" placeholder="Merma %">
       </div>
       <div class="col-2 text-end">
         <button type="button" class="btn btn-sm btn-outline-danger" @click="quitarIngrediente(i)">X</button>

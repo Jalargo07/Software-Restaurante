@@ -17,13 +17,13 @@ async function seed() {
 
   console.log('🍔 Creando productos...');
   const insumos = await Producto.bulkCreate([
-    { nombre: 'Pan de hamburguesa', categoria: 'insumo', precioCompra: 30, precioVenta: 0, stock: 100, unidad: 'unidad', tipo: 'insumo' },
-    { nombre: 'Carne molida', categoria: 'insumo', precioCompra: 80, precioVenta: 0, stock: 50, unidad: 'kg', tipo: 'insumo' },
-    { nombre: 'Lechuga', categoria: 'insumo', precioCompra: 20, precioVenta: 0, stock: 30, unidad: 'kg', tipo: 'insumo' },
-    { nombre: 'Tomate', categoria: 'insumo', precioCompra: 25, precioVenta: 0, stock: 40, unidad: 'kg', tipo: 'insumo' },
-    { nombre: 'Queso cheddar', categoria: 'insumo', precioCompra: 120, precioVenta: 0, stock: 20, unidad: 'kg', tipo: 'insumo' },
+    { nombre: 'Pan de hamburguesa', categoria: 'insumo', precioCompra: 30, precioVenta: 0, stock: 100, unidad: 'unidad', tipo: 'insumo', merma: 2 },
+    { nombre: 'Carne molida', categoria: 'insumo', precioCompra: 80, precioVenta: 0, stock: 50, unidad: 'kg', tipo: 'insumo', merma: 10 },
+    { nombre: 'Lechuga', categoria: 'insumo', precioCompra: 20, precioVenta: 0, stock: 30, unidad: 'kg', tipo: 'insumo', merma: 5 },
+    { nombre: 'Tomate', categoria: 'insumo', precioCompra: 25, precioVenta: 0, stock: 40, unidad: 'kg', tipo: 'insumo', merma: 5 },
+    { nombre: 'Queso cheddar', categoria: 'insumo', precioCompra: 120, precioVenta: 0, stock: 20, unidad: 'kg', tipo: 'insumo', merma: 3 },
     { nombre: 'Coca Cola 500ml', categoria: 'bebida', precioCompra: 80, precioVenta: 250, stock: 48, unidad: 'unidad', tipo: 'insumo' },
-    { nombre: 'Papas fritas congeladas', categoria: 'insumo', precioCompra: 60, precioVenta: 0, stock: 25, unidad: 'kg', tipo: 'insumo' },
+    { nombre: 'Papas fritas congeladas', categoria: 'insumo', precioCompra: 60, precioVenta: 0, stock: 25, unidad: 'kg', tipo: 'insumo', merma: 5 },
     { nombre: 'Salsa de tomate', categoria: 'insumo', precioCompra: 35, precioVenta: 0, stock: 15, unidad: 'litro', tipo: 'insumo' }
   ]);
 

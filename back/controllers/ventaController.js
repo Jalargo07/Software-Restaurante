@@ -147,7 +147,7 @@ const cobrar = async (req, res) => {
             }
 
             const cantidadNecesaria = Number(ingrediente.cantidad) * Number(detalle.cantidad);
-            const mermaFactor = 1 + Number(ingrediente.merma) / 100;
+            const mermaFactor = 1 + Number(insumo.merma) / 100;
             const totalRequerido = Math.ceil(cantidadNecesaria * mermaFactor);
 
             if (insumo.stock < totalRequerido) {
@@ -271,7 +271,7 @@ const crearRapida = async (req, res) => {
           }
 
           const cantidadNecesaria = Number(ingrediente.cantidad) * Number(item.cantidad);
-          const mermaFactor = 1 + Number(ingrediente.merma) / 100;
+          const mermaFactor = 1 + Number(insumo.merma) / 100;
           const totalRequerido = Math.ceil(cantidadNecesaria * mermaFactor);
 
           if (insumo.stock < totalRequerido) {

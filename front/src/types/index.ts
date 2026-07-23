@@ -45,6 +45,7 @@ export interface Producto {
   tipo: ProductoTipo
   activo: boolean
   imagen: string | null
+  merma: number
 }
 
 export interface Proveedor {

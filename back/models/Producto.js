@@ -52,6 +52,11 @@ const Producto = sequelize.define('Producto', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  merma: {
+    type: DataTypes.DECIMAL(5, 2),
+    defaultValue: 0,
+    validate: { min: 0, max: 100 },
+  },
 });
 
 module.exports = Producto;

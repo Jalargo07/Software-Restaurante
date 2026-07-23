@@ -23,12 +23,11 @@ const guardando = ref(false)
 interface DetalleRecetaForm {
   insumoId: number | null
   cantidad: number
-  merma: number
 }
 
 const form = ref({
   nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
-  precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
+  precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad', merma: 0,
 })
 
 const recetaForm = ref({
@@ -61,7 +60,6 @@ watch(() => props.abierto, async (val) => {
             detalles: (receta.DetalleRecetas || []).map((d: any) => ({
               insumoId: d.insumoId,
               cantidad: d.cantidad,
-              merma: d.merma,
             })),
           }
         } else {
@@ -75,7 +73,7 @@ watch(() => props.abierto, async (val) => {
     } else {
       form.value = {
         nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
-        precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
+        precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad', merma: 0,
       }
       previewUrl.value = ''
       recetaExistenteId.value = null
@@ -106,7 +104,7 @@ async function subirImagen(): Promise<string | null> {
 }
 
 function agregarIngrediente() {
-  recetaForm.value.detalles.push({ insumoId: null, cantidad: 1, merma: 0 })
+  recetaForm.value.detalles.push({ insumoId: null, cantidad: 1 })
 }
 
 function quitarIngrediente(index: number) {
@@ -137,7 +135,6 @@ async function guardar() {
             insumoId: d.insumoId!,
             cantidad: d.cantidad,
             unidad: insumo?.unidad || 'unidad',
-            merma: d.merma,
           }
         })
       const nombreReceta = `Receta ${form.value.nombre}`
@@ -232,6 +229,11 @@ async function guardar() {
       </div>
     </div>
 
+    <div v-if="form.tipo === 'insumo'" class="mb-2">
+      <label class="form-label">Merma %</label>
+      <input v-model.number="form.merma" type="number" step="0.01" min="0" max="100" class="form-control">
+    </div>
+
     <div v-if="form.tipo === 'compuesto'" class="border rounded p-3 mt-2 mb-2">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <label class="form-label mb-0 fw-bold">Receta</label>
@@ -258,9 +260,6 @@ async function guardar() {
         </div>
         <div class="col-2">
           <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
-        </div>
-        <div class="col-2">
-          <input v-model.number="d.merma" type="number" step="0.01" min="0" max="100" class="form-control form-control-sm" placeholder="Merma %">
         </div>
         <div class="col-2 text-end">
           <button type="button" class="btn btn-sm btn-outline-danger" @click="quitarIngrediente(i)">X</button>
