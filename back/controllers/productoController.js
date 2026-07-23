@@ -31,18 +31,6 @@ const obtenerPorId = async (req, res) => {
 const crear = async (req, res) => {
   try {
     const datos = { ...req.body };
-    if (datos.categoria !== 'insumo') {
-      delete datos.codigoBarras;
-    }
-
-    if (datos.categoria === 'insumo' && datos.codigoBarras) {
-      const existente = await Producto.findOne({
-        where: { codigoBarras: datos.codigoBarras, activo: true },
-      });
-      if (existente) {
-        return res.status(400).json({ error: 'Ya existe un insumo con ese código de barras' });
-      }
-    }
 
     const producto = await Producto.create(datos);
 
@@ -66,22 +54,6 @@ const actualizar = async (req, res) => {
     if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
 
     const datos = { ...req.body };
-    if (datos.categoria !== 'insumo') {
-      delete datos.codigoBarras;
-    }
-
-    if (datos.categoria === 'insumo' && datos.codigoBarras) {
-      const existente = await Producto.findOne({
-        where: {
-          codigoBarras: datos.codigoBarras,
-          activo: true,
-          id: { [Op.ne]: req.params.id },
-        },
-      });
-      if (existente) {
-        return res.status(400).json({ error: 'Ya existe un insumo con ese código de barras' });
-      }
-    }
 
     await producto.update(datos);
 

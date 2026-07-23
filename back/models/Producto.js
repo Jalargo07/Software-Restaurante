@@ -11,10 +11,6 @@ const Producto = sequelize.define('Producto', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  codigoBarras: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
   descripcion: {
     type: DataTypes.TEXT,
     allowNull: true,

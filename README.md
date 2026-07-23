@@ -204,7 +204,7 @@ Todas las rutas requieren JWT (`Authorization: Bearer <token>`) excepto login.
 | Modelo | Campos clave |
 |--------|-------------|
 | Usuario | nombre, email (unique), password (hash), rol, activo |
-| Producto | nombre, categoría, precio, stock, códigoBarras, stockMinimo |
+| Producto | nombre, categoría, precio compra, precio venta, stock, stockMinimo, unidad, activo |
 | Proveedor | nombre, contacto, teléfono, email, dirección |
 | Mesa | número (unique), capacidad, estado (libre/ocupada/reservada) |
 | Venta | total, estado (abierta/cerrada/cancelada), modo (mesa/mostrador), MesaId |
@@ -245,13 +245,11 @@ Todas las rutas requieren JWT (`Authorization: Bearer <token>`) excepto login.
 
 1. **Stock negativo**: Al cobrar/crear venta rápida se descuenta stock sin validar suficiente
 2. **sync alter SQLite**: `ALTER TABLE` limitado; si falla, borrar `database.sqlite` y reiniciar
-3. **Código de barras**: Campo existe en modelo pero no en formulario de producto
-4. **Filtro ventas**: No incluye opción "Canceladas" en VentasView
+3. **Filtro ventas**: No incluye opción "Canceladas" en VentasView
 
 ## Futuro
 
 - PWA
-- Escáner de código de barras
 - Split bill (dividir cuenta)
 - Docker
 - Paginación
