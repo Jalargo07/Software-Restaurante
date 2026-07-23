@@ -212,6 +212,26 @@ Todas las rutas requieren JWT (`Authorization: Bearer <token>`) excepto login.
 | Compra | total, estado (pendiente/recibida/cancelada), ProveedorId, fechaRecepcion |
 | DetalleCompra | cantidad, precioUnitario, subtotal, CompraId, ProductoId |
 
+### Exportar Excel
+- Botón "Exportar Excel" en Dashboard, VentasView y ComprasView
+- Genera archivos .xlsx con resumen y detalle
+- Filtros por fecha (Desde/Hasta)
+- Solo accesible por admin
+
+### Historial de compras por proveedor
+- Botón "Historial" en cada fila de ProveedoresView
+- Modal con resumen (total compras, monto total, promedio)
+- Tabla detallada de compras del proveedor
+- Botón exportar historial a Excel
+
+### Auditoría
+- Modelo `Auditoria` con: usuario, acción, entidad, ID entidad, detalles, IP
+- Logging automático en 5 controllers (ventas, compras, productos, proveedores, usuarios)
+- Vista con tabla de logs, filtros (usuario, entidad, fecha), paginación
+- Badge de color por acción (crear=verde, editar=azul, eliminar=rojo, etc.)
+- Exportar logs a Excel
+- Solo accesible por admin
+
 ## Sprints
 
 | Sprint | Estado | Descripción |
@@ -219,7 +239,7 @@ Todas las rutas requieren JWT (`Authorization: Bearer <token>`) excepto login.
 | Sprint 1 | ✅ Completado | CRUD productos, proveedores, mesas, ventas, auth |
 | Sprint 2 | ✅ Completado | Compras recibir/editar, Dashboard reportes y gráficos |
 | Sprint 3 | ✅ Completado | Gestión usuarios, Sistema comandas/cocina |
-| Sprint 4 | 🔜 Próximo | Exportar Excel, Historial compras proveedor, Logs auditoría |
+| Sprint 4 | ✅ Completado | Exportar Excel, Historial compras proveedor, Logs auditoría |
 
 ## Bugs conocidos
 
