@@ -118,8 +118,8 @@ function cambiarFiltro() {
 
     <div class="row mt-3" v-for="v in pedidoStore.pedidos" :key="v.id">
       <div class="col-12 mb-3">
-        <div class="card" :class="v.estado === 'cancelada' ? 'border-secondary' : 'border-danger'">
-          <div class="card-header d-flex justify-content-between align-items-center" :class="v.estado === 'cancelada' ? 'bg-secondary' : 'bg-danger'" style="color:white">
+        <div class="card" :class="v.estado === 'cerrada' ? 'border-success' : v.estado === 'cancelada' ? 'border-secondary' : 'border-danger'">
+          <div class="card-header d-flex justify-content-between align-items-center" :class="v.estado === 'cerrada' ? 'bg-success' : v.estado === 'cancelada' ? 'bg-secondary' : 'bg-danger'" style="color:white">
             <strong>Mesa #{{ v.Mesa?.numero || 'Fast Food' }}</strong>
             <span>Total: ${{ v.total }}</span>
           </div>
