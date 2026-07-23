@@ -25,7 +25,7 @@ const emit = defineEmits<{
         </tr>
       </thead>
       <tbody>
-        <tr v-for="d in venta.DetalleVentas" :key="d.id">
+        <tr v-for="d in (venta.DetalleVentas || venta.DetalleVenta || [])" :key="d.id">
           <td>{{ d.Producto?.nombre || 'N/A' }}</td>
           <td>{{ d.cantidad }}</td>
           <td>${{ d.precioUnitario }}</td>

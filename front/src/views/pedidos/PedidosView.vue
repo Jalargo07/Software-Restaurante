@@ -124,13 +124,13 @@ function cambiarFiltro() {
             <span>Total: ${{ v.total }}</span>
           </div>
           <div class="card-body">
-            <p v-if="v.Cliente?.nombre || v.cliente"><strong>Cliente:</strong> {{ v.Cliente?.nombre || v.cliente }}</p>
+            <p v-if="v.cliente"><strong>Cliente:</strong> {{ v.cliente }}</p>
             <table class="table table-sm mb-2">
               <thead>
                 <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th></tr>
               </thead>
               <tbody>
-                <tr v-for="d in v.DetalleVentas" :key="d.id">
+                <tr v-for="d in (v.DetalleVentas || v.DetalleVenta || [])" :key="d.id">
                   <td>{{ d.Producto?.nombre }}</td>
                   <td>{{ d.cantidad }}</td>
                   <td>${{ d.precioUnitario }}</td>
@@ -175,7 +175,25 @@ function cambiarFiltro() {
 
     <ModalBase v-if="cobrandoVenta" id="cobroModal" titulo="Cobrar" @cerrar="cobrandoVenta = null">
       <div>
-        <p><strong>Total: ${{ cobrandoVenta.total }}</strong></p>
+        <table class="table table-sm mb-2">
+          <thead>
+            <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="d in (cobrandoVenta.DetalleVentas || cobrandoVenta.DetalleVenta || [])" :key="d.id">
+              <td>{{ d.Producto?.nombre }}</td>
+              <td>{{ d.cantidad }}</td>
+              <td>${{ d.precioUnitario }}</td>
+              <td>${{ d.subtotal }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3" class="text-end">Total:</th>
+              <th>${{ cobrandoVenta.total }}</th>
+            </tr>
+          </tfoot>
+        </table>
         <div class="mb-3">
           <label class="form-label">Metodo de Pago</label>
           <select v-model="metodoPago" class="form-select">
