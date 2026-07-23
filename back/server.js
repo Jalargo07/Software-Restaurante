@@ -23,6 +23,7 @@ app.use('/api/comandas', require('./routes/comandas'));
 app.use('/api/auditoria', require('./routes/auditoria'));
 app.use('/api/recetas', require('./routes/recetas'));
 app.use('/api/cortes', require('./routes/corteCaja'));
+app.use('/api/upload', require('./routes/upload'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
@@ -45,6 +46,9 @@ const startServer = async () => {
     console.log('Database connected');
     await sequelize.sync({ alter: true });
     console.log('Models synced');
+
+    const { ensureBucket } = require('./config/minio');
+    await ensureBucket();
 
     // Seed admin user
     const { Usuario } = require('./models');

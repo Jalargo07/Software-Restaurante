@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useProductoStore } from '../../stores/productos'
+import { useToastStore } from '../../stores/toast'
+import api from '../../services/api'
 
 const props = defineProps<{
   producto?: any
@@ -13,33 +15,70 @@ const emit = defineEmits<{
 }>()
 
 const store = useProductoStore()
+const toast = useToastStore()
 const guardando = ref(false)
 const form = ref({
   nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
   precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
 })
 
+const archivo = ref<File | null>(null)
+const previewUrl = ref('')
+
 watch(() => props.abierto, (val) => {
   if (val && props.producto) {
     form.value = { ...props.producto }
+    previewUrl.value = props.producto.imagen || ''
   } else if (val) {
     form.value = {
       nombre: '', descripcion: '', categoria: 'comida', tipo: 'directo',
       precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad',
     }
+    previewUrl.value = ''
   }
+  archivo.value = null
 })
+
+function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (!input.files?.length) return
+  archivo.value = input.files[0]
+  if (previewUrl.value && previewUrl.value.startsWith('blob:')) {
+    URL.revokeObjectURL(previewUrl.value)
+  }
+  previewUrl.value = URL.createObjectURL(archivo.value)
+}
+
+async function subirImagen(): Promise<string | null> {
+  if (!archivo.value) return null
+  const fd = new FormData()
+  fd.append('imagen', archivo.value)
+  const { data } = await api.post('/upload', fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data.url
+}
 
 async function guardar() {
   guardando.value = true
   try {
+    let productoGuardado: any
     if (props.producto) {
-      await store.updateProducto(props.producto.id, form.value)
+      productoGuardado = await store.updateProducto(props.producto.id, form.value)
     } else {
-      await store.createProducto(form.value)
+      productoGuardado = await store.createProducto(form.value)
     }
+    if (archivo.value) {
+      const url = await subirImagen()
+      if (url) {
+        await store.updateProducto(productoGuardado.id, { imagen: url })
+      }
+    }
+    toast.success(props.producto ? 'Producto actualizado' : 'Producto creado')
     emit('guardado')
     emit('cerrar')
+  } catch {
+    toast.error('Error al guardar producto')
   } finally {
     guardando.value = false
   }
@@ -48,6 +87,13 @@ async function guardar() {
 
 <template>
   <form @submit.prevent="guardar">
+    <div class="mb-2">
+      <label class="form-label">Imagen</label>
+      <input type="file" class="form-control" accept="image/*" @change="onFileChange">
+      <div v-if="previewUrl" class="mt-2 text-center">
+        <img :src="previewUrl" alt="Preview" class="rounded" style="max-width:120px;max-height:120px;object-fit:cover">
+      </div>
+    </div>
     <div class="mb-2">
       <label class="form-label">Nombre</label>
       <input v-model="form.nombre" class="form-control" required>

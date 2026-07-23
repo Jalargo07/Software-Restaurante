@@ -142,6 +142,8 @@ async function avanzarEstado(detalle: DetalleComanda) {
                 class="list-group-item d-flex justify-content-between align-items-center">
                 <div class="flex-grow-1">
                   <div class="d-flex align-items-center gap-2">
+                    <img v-if="detalle.Producto?.imagen" :src="detalle.Producto.imagen" class="rounded"
+                      style="width:28px;height:28px;object-fit:cover">
                     <span class="fw-semibold">{{ detalle.Producto?.nombre || 'Producto' }}</span>
                     <span class="badge" :class="estadoBg[detalle.estadoComanda]">
                       {{ estadoLabel[detalle.estadoComanda] }}

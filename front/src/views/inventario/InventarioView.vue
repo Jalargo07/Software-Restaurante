@@ -79,6 +79,7 @@ async function eliminar(id: number) {
     <table v-else class="table table-striped mt-3">
       <thead>
         <tr>
+          <th>Foto</th>
           <th>Nombre</th>
           <th>Tipo</th>
           <th>Categoria</th>
@@ -91,6 +92,11 @@ async function eliminar(id: number) {
       </thead>
       <tbody>
         <tr v-for="p in productosFiltrados()" :key="p.id">
+          <td>
+            <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre"
+              class="rounded" style="width:40px;height:40px;object-fit:cover">
+            <span v-else class="text-muted">—</span>
+          </td>
           <td>{{ p.nombre }}</td>
           <td>
             <span :class="{
