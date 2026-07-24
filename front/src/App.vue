@@ -24,7 +24,7 @@ onMounted(async () => {
       document.documentElement.style.setProperty('--color-primario', b.colorPrimario)
       document.documentElement.style.setProperty('--color-secundario', b.colorSecundario)
       document.documentElement.style.setProperty('--color-acento', b.colorAcento)
-      document.documentElement.style.setProperty('--font-principal', b.fontPrincipal)
+      document.documentElement.style.setProperty('--font-principal', `'${b.fontPrincipal}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`)
       if (b.nombreCompleto) {
         document.title = b.nombreCompleto
       }
