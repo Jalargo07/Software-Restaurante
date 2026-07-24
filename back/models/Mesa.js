@@ -2,6 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Mesa = sequelize.define('Mesa', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -10,7 +19,6 @@ const Mesa = sequelize.define('Mesa', {
   numero: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true,
   },
   capacidad: {
     type: DataTypes.INTEGER,
@@ -25,6 +33,11 @@ const Mesa = sequelize.define('Mesa', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+}, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { unique: true, fields: ['tenant_id', 'numero'] }
+  ]
 });
 
 module.exports = Mesa;

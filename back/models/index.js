@@ -12,6 +12,43 @@ const Receta = require('./Receta');
 const DetalleReceta = require('./DetalleReceta');
 const CorteCaja = require('./CorteCaja');
 
+// Tenant -> Models
+Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
+Usuario.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Producto, { foreignKey: 'tenant_id' });
+Producto.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Proveedor, { foreignKey: 'tenant_id' });
+Proveedor.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Mesa, { foreignKey: 'tenant_id' });
+Mesa.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Venta, { foreignKey: 'tenant_id' });
+Venta.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(DetalleVenta, { foreignKey: 'tenant_id' });
+DetalleVenta.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Compra, { foreignKey: 'tenant_id' });
+Compra.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(DetalleCompra, { foreignKey: 'tenant_id' });
+DetalleCompra.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Receta, { foreignKey: 'tenant_id' });
+Receta.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(DetalleReceta, { foreignKey: 'tenant_id' });
+DetalleReceta.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(CorteCaja, { foreignKey: 'tenant_id' });
+CorteCaja.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+Tenant.hasMany(Auditoria, { foreignKey: 'tenant_id' });
+Auditoria.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
 // Compra -> DetalleCompra
 Compra.hasMany(DetalleCompra, { foreignKey: 'CompraId' });
 DetalleCompra.belongsTo(Compra, { foreignKey: 'CompraId' });

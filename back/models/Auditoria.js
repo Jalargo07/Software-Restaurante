@@ -2,6 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Auditoria = sequelize.define('Auditoria', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -50,6 +59,11 @@ const Auditoria = sequelize.define('Auditoria', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+}, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { fields: ['tenant_id', 'usuarioId'] }
+  ]
 });
 
 module.exports = Auditoria;

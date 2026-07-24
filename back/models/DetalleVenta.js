@@ -2,6 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const DetalleVenta = sequelize.define('DetalleVenta', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -23,6 +32,12 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
     type: DataTypes.ENUM('pendiente', 'en_preparacion', 'listo'),
     defaultValue: 'pendiente',
   },
+}, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { fields: ['tenant_id', 'VentaId'] },
+    { fields: ['tenant_id', 'ProductoId'] }
+  ]
 });
 
 module.exports = DetalleVenta;

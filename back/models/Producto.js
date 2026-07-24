@@ -2,6 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Producto = sequelize.define('Producto', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -57,6 +66,11 @@ const Producto = sequelize.define('Producto', {
     defaultValue: 0,
     validate: { min: 0, max: 100 },
   },
+}, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { fields: ['tenant_id', 'categoria'] }
+  ]
 });
 
 module.exports = Producto;

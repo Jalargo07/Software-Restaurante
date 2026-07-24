@@ -2,6 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const CorteCaja = sequelize.define('CorteCaja', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -62,6 +71,11 @@ const CorteCaja = sequelize.define('CorteCaja', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+}, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { fields: ['tenant_id', 'fecha'] }
+  ]
 });
 
 module.exports = CorteCaja;

@@ -3,6 +3,15 @@ const bcrypt = require('bcryptjs');
 const sequelize = require('../config/database');
 
 const Usuario = sequelize.define('Usuario', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -15,7 +24,6 @@ const Usuario = sequelize.define('Usuario', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
   password: {
     type: DataTypes.STRING,
@@ -30,6 +38,10 @@ const Usuario = sequelize.define('Usuario', {
     defaultValue: true,
   },
 }, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { unique: true, fields: ['tenant_id', 'email'] }
+  ],
   hooks: {
     beforeCreate: async (usuario) => {
       if (usuario.password) {

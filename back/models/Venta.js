@@ -2,6 +2,15 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Venta = sequelize.define('Venta', {
+  tenant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'Tenants',
+      key: 'id'
+    }
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -27,6 +36,11 @@ const Venta = sequelize.define('Venta', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+}, {
+  indexes: [
+    { fields: ['tenant_id', 'id'] },
+    { fields: ['tenant_id', 'mesaId'] }
+  ]
 });
 
 module.exports = Venta;
