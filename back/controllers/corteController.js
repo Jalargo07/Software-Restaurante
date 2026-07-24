@@ -3,6 +3,7 @@ const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
+const { invalidarCache } = require('../utils/cacheInvalidation');
 
 const obtenerResumen = async (req, res) => {
   try {
@@ -151,6 +152,8 @@ const cerrarCaja = async (req, res) => {
     });
 
     res.status(201).json(corte);
+
+    invalidarCache(req.tenantId, ['corte', 'reportes']);
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: 'Error al cerrar caja' });

@@ -23,6 +23,7 @@
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
+    "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.3",
     "minio": "^8.0.7",
     "multer": "^2.2.0",

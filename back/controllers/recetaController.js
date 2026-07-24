@@ -1,5 +1,6 @@
 const { Receta, DetalleReceta, Producto } = require('../models');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
+const { invalidarCache } = require('../utils/cacheInvalidation');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -91,6 +92,8 @@ const crear = async (req, res) => {
     });
 
     res.status(201).json(recetaCompleta);
+
+    invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear receta' });
   }
@@ -160,6 +163,8 @@ const actualizar = async (req, res) => {
     });
 
     res.json(recetaCompleta);
+
+    invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
     res.status(500).json({ error: 'Error al actualizar receta' });
   }
@@ -177,6 +182,8 @@ const eliminar = async (req, res) => {
     await receta.destroy();
 
     res.json({ message: 'Receta eliminada' });
+
+    invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar receta' });
   }

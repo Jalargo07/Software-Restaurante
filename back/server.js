@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 require('dotenv').config();
 const sequelize = require('./config/database');
+const { connectRedis, disconnectRedis } = require('./config/redis');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +40,9 @@ const io = new Server(server, {
   cors: { origin: process.env.CORS_ORIGIN || 'http://localhost:5173', methods: ['GET', 'POST'] },
 });
 app.set('io', io);
+
+const { setSocketIO } = require('./utils/cacheInvalidation');
+setSocketIO(io);
 
 io.on('connection', (socket) => {
   console.log(`Socket conectado: ${socket.id}`);
@@ -93,6 +97,8 @@ const startServer = async () => {
     });
     console.log('TenantConfig por defecto creada');
 
+    connectRedis();
+
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
@@ -103,6 +109,13 @@ const startServer = async () => {
 
 if (require.main === module) {
   startServer();
+
+  const shutdown = async () => {
+    await disconnectRedis();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 
 module.exports = app;

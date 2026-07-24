@@ -3,6 +3,7 @@ const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
+const { invalidarCache } = require('../utils/cacheInvalidation');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -67,6 +68,8 @@ const crear = async (req, res) => {
     });
 
     res.status(201).json(ventaCompleta);
+
+    invalidarCache(req.tenantId, ['reportes', 'corte']);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear venta' });
   }
@@ -277,6 +280,8 @@ const cobrar = async (req, res) => {
 
     res.json(ventaCompleta);
 
+    invalidarCache(req.tenantId, ['reportes', 'corte']);
+
     const io = req.app.get('io');
     if (io) io.emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
   } catch (error) {
@@ -393,6 +398,8 @@ const crearRapida = async (req, res) => {
     });
 
     res.status(201).json(ventaCompleta);
+
+    invalidarCache(req.tenantId, ['reportes', 'corte']);
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: 'Error al crear venta rapida' });
@@ -444,6 +451,8 @@ const cancelar = async (req, res) => {
     });
 
     res.json({ message: 'Venta cancelada' });
+
+    invalidarCache(req.tenantId, ['reportes', 'corte']);
 
     const io = req.app.get('io');
     if (io) io.emit('venta-cancelada', { id: venta.id });

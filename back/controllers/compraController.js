@@ -2,6 +2,7 @@ const { Compra, DetalleCompra, Producto, Proveedor } = require('../models');
 const sequelize = require('../config/database');
 const { registrarAuditoria } = require('../utils/auditoria');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
+const { invalidarCache } = require('../utils/cacheInvalidation');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -83,6 +84,8 @@ const crear = async (req, res) => {
     });
 
     res.status(201).json(compraCompleta);
+
+    invalidarCache(req.tenantId, ['reportes', 'compras']);
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: 'Error al crear compra' });
@@ -138,6 +141,8 @@ const recibir = async (req, res) => {
     });
 
     res.json(compraCompleta);
+
+    invalidarCache(req.tenantId, ['reportes', 'compras']);
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: 'Error al recibir compra' });
@@ -204,6 +209,8 @@ const actualizar = async (req, res) => {
     });
 
     res.json(compraCompleta);
+
+    invalidarCache(req.tenantId, ['reportes', 'compras']);
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: 'Error al actualizar compra' });
@@ -229,6 +236,8 @@ const cancelar = async (req, res) => {
     });
 
     res.json({ message: 'Compra cancelada' });
+
+    invalidarCache(req.tenantId, ['reportes', 'compras']);
   } catch (error) {
     res.status(500).json({ error: 'Error al cancelar compra' });
   }

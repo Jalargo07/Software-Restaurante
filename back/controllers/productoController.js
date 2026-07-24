@@ -2,6 +2,7 @@ const { Producto } = require('../models');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
+const { invalidarCache } = require('../utils/cacheInvalidation');
 
 const obtenerTodos = async (req, res) => {
   try {
@@ -46,6 +47,8 @@ const crear = async (req, res) => {
     });
 
     res.status(201).json(producto);
+
+    invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear producto' });
   }
@@ -78,6 +81,8 @@ const actualizar = async (req, res) => {
     });
 
     res.json(producto);
+
+    invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
     res.status(500).json({ error: 'Error al actualizar producto' });
   }
@@ -98,6 +103,8 @@ const desactivar = async (req, res) => {
     });
 
     res.json({ message: 'Producto desactivado' });
+
+    invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
     res.status(500).json({ error: 'Error al desactivar producto' });
   }
