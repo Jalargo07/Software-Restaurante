@@ -3,6 +3,7 @@ const Usuario = require('../models/Usuario');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const router = Router();
 
@@ -24,7 +25,7 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/', authenticateToken, authorizeRole('admin'), async (req, res) => {
-  const usuarios = await Usuario.findAll({ attributes: { exclude: ['password'] } });
+  const usuarios = await Usuario.findAll({ where: scopeTenant({}, req.tenantId), attributes: { exclude: ['password'] } });
   res.json(usuarios);
 });
 
@@ -36,7 +37,7 @@ router.post('/', authenticateToken, authorizeRole('admin'), async (req, res) => 
     }
     const existe = await Usuario.findOne({ where: { email } });
     if (existe) return res.status(400).json({ error: 'El email ya está registrado' });
-    const usuario = await Usuario.create({ nombre, email, password, rol: rol || 'mesero' });
+    const usuario = await Usuario.create(withTenant({ nombre, email, password, rol: rol || 'mesero' }, req.tenantId));
     res.status(201).json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol });
   } catch (error) {
     res.status(500).json({ error: 'Error al crear usuario' });
@@ -47,6 +48,7 @@ router.put('/:id', authenticateToken, authorizeRole('admin'), async (req, res) =
   try {
     const usuario = await Usuario.findByPk(req.params.id);
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!belongsToTenant(usuario, req.tenantId)) return res.status(403).json({ error: 'Acceso denegado' });
 
     const { nombre, email, password, rol, activo } = req.body;
     if (email && email !== usuario.email) {
@@ -72,6 +74,7 @@ router.delete('/:id', authenticateToken, authorizeRole('admin'), async (req, res
   try {
     const usuario = await Usuario.findByPk(req.params.id);
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!belongsToTenant(usuario, req.tenantId)) return res.status(403).json({ error: 'Acceso denegado' });
     await usuario.update({ activo: false });
     res.json({ message: 'Usuario desactivado' });
   } catch (error) {

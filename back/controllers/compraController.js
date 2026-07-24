@@ -1,6 +1,7 @@
 const { Compra, DetalleCompra, Producto, Proveedor } = require('../models');
 const sequelize = require('../config/database');
 const { registrarAuditoria } = require('../utils/auditoria');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -9,6 +10,7 @@ const obtenerTodas = async (req, res) => {
     const offset = (Number(pagina) - 1) * limit;
 
     const { count, rows } = await Compra.findAndCountAll({
+      where: scopeTenant(null, req.tenantId),
       include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
       limit,
       offset,
@@ -33,6 +35,7 @@ const obtenerPorId = async (req, res) => {
       include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
     });
     if (!compra) return res.status(404).json({ error: 'Compra no encontrada' });
+    if (!belongsToTenant(compra, req.tenantId)) return res.status(403).json({ error: 'Acceso denegado' });
     res.json(compra);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener compra' });
@@ -47,19 +50,19 @@ const crear = async (req, res) => {
     const total = detalles.reduce((sum, d) => sum + d.cantidad * d.precioUnitario, 0);
 
     const compra = await Compra.create(
-      { proveedorId, total, observaciones },
+      withTenant({ proveedorId, total, observaciones }, req.tenantId),
       { transaction: t }
     );
 
     for (const detalle of detalles) {
       await DetalleCompra.create(
-        {
+        withTenant({
           CompraId: compra.id,
           ProductoId: detalle.productoId,
           cantidad: detalle.cantidad,
           precioUnitario: detalle.precioUnitario,
           subtotal: detalle.cantidad * detalle.precioUnitario,
-        },
+        }, req.tenantId),
         { transaction: t }
       );
 
@@ -97,6 +100,10 @@ const recibir = async (req, res) => {
       await t.rollback();
       return res.status(404).json({ error: 'Compra no encontrada' });
     }
+    if (!belongsToTenant(compra, req.tenantId)) {
+      await t.rollback();
+      return res.status(403).json({ error: 'Acceso denegado' });
+    }
     if (compra.estado !== 'pendiente') {
       await t.rollback();
       return res.status(400).json({ error: 'Solo se pueden recibir compras pendientes' });
@@ -106,12 +113,14 @@ const recibir = async (req, res) => {
 
     for (const detalle of compra.DetalleCompras) {
       const producto = await Producto.findByPk(detalle.ProductoId, { transaction: t });
-      if (producto) {
-        await producto.update(
-          { stock: producto.stock + detalle.cantidad },
-          { transaction: t }
-        );
+      if (!producto || !belongsToTenant(producto, req.tenantId)) {
+        await t.rollback();
+        return res.status(400).json({ error: `Producto ${detalle.ProductoId} no encontrado o no pertenece al tenant` });
       }
+      await producto.update(
+        { stock: producto.stock + detalle.cantidad },
+        { transaction: t }
+      );
     }
 
     await t.commit();
@@ -146,6 +155,10 @@ const actualizar = async (req, res) => {
       await t.rollback();
       return res.status(404).json({ error: 'Compra no encontrada' });
     }
+    if (!belongsToTenant(compra, req.tenantId)) {
+      await t.rollback();
+      return res.status(403).json({ error: 'Acceso denegado' });
+    }
     if (compra.estado !== 'pendiente') {
       await t.rollback();
       return res.status(400).json({ error: 'Solo se pueden editar compras pendientes' });
@@ -157,17 +170,17 @@ const actualizar = async (req, res) => {
     if (observaciones !== undefined) compra.observaciones = observaciones;
 
     if (detalles && detalles.length > 0) {
-      await DetalleCompra.destroy({ where: { CompraId: compra.id }, transaction: t });
+      await DetalleCompra.destroy({ where: scopeTenant({ CompraId: compra.id }, req.tenantId), transaction: t });
 
       for (const detalle of detalles) {
         await DetalleCompra.create(
-          {
+          withTenant({
             CompraId: compra.id,
             ProductoId: detalle.productoId,
             cantidad: detalle.cantidad,
             precioUnitario: detalle.precioUnitario,
             subtotal: detalle.cantidad * detalle.precioUnitario,
-          },
+          }, req.tenantId),
           { transaction: t }
         );
       }
@@ -201,6 +214,7 @@ const cancelar = async (req, res) => {
   try {
     const compra = await Compra.findByPk(req.params.id);
     if (!compra) return res.status(404).json({ error: 'Compra no encontrada' });
+    if (!belongsToTenant(compra, req.tenantId)) return res.status(403).json({ error: 'Acceso denegado' });
     if (compra.estado === 'cancelada') return res.status(400).json({ error: 'La compra ya está cancelada' });
     if (compra.estado === 'recibida') return res.status(400).json({ error: 'No se puede cancelar una compra recibida' });
 

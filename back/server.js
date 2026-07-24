@@ -73,6 +73,7 @@ const startServer = async () => {
         email: 'admin@restaurant.com',
         password: 'admin123',
         rol: 'admin',
+        tenant_id: 1,
       });
       console.log('Admin user created: admin@restaurant.com / admin123');
     }

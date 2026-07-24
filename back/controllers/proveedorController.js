@@ -1,6 +1,7 @@
 const { Proveedor, Compra, DetalleCompra, Producto } = require('../models');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const obtenerTodos = async (req, res) => {
   try {
@@ -13,8 +14,10 @@ const obtenerTodos = async (req, res) => {
       where.nombre = { [Op.like]: `%${buscar}%` };
     }
 
+    const scopedWhere = scopeTenant(where, req.tenantId);
+
     const { count, rows } = await Proveedor.findAndCountAll({
-      where,
+      where: scopedWhere,
       limit,
       offset,
       order: [['nombre', 'ASC']],
@@ -35,7 +38,7 @@ const obtenerTodos = async (req, res) => {
 const obtenerPorId = async (req, res) => {
   try {
     const proveedor = await Proveedor.findByPk(req.params.id);
-    if (!proveedor) return res.status(404).json({ error: 'Proveedor no encontrado' });
+    if (!proveedor || !belongsToTenant(proveedor, req.tenantId)) return res.status(404).json({ error: 'Proveedor no encontrado' });
     res.json(proveedor);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener proveedor' });
@@ -44,7 +47,7 @@ const obtenerPorId = async (req, res) => {
 
 const crear = async (req, res) => {
   try {
-    const proveedor = await Proveedor.create(req.body);
+    const proveedor = await Proveedor.create(withTenant(req.body, req.tenantId));
 
     await registrarAuditoria({
       req,
@@ -63,7 +66,7 @@ const crear = async (req, res) => {
 const actualizar = async (req, res) => {
   try {
     const proveedor = await Proveedor.findByPk(req.params.id);
-    if (!proveedor) return res.status(404).json({ error: 'Proveedor no encontrado' });
+    if (!proveedor || !belongsToTenant(proveedor, req.tenantId)) return res.status(404).json({ error: 'Proveedor no encontrado' });
     await proveedor.update(req.body);
 
     await registrarAuditoria({
@@ -83,7 +86,7 @@ const actualizar = async (req, res) => {
 const desactivar = async (req, res) => {
   try {
     const proveedor = await Proveedor.findByPk(req.params.id);
-    if (!proveedor) return res.status(404).json({ error: 'Proveedor no encontrado' });
+    if (!proveedor || !belongsToTenant(proveedor, req.tenantId)) return res.status(404).json({ error: 'Proveedor no encontrado' });
     await proveedor.update({ activo: false });
 
     await registrarAuditoria({
@@ -103,10 +106,10 @@ const desactivar = async (req, res) => {
 const historialCompras = async (req, res) => {
   try {
     const proveedor = await Proveedor.findByPk(req.params.id);
-    if (!proveedor) return res.status(404).json({ error: 'Proveedor no encontrado' });
+    if (!proveedor || !belongsToTenant(proveedor, req.tenantId)) return res.status(404).json({ error: 'Proveedor no encontrado' });
 
     const compras = await Compra.findAll({
-      where: { proveedorId: req.params.id },
+      where: scopeTenant({ proveedorId: req.params.id }, req.tenantId),
       include: [{ model: DetalleCompra, include: [Producto] }],
       order: [['fecha', 'DESC']],
     });

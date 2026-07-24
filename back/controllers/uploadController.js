@@ -1,5 +1,6 @@
-const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 const { s3Client, BUCKET } = require('../config/s3');
+const { withTenant } = require('../utils/tenantScope');
 
 const subirImagen = async (req, res) => {
   try {
@@ -10,9 +11,11 @@ const subirImagen = async (req, res) => {
     const ext = req.file.originalname.split('.').pop();
     const filename = `${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
 
+    const key = `${req.tenantId}/${filename}`;
+
     const uploadParams = {
       Bucket: BUCKET,
-      Key: filename,
+      Key: key,
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
     };
@@ -20,9 +23,9 @@ const subirImagen = async (req, res) => {
     await s3Client.send(new PutObjectCommand(uploadParams));
 
     const endpoint = process.env.S3_ENDPOINT || 'http://localhost:9000';
-    const url = `${endpoint.replace(/\/$/, '')}/${BUCKET}/${filename}`;
+    const url = `${endpoint.replace(/\/$/, '')}/${BUCKET}/${key}`;
 
-    res.status(201).json({ filename, url });
+    res.status(201).json({ filename, key, url });
   } catch (error) {
     console.error('Error al subir imagen:', error);
     res.status(500).json({ error: 'Error al subir imagen' });
@@ -31,13 +34,29 @@ const subirImagen = async (req, res) => {
 
 const eliminarImagen = async (req, res) => {
   try {
-    const { filename } = req.params;
-    const deleteParams = {
-      Bucket: BUCKET,
-      Key: filename,
-    };
+    const { key } = req.params;
 
-    await s3Client.send(new DeleteObjectCommand(deleteParams));
+    let resolvedKey = key;
+    if (!key.includes('/')) {
+      const listResponse = await s3Client.send(new ListObjectsV2Command({
+        Bucket: BUCKET,
+        Prefix: `${req.tenantId}/`,
+      }));
+
+      const match = (listResponse.Contents || []).find(
+        (obj) => obj.Key && obj.Key.endsWith(key)
+      );
+
+      if (match) {
+        resolvedKey = match.Key;
+      }
+    }
+
+    await s3Client.send(new DeleteObjectCommand({
+      Bucket: BUCKET,
+      Key: resolvedKey,
+    }));
+
     res.json({ message: 'Imagen eliminada' });
   } catch (error) {
     console.error('Error al eliminar imagen:', error);

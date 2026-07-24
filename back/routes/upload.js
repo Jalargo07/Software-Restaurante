@@ -6,6 +6,6 @@ const { subirImagen, eliminarImagen } = require('../controllers/uploadController
 const router = Router();
 
 router.post('/', authenticateToken, authorizeRole('admin'), upload.single('imagen'), subirImagen);
-router.delete('/:filename', authenticateToken, authorizeRole('admin'), eliminarImagen);
+router.delete('/:key', authenticateToken, authorizeRole('admin'), eliminarImagen);
 
 module.exports = router;

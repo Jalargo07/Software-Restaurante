@@ -1,6 +1,7 @@
 const { Producto } = require('../models');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const obtenerTodos = async (req, res) => {
   try {
@@ -11,8 +12,9 @@ const obtenerTodos = async (req, res) => {
     if (categoria) where.categoria = categoria;
     if (tipo) where.tipo = tipo;
     if (buscar) where.nombre = { [Op.like]: `%${buscar}%` };
+    const scopedWhere = scopeTenant(where, req.tenantId);
 
-    const productos = await Producto.findAll({ where });
+    const productos = await Producto.findAll({ where: scopedWhere });
     res.json(productos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener productos' });
@@ -22,7 +24,7 @@ const obtenerTodos = async (req, res) => {
 const obtenerPorId = async (req, res) => {
   try {
     const producto = await Producto.findByPk(req.params.id);
-    if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+    if (!producto || !belongsToTenant(producto, req.tenantId)) return res.status(404).json({ error: 'Producto no encontrado' });
     res.json(producto);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener producto' });
@@ -31,7 +33,7 @@ const obtenerPorId = async (req, res) => {
 
 const crear = async (req, res) => {
   try {
-    const datos = { ...req.body };
+    const datos = withTenant(req.body, req.tenantId);
 
     const producto = await Producto.create(datos);
 
@@ -52,7 +54,7 @@ const crear = async (req, res) => {
 const actualizar = async (req, res) => {
   try {
     const producto = await Producto.findByPk(req.params.id);
-    if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+    if (!producto || !belongsToTenant(producto, req.tenantId)) return res.status(404).json({ error: 'Producto no encontrado' });
 
     const datos = { ...req.body };
 
@@ -84,7 +86,7 @@ const actualizar = async (req, res) => {
 const desactivar = async (req, res) => {
   try {
     const producto = await Producto.findByPk(req.params.id);
-    if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+    if (!producto || !belongsToTenant(producto, req.tenantId)) return res.status(404).json({ error: 'Producto no encontrado' });
     await producto.update({ activo: false });
 
     await registrarAuditoria({

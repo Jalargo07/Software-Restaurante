@@ -2,6 +2,7 @@ const { Venta, DetalleVenta, Producto, Mesa, Receta, DetalleReceta } = require('
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const obtenerTodas = async (req, res) => {
   try {
@@ -12,8 +13,10 @@ const obtenerTodas = async (req, res) => {
     const where = {};
     if (req.query.estado) where.estado = req.query.estado;
 
+    const scopedWhere = scopeTenant(where, req.tenantId);
+
     const { count, rows } = await Venta.findAndCountAll({
-      where,
+      where: scopedWhere,
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
       limit,
       offset,
@@ -38,6 +41,7 @@ const obtenerPorId = async (req, res) => {
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
     });
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (!belongsToTenant(venta, req.tenantId)) return res.status(404).json({ error: 'Venta no encontrada' });
     res.json(venta);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener venta' });
@@ -48,14 +52,14 @@ const crear = async (req, res) => {
   try {
     const { mesaId } = req.body;
 
-    const venta = await Venta.create({
+    const venta = await Venta.create(withTenant({
       mesaId: mesaId || null,
       total: 0,
       estado: 'abierta',
-    });
+    }, req.tenantId));
 
     if (mesaId) {
-      await Mesa.update({ estado: 'ocupada' }, { where: { id: mesaId } });
+      await Mesa.update({ estado: 'ocupada' }, { where: scopeTenant({ id: mesaId }, req.tenantId) });
     }
 
     const ventaCompleta = await Venta.findByPk(venta.id, {
@@ -72,6 +76,7 @@ const agregarProductos = async (req, res) => {
   try {
     const venta = await Venta.findByPk(req.params.id);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (!belongsToTenant(venta, req.tenantId)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'La venta ya esta cerrada' });
 
     const { productos } = req.body;
@@ -80,7 +85,7 @@ const agregarProductos = async (req, res) => {
 
     for (const item of productos) {
       const producto = await Producto.findByPk(item.productoId);
-      if (!producto) {
+      if (!producto || !belongsToTenant(producto, req.tenantId)) {
         return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
       }
 
@@ -88,13 +93,13 @@ const agregarProductos = async (req, res) => {
       const subtotal = item.cantidad * precio;
       totalAgregado += subtotal;
 
-      await DetalleVenta.create({
+      await DetalleVenta.create(withTenant({
         VentaId: venta.id,
         ProductoId: item.productoId,
         cantidad: item.cantidad,
         precioUnitario: precio,
         subtotal,
-      });
+      }, req.tenantId));
     }
 
     await venta.update({ total: Number(venta.total) + totalAgregado });
@@ -117,6 +122,10 @@ const cobrar = async (req, res) => {
   try {
     const venta = await Venta.findByPk(req.params.id, { transaction: t });
     if (!venta) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (!belongsToTenant(venta, req.tenantId)) {
       await t.rollback();
       return res.status(404).json({ error: 'Venta no encontrada' });
     }
@@ -192,7 +201,7 @@ const cobrar = async (req, res) => {
 
         if (producto.tipo === 'compuesto') {
           const receta = await Receta.findOne({
-            where: { productoId: producto.id },
+            where: scopeTenant({ productoId: producto.id }, req.tenantId),
             transaction: t,
           });
 
@@ -208,7 +217,7 @@ const cobrar = async (req, res) => {
 
           for (const ingrediente of ingredientes) {
             const insumo = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-            if (!insumo) {
+            if (!insumo || !belongsToTenant(insumo, req.tenantId)) {
               await t.rollback();
               return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
             }
@@ -247,7 +256,7 @@ const cobrar = async (req, res) => {
 
     if (venta.mesaId) {
       await Mesa.update({ estado: 'disponible' }, {
-        where: { id: venta.mesaId },
+        where: scopeTenant({ id: venta.mesaId }, req.tenantId),
         transaction: t,
       });
     }
@@ -284,21 +293,25 @@ const crearRapida = async (req, res) => {
     let total = 0;
     for (const item of productos) {
       const prod = await Producto.findByPk(item.productoId, { transaction: t });
-      const precio = item.precioUnitario || (prod ? Number(prod.precioVenta) : 0);
+      if (!prod || !belongsToTenant(prod, req.tenantId)) {
+        await t.rollback();
+        return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
+      }
+      const precio = item.precioUnitario || Number(prod.precioVenta);
       total += item.cantidad * precio;
     }
 
-    const venta = await Venta.create({
+    const venta = await Venta.create(withTenant({
       mesaId: mesaId || null,
       total,
       metodoPago,
       cliente,
       estado: 'cerrada',
-    }, { transaction: t });
+    }, req.tenantId), { transaction: t });
 
     for (const item of productos) {
       const producto = await Producto.findByPk(item.productoId, { transaction: t });
-      if (!producto) {
+      if (!producto || !belongsToTenant(producto, req.tenantId)) {
         await t.rollback();
         return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
       }
@@ -306,17 +319,17 @@ const crearRapida = async (req, res) => {
       const precio = item.precioUnitario || Number(producto.precioVenta);
       const subtotal = item.cantidad * precio;
 
-      await DetalleVenta.create({
+      await DetalleVenta.create(withTenant({
         VentaId: venta.id,
         ProductoId: item.productoId,
         cantidad: item.cantidad,
         precioUnitario: precio,
         subtotal,
-      }, { transaction: t });
+      }, req.tenantId), { transaction: t });
 
       if (producto.tipo === 'compuesto') {
         const receta = await Receta.findOne({
-          where: { productoId: producto.id },
+          where: scopeTenant({ productoId: producto.id }, req.tenantId),
           transaction: t,
         });
 
@@ -332,7 +345,7 @@ const crearRapida = async (req, res) => {
 
         for (const ingrediente of ingredientes) {
           const insumo = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-          if (!insumo) {
+          if (!insumo || !belongsToTenant(insumo, req.tenantId)) {
             await t.rollback();
             return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
           }
@@ -362,7 +375,7 @@ const crearRapida = async (req, res) => {
     }
 
     if (mesaId) {
-      await Mesa.update({ estado: 'disponible' }, { where: { id: mesaId }, transaction: t });
+      await Mesa.update({ estado: 'disponible' }, { where: scopeTenant({ id: mesaId }, req.tenantId), transaction: t });
     }
 
     await t.commit();
@@ -390,6 +403,7 @@ const actualizar = async (req, res) => {
   try {
     const venta = await Venta.findByPk(req.params.id);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (!belongsToTenant(venta, req.tenantId)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
 
     const { cliente, mesaId } = req.body;
@@ -413,11 +427,12 @@ const cancelar = async (req, res) => {
   try {
     const venta = await Venta.findByPk(req.params.id);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (!belongsToTenant(venta, req.tenantId)) return res.status(404).json({ error: 'Venta no encontrada' });
 
     await venta.update({ estado: 'cancelada' });
 
     if (venta.mesaId) {
-      await Mesa.update({ estado: 'disponible' }, { where: { id: venta.mesaId } });
+      await Mesa.update({ estado: 'disponible' }, { where: scopeTenant({ id: venta.mesaId }, req.tenantId) });
     }
 
     await registrarAuditoria({
@@ -441,10 +456,12 @@ const actualizarDetalle = async (req, res) => {
   try {
     const venta = await Venta.findByPk(req.params.id);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (!belongsToTenant(venta, req.tenantId)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
 
     const detalle = await DetalleVenta.findByPk(req.params.detalleId);
     if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
+    if (!belongsToTenant(detalle, req.tenantId)) return res.status(404).json({ error: 'Detalle no encontrado' });
     if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
 
     const { cantidad } = req.body;
@@ -478,10 +495,12 @@ const eliminarDetalle = async (req, res) => {
   try {
     const venta = await Venta.findByPk(req.params.id);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
+    if (!belongsToTenant(venta, req.tenantId)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
 
     const detalle = await DetalleVenta.findByPk(req.params.detalleId);
     if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
+    if (!belongsToTenant(detalle, req.tenantId)) return res.status(404).json({ error: 'Detalle no encontrado' });
     if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
 
     const count = await DetalleVenta.count({ where: { VentaId: venta.id } });

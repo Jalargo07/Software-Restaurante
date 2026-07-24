@@ -1,10 +1,11 @@
 const { Venta, DetalleVenta, Producto, Mesa } = require('../models');
 const { Op } = require('sequelize');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const obtenerComandas = async (req, res) => {
   try {
     const ventas = await Venta.findAll({
-      where: { estado: 'abierta' },
+      where: scopeTenant({ estado: 'abierta' }, req.tenantId),
       include: [
         {
           model: DetalleVenta,
@@ -42,6 +43,10 @@ const actualizarEstado = async (req, res) => {
         Mesa,
       ],
     });
+
+    if (!belongsToTenant(venta, req.tenantId)) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
 
     res.json(venta);
 

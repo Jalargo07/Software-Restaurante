@@ -1,5 +1,6 @@
 const { Auditoria, Usuario } = require('../models');
 const { Op } = require('sequelize');
+const { scopeTenant } = require('../utils/tenantScope');
 
 const obtenerLogs = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ const obtenerLogs = async (req, res) => {
     }
 
     const { count, rows } = await Auditoria.findAndCountAll({
-      where,
+      where: scopeTenant(where, req.tenantId),
       order: [['createdAt', 'DESC']],
       limit,
       offset,

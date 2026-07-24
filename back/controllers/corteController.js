@@ -2,30 +2,31 @@ const { CorteCaja, Venta, DetalleVenta, Producto, Mesa } = require('../models');
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
+const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
 
 const obtenerResumen = async (req, res) => {
   try {
     const hoy = new Date().toISOString().split('T')[0];
 
     const ventas = await Venta.findAll({
-      where: {
+      where: scopeTenant({
         estado: 'cerrada',
         createdAt: {
           [Op.gte]: new Date(`${hoy}T00:00:00`),
           [Op.lte]: new Date(`${hoy}T23:59:59`),
         },
-      },
+      }, req.tenantId),
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
     });
 
     const canceladas = await Venta.findAll({
-      where: {
+      where: scopeTenant({
         estado: 'cancelada',
         createdAt: {
           [Op.gte]: new Date(`${hoy}T00:00:00`),
           [Op.lte]: new Date(`${hoy}T23:59:59`),
         },
-      },
+      }, req.tenantId),
     });
 
     const resumen = {
@@ -64,7 +65,7 @@ const cerrarCaja = async (req, res) => {
     const hoy = new Date().toISOString().split('T')[0];
 
     const corteExistente = await CorteCaja.findOne({
-      where: { fecha: hoy },
+      where: scopeTenant({ fecha: hoy }, req.tenantId),
       transaction: t,
     });
 
@@ -74,24 +75,24 @@ const cerrarCaja = async (req, res) => {
     }
 
     const ventas = await Venta.findAll({
-      where: {
+      where: scopeTenant({
         estado: 'cerrada',
         createdAt: {
           [Op.gte]: new Date(`${hoy}T00:00:00`),
           [Op.lte]: new Date(`${hoy}T23:59:59`),
         },
-      },
+      }, req.tenantId),
       transaction: t,
     });
 
     const canceladas = await Venta.findAll({
-      where: {
+      where: scopeTenant({
         estado: 'cancelada',
         createdAt: {
           [Op.gte]: new Date(`${hoy}T00:00:00`),
           [Op.lte]: new Date(`${hoy}T23:59:59`),
         },
-      },
+      }, req.tenantId),
       transaction: t,
     });
 
@@ -120,7 +121,7 @@ const cerrarCaja = async (req, res) => {
 
     const montoCanceladas = canceladas.reduce((sum, v) => sum + Number(v.total), 0);
 
-    const corte = await CorteCaja.create({
+    const corte = await CorteCaja.create(withTenant({
       fecha: hoy,
       totalEfectivo,
       totalTarjeta,
@@ -132,7 +133,7 @@ const cerrarCaja = async (req, res) => {
       ventasCerradas: ventasInfo,
       usuarioId: req.user.id,
       cerradoEn: new Date(),
-    }, { transaction: t });
+    }, req.tenantId), { transaction: t });
 
     await t.commit();
 
@@ -159,6 +160,7 @@ const cerrarCaja = async (req, res) => {
 const obtenerCortes = async (req, res) => {
   try {
     const cortes = await CorteCaja.findAll({
+      where: scopeTenant(null, req.tenantId),
       order: [['fecha', 'DESC']],
       include: [{ model: require('../models').Usuario, attributes: ['id', 'nombre', 'email'] }],
     });
@@ -174,6 +176,7 @@ const obtenerCortePorId = async (req, res) => {
       include: [{ model: require('../models').Usuario, attributes: ['id', 'nombre', 'email'] }],
     });
     if (!corte) return res.status(404).json({ error: 'Corte de caja no encontrado' });
+    if (!belongsToTenant(corte, req.tenantId)) return res.status(404).json({ error: 'Corte de caja no encontrado' });
     res.json(corte);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener corte de caja' });

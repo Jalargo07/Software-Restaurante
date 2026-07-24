@@ -9,6 +9,8 @@ node_modules/
 # Database
 *.sqlite
 *.sqlite3
+*.sqlite-journal
+back/data/
 
 # Logs
 logs/

@@ -1,5 +1,6 @@
 const { Venta, DetalleVenta, Producto, Compra } = require('../models');
 const { Op, fn, col, literal } = require('sequelize');
+const { scopeTenant } = require('../utils/tenantScope');
 
 const ventasHoy = async (req, res) => {
   try {
@@ -9,10 +10,10 @@ const ventasHoy = async (req, res) => {
     manana.setDate(manana.getDate() + 1);
 
     const ventas = await Venta.findAll({
-      where: {
+      where: scopeTenant({
         estado: 'cerrada',
         createdAt: { [Op.gte]: hoy, [Op.lt]: manana },
-      },
+      }, req.tenantId),
     });
 
     const total = ventas.reduce((sum, v) => sum + Number(v.total), 0);
@@ -30,7 +31,7 @@ const ventasPorDia = async (req, res) => {
         [fn('COUNT', col('id')), 'cantidad'],
         [fn('SUM', col('total')), 'total'],
       ],
-      where: { estado: 'cerrada' },
+      where: scopeTenant({ estado: 'cerrada' }, req.tenantId),
       group: [fn('DATE', col('createdAt'))],
       order: [[fn('DATE', col('createdAt')), 'DESC']],
       limit: 7,
@@ -46,6 +47,7 @@ const ventasPorDia = async (req, res) => {
 const productosMasVendidos = async (req, res) => {
   try {
     const resultados = await DetalleVenta.findAll({
+      where: scopeTenant({}, req.tenantId),
       attributes: [
         'ProductoId',
         [fn('SUM', col('cantidad')), 'totalVendido'],
@@ -77,10 +79,10 @@ const comprasMes = async (req, res) => {
     const finMes = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 1);
 
     const compras = await Compra.findAll({
-      where: {
+      where: scopeTenant({
         estado: 'recibida',
         fecha: { [Op.gte]: inicioMes, [Op.lt]: finMes },
-      },
+      }, req.tenantId),
     });
 
     const total = compras.reduce((sum, c) => sum + Number(c.total), 0);

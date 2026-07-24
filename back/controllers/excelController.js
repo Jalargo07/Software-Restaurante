@@ -1,6 +1,7 @@
 const ExcelJS = require('exceljs');
 const { Venta, DetalleVenta, Producto, Compra, DetalleCompra, Proveedor } = require('../models');
 const { Op } = require('sequelize');
+const { scopeTenant } = require('../utils/tenantScope');
 
 const reporteVentasExcel = async (req, res) => {
   try {
@@ -18,7 +19,7 @@ const reporteVentasExcel = async (req, res) => {
     }
 
     const ventas = await Venta.findAll({
-      where,
+      where: scopeTenant(where, req.tenantId),
       include: [{ model: DetalleVenta, include: [Producto] }],
       order: [['createdAt', 'DESC']],
     });
@@ -109,7 +110,7 @@ const reporteComprasExcel = async (req, res) => {
     }
 
     const compras = await Compra.findAll({
-      where,
+      where: scopeTenant(where, req.tenantId),
       include: [
         { model: DetalleCompra, include: [Producto] },
         { model: Proveedor },
@@ -204,7 +205,7 @@ const reporteAuditoriaExcel = async (req, res) => {
     }
 
     const logs = await Auditoria.findAll({
-      where,
+      where: scopeTenant(where, req.tenantId),
       order: [['createdAt', 'DESC']],
     });
 
