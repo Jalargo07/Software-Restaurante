@@ -151,14 +151,14 @@ async function eliminarProducto(ventaId: number, detalle: any) {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Pedidos</h2>
-      <button class="btn btn-primary" @click="modalNuevoAbierto = true">+ Nuevo Pedido</button>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Pedidos</h2>
+      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="modalNuevoAbierto = true">+ Nuevo Pedido</button>
     </div>
 
     <div class="mt-3">
-      <select class="form-select w-auto" v-model="filtroEstado" @change="cambiarFiltro">
+      <select class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm w-auto" v-model="filtroEstado" @change="cambiarFiltro">
         <option value="">Todos</option>
         <option value="abierta">Activos</option>
         <option value="cerrada">Cerrados</option>
@@ -167,52 +167,60 @@ async function eliminarProducto(ventaId: number, detalle: any) {
     </div>
 
     <div v-if="pedidoStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
     <div v-else-if="!pedidoStore.pedidos.length" class="text-center mt-4">
-      <p>No hay pedidos</p>
+      <p class="text-gray-500 dark:text-gray-400">No hay pedidos</p>
     </div>
 
-    <div v-else class="row mt-3" v-for="v in pedidoStore.pedidos" :key="v.id">
-      <div class="col-12 mb-3">
-        <div class="card" :class="v.estado === 'cerrada' ? 'border-success' : v.estado === 'cancelada' ? 'border-secondary' : 'border-danger'">
-          <div class="card-header d-flex justify-content-between align-items-center" :class="v.estado === 'cerrada' ? 'bg-success' : v.estado === 'cancelada' ? 'bg-secondary' : 'bg-danger'" style="color:white">
-            <strong>Mesa #{{ v.Mesa?.numero || 'Fast Food' }}</strong>
-            <span>Total: ${{ v.total }}</span>
-          </div>
-          <div class="card-body">
-            <p v-if="v.cliente"><strong>Cliente:</strong> {{ v.cliente }}</p>
-            <table class="table table-sm mb-2">
+    <template v-else>
+      <div v-for="v in pedidoStore.pedidos" :key="v.id" class="mt-3 space-y-3">
+      <div class="rounded-xl shadow-sm overflow-hidden border" :class="v.estado === 'cerrada' ? 'border-green-500' : v.estado === 'cancelada' ? 'border-gray-400' : 'border-red-500'">
+        <div class="px-4 py-3 flex items-center justify-between text-white" :class="v.estado === 'cerrada' ? 'bg-green-600' : v.estado === 'cancelada' ? 'bg-gray-500' : 'bg-red-600'">
+          <strong class="text-sm">Mesa #{{ v.Mesa?.numero || 'Fast Food' }}</strong>
+          <span class="text-sm font-semibold">Total: ${{ v.total }}</span>
+        </div>
+        <div class="p-4 bg-white dark:bg-gray-800">
+          <p v-if="v.cliente" class="text-sm text-gray-700 dark:text-gray-300 mb-2"><strong class="text-gray-900 dark:text-gray-100">Cliente:</strong> {{ v.cliente }}</p>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm mb-2">
               <thead>
-                <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th><th v-if="v.estado === 'abierta'">Acciones</th></tr>
+                <tr class="bg-gray-50 dark:bg-gray-800">
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cant</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P.U.</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                  <th v-if="v.estado === 'abierta'" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
               </thead>
-              <tbody>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 <tr v-for="d in (v.DetalleVentas || v.DetalleVenta || [])" :key="d.id">
-                  <td>{{ d.Producto?.nombre }}</td>
-                  <td>{{ d.cantidad }}</td>
-                  <td>${{ d.precioUnitario }}</td>
-                  <td>${{ d.subtotal }}</td>
-                  <td v-if="v.estado === 'abierta'" class="text-nowrap">
-                    <button class="btn btn-sm btn-outline-secondary me-1" :disabled="d.cantidad <= 1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad - 1).then(() => cargarDatos())">-</button>
-                    <span class="mx-1">{{ d.cantidad }}</span>
-                    <button class="btn btn-sm btn-outline-secondary me-1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad + 1).then(() => cargarDatos())">+</button>
-                    <button class="btn btn-sm btn-outline-primary me-1" @click="abrirEditarCantidad(d)">&#9998;</button>
-                    <button class="btn btn-sm btn-outline-danger" @click="eliminarProducto(v.id, d)">&#128465;</button>
+                  <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ d.Producto?.nombre }}</td>
+                  <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ d.cantidad }}</td>
+                  <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ d.precioUnitario }}</td>
+                  <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ d.subtotal }}</td>
+                  <td v-if="v.estado === 'abierta'" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors mr-1" :disabled="d.cantidad <= 1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad - 1).then(() => cargarDatos())">-</button>
+                    <span class="mx-1 text-gray-900 dark:text-gray-100">{{ d.cantidad }}</span>
+                    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors mr-1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad + 1).then(() => cargarDatos())">+</button>
+                    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirEditarCantidad(d)">&#9998;</button>
+                    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminarProducto(v.id, d)">&#128465;</button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <div class="d-flex gap-2">
-              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-warning" @click="abrirAgregar(v)">+ Agregar Producto</button>
-              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-success" @click="abrirCobro(v)">Cobrar</button>
-              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-info text-white" @click="ventaSplit = v">Dividir Cuenta</button>
-              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-outline-danger" @click="cancelarPedido(v.id)">Cancelar</button>
-            </div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button v-if="v.estado === 'abierta'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors" @click="abrirAgregar(v)">+ Agregar Producto</button>
+            <button v-if="v.estado === 'abierta'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors" @click="abrirCobro(v)">Cobrar</button>
+            <button v-if="v.estado === 'abierta'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors" @click="ventaSplit = v">Dividir Cuenta</button>
+            <button v-if="v.estado === 'abierta'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="cancelarPedido(v.id)">Cancelar</button>
           </div>
         </div>
       </div>
     </div>
+    </template>
 
     <ModalBase v-if="modalNuevoAbierto" id="nuevoPedidoModal" titulo="Nuevo Pedido" @cerrar="modalNuevoAbierto = false">
       <PedidoFormModal @cerrar="modalNuevoAbierto = false" @guardado="cargarDatos" />
@@ -220,24 +228,24 @@ async function eliminarProducto(ventaId: number, detalle: any) {
 
     <ModalBase v-if="agregandoAVenta" id="addProductosModal" titulo="Agregar Productos" @cerrar="agregandoAVenta = null">
       <div>
-        <input v-model="busqueda" class="form-control mb-2" placeholder="Buscar...">
-        <div class="productos-lista" style="max-height:150px;overflow-y:auto">
+        <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2" placeholder="Buscar...">
+        <div style="max-height:150px;overflow-y:auto">
           <button v-for="p in filtrados" :key="p.id" type="button"
-            class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1"
+            class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
             @click="agregarProducto(p)">
-            <img v-if="p.imagen" :src="p.imagen" class="rounded me-1"
+            <img v-if="p.imagen" :src="p.imagen" class="rounded-lg mr-1 inline-block"
               style="width:24px;height:24px;object-fit:cover">
             {{ p.nombre }} - ${{ p.precioVenta }}
           </button>
         </div>
-        <div v-for="(d,i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2 productos-seleccionados">
-          <span class="flex-grow-1 small">{{ d.nombre }}</span>
-          <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
+        <div v-for="(d,i) in seleccionados" :key="i" class="flex items-center gap-2 mt-2">
+          <span class="flex-1 text-xs text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
+          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             @input="d.subtotal = d.cantidad * d.precioUnitario">
-          <span class="small">${{ Number(d.subtotal).toFixed(2) }}</span>
-          <button class="btn btn-sm btn-danger" @click="quitarSeleccion(i)">X</button>
+          <span class="text-xs text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
+          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarSeleccion(i)">X</button>
         </div>
-        <button class="btn btn-primary w-100 mt-2" :disabled="!seleccionados.length" @click="guardarProductos">
+        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="!seleccionados.length" @click="guardarProductos">
           Agregar (${{ totalAgregar.toFixed(2) }})
         </button>
       </div>
@@ -245,66 +253,57 @@ async function eliminarProducto(ventaId: number, detalle: any) {
 
     <ModalBase v-if="cobrandoVenta" id="cobroModal" titulo="Cobrar" @cerrar="cobrandoVenta = null">
       <div>
-        <table class="table table-sm mb-2">
-          <thead>
-            <tr><th>Producto</th><th>Cant</th><th>P.U.</th><th>Subtotal</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="d in (cobrandoVenta.DetalleVentas || cobrandoVenta.DetalleVenta || [])" :key="d.id">
-              <td>{{ d.Producto?.nombre }}</td>
-              <td>{{ d.cantidad }}</td>
-              <td>${{ d.precioUnitario }}</td>
-              <td>${{ d.subtotal }}</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <th colspan="3" class="text-end">Total:</th>
-              <th>${{ cobrandoVenta.total }}</th>
-            </tr>
-          </tfoot>
-        </table>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm mb-2">
+            <thead>
+              <tr class="bg-gray-50 dark:bg-gray-800">
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cant</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P.U.</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr v-for="d in (cobrandoVenta.DetalleVentas || cobrandoVenta.DetalleVenta || [])" :key="d.id">
+                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ d.Producto?.nombre }}</td>
+                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ d.cantidad }}</td>
+                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ d.precioUnitario }}</td>
+                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ d.subtotal }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="bg-gray-50 dark:bg-gray-800">
+                <th colspan="3" class="px-4 py-2 text-right text-sm font-medium text-gray-900 dark:text-gray-100">Total:</th>
+                <th class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100">${{ cobrandoVenta.total }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
         <div class="mb-3">
-          <label class="form-label">Metodo de Pago</label>
-          <select v-model="metodoPago" class="form-select">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metodo de Pago</label>
+          <select v-model="metodoPago" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
             <option value="efectivo">Efectivo</option>
             <option value="tarjeta">Tarjeta</option>
             <option value="transferencia">Transferencia</option>
           </select>
         </div>
-        <button class="btn btn-success w-100" @click="confirmarCobro">Confirmar Cobro</button>
+        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors w-full" @click="confirmarCobro">Confirmar Cobro</button>
       </div>
     </ModalBase>
 
     <ModalBase v-if="editandoDetalle" id="editarCantidadModal" titulo="Editar Cantidad" @cerrar="editandoDetalle = null">
       <div>
-        <p><strong>Producto:</strong> {{ editandoDetalle.Producto?.nombre }}</p>
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <button class="btn btn-outline-secondary" :disabled="cantidadEditar <= 1" @click="cantidadEditar--">-</button>
-          <input v-model.number="cantidadEditar" type="number" min="1" class="form-control w-25 text-center">
-          <button class="btn btn-outline-secondary" @click="cantidadEditar++">+</button>
+        <p class="text-sm text-gray-900 dark:text-gray-100 mb-2"><strong>Producto:</strong> {{ editandoDetalle.Producto?.nombre }}</p>
+        <div class="flex items-center gap-2 mb-3">
+          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors" :disabled="cantidadEditar <= 1" @click="cantidadEditar--">-</button>
+          <input v-model.number="cantidadEditar" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors" @click="cantidadEditar++">+</button>
         </div>
-        <p><strong>Subtotal:</strong> ${{ (cantidadEditar * editandoDetalle.precioUnitario).toFixed(2) }}</p>
-        <button class="btn btn-primary w-100" @click="guardarCantidad">Guardar</button>
+        <p class="text-sm text-gray-900 dark:text-gray-100 mb-3"><strong>Subtotal:</strong> ${{ (cantidadEditar * editandoDetalle.precioUnitario).toFixed(2) }}</p>
+        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full" @click="guardarCantidad">Guardar</button>
       </div>
     </ModalBase>
 
     <SplitBillModal v-if="ventaSplit" :venta="ventaSplit" @cerrar="ventaSplit = null" @cobrado="ventaSplit = null; cargarDatos()" />
   </div>
 </template>
-
-<style scoped>
-[data-theme="dark"] .productos-lista .btn-outline-secondary {
-  color: #e4e4e7;
-  border-color: #52525b;
-}
-
-[data-theme="dark"] .productos-lista .btn-outline-secondary:hover {
-  background-color: #3f3f46;
-  border-color: #71717a;
-}
-
-[data-theme="dark"] .productos-seleccionados .flex-grow-1 {
-  color: #e4e4e7;
-}
-</style>

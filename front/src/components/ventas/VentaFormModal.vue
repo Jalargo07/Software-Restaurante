@@ -82,56 +82,56 @@ async function cobrar() {
 
 <template>
   <form @submit.prevent="cobrar">
-    <div class="form-check mb-3">
-      <input v-model="modoRapido" type="checkbox" class="form-check-input" id="modoRapido">
-      <label class="form-check-label" for="modoRapido">Modo Rapido (sin mesa)</label>
+    <div class="flex items-center gap-2 mb-3">
+      <input v-model="modoRapido" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600" id="modoRapido">
+      <label class="text-sm text-gray-700 dark:text-gray-300" for="modoRapido">Modo Rapido (sin mesa)</label>
     </div>
 
     <div class="mb-2" v-if="!modoRapido">
-      <label class="form-label">Mesa</label>
-      <select v-model.number="mesaId" class="form-select" :required="!modoRapido">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mesa</label>
+      <select v-model.number="mesaId" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" :required="!modoRapido">
         <option :value="null" disabled>Seleccionar mesa</option>
         <option v-for="m in mesas" :key="m.id" :value="m.id">Mesa #{{ m.numero }} ({{ m.capacidad }}p)</option>
       </select>
     </div>
 
     <div class="mb-2">
-      <label class="form-label">Productos</label>
-      <button type="button" class="btn btn-sm btn-outline-success mb-2" @click="mostrarSelector = !mostrarSelector">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Productos</label>
+      <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mb-2" @click="mostrarSelector = !mostrarSelector">
         + Agregar
       </button>
 
       <div v-if="mostrarSelector">
-        <input v-model="busqueda" class="form-control form-control-sm mb-1" placeholder="Buscar...">
+        <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-1" placeholder="Buscar...">
         <div style="max-height: 150px; overflow-y: auto;">
           <button v-for="p in filtrados" :key="p.id" type="button"
-            class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1"
+            class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
             @click="agregar(p)">
             {{ p.nombre }} - ${{ p.precioVenta }}
           </button>
-          <p v-if="!filtrados.length" class="text-muted small">Sin resultados</p>
+          <p v-if="!filtrados.length" class="text-gray-500 dark:text-gray-400 text-xs">Sin resultados</p>
         </div>
       </div>
 
-      <div v-for="(d, i) in detalles" :key="i" class="d-flex align-items-center gap-2 mb-1">
-        <span class="flex-grow-1 small">{{ d.nombre }}</span>
-        <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
+      <div v-for="(d, i) in detalles" :key="i" class="flex items-center gap-2 mb-1">
+        <span class="flex-1 text-xs">{{ d.nombre }}</span>
+        <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           @input="d.subtotal = d.cantidad * d.precioUnitario">
-        <span class="small">${{ Number(d.subtotal).toFixed(2) }}</span>
-        <button type="button" class="btn btn-sm btn-danger" @click="quitar(i)">X</button>
+        <span class="text-xs">${{ Number(d.subtotal).toFixed(2) }}</span>
+        <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitar(i)">X</button>
       </div>
     </div>
 
     <div class="mb-2">
-      <label class="form-label">Metodo de Pago</label>
-      <select v-model="metodoPago" class="form-select">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metodo de Pago</label>
+      <select v-model="metodoPago" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
         <option value="efectivo">Efectivo</option>
         <option value="tarjeta">Tarjeta</option>
         <option value="transferencia">Transferencia</option>
       </select>
     </div>
 
-    <h4 class="text-end">Total: ${{ total.toFixed(2) }}</h4>
-    <button type="submit" class="btn btn-success w-100" :disabled="(!modoRapido && !mesaId) || !detalles.length">Cobrar</button>
+    <h4 class="text-right text-lg font-bold text-gray-900 dark:text-gray-100">Total: ${{ total.toFixed(2) }}</h4>
+    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors w-full" :disabled="(!modoRapido && !mesaId) || !detalles.length">Cobrar</button>
   </form>
 </template>

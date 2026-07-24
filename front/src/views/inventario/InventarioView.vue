@@ -72,22 +72,22 @@ async function eliminar(id: number) {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Inventario</h2>
-      <button v-if="canCreate" class="btn btn-primary" @click="abrirModal()">+ Nuevo Producto</button>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Inventario</h2>
+      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Producto</button>
     </div>
 
-    <div class="mt-3 d-flex gap-2 flex-wrap">
-      <input type="text" class="form-control w-auto" v-model="busqueda" placeholder="Buscar por nombre...">
-      <select class="form-select w-auto" v-model="categoriaFiltro" @change="filtrar">
+    <div class="mt-3 flex gap-2 flex-wrap">
+      <input type="text" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-auto" v-model="busqueda" placeholder="Buscar por nombre...">
+      <select class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm w-auto" v-model="categoriaFiltro" @change="filtrar">
         <option value="">Todas las categorias</option>
         <option value="bebida">Bebidas</option>
         <option value="comida">Comida</option>
         <option value="insumo">Insumos</option>
         <option value="postre">Postres</option>
       </select>
-      <select class="form-select w-auto" v-model="tipoFiltro">
+      <select class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm w-auto" v-model="tipoFiltro">
         <option value="">Todos los tipos</option>
         <option value="directo">Directo</option>
         <option value="insumo">Insumo</option>
@@ -96,68 +96,66 @@ async function eliminar(id: number) {
     </div>
 
     <div v-if="productoStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
     <template v-else>
-      <table class="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>Foto</th>
-            <th>Nombre</th>
-            <th>Tipo</th>
-            <th>Categoria</th>
-            <th>Precio Compra</th>
-            <th>Precio Venta</th>
-            <th>Stock</th>
-            <th>Estado</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="p in productosPaginados" :key="p.id">
-            <td>
-              <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre"
-                class="rounded" style="width:40px;height:40px;object-fit:cover">
-              <span v-else class="text-muted">&mdash;</span>
-            </td>
-            <td>{{ p.nombre }}</td>
-            <td>
-              <span :class="{
-                'badge bg-primary': p.tipo === 'compuesto',
-                'badge bg-warning text-dark': p.tipo === 'insumo',
-                'badge bg-secondary': p.tipo === 'directo' || !p.tipo
-              }">
-                {{ p.tipo || 'directo' }}
-              </span>
-            </td>
-            <td>{{ p.categoria }}</td>
-            <td>${{ p.precioCompra }}</td>
-            <td>${{ p.precioVenta }}</td>
-            <td>{{ p.stock }} {{ p.unidad }}</td>
-            <td>
-              <span :class="p.stock <= p.stockMinimo ? 'badge bg-danger' : 'badge bg-success'">
-                {{ p.stock <= p.stockMinimo ? 'Bajo' : 'OK' }}
-              </span>
-            </td>
-            <td>
-              <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
-              <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
-            </td>
-          </tr>
-          <tr v-if="productosPaginados.length === 0">
-            <td colspan="9" class="text-center text-muted py-3">No se encontraron productos</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto mt-3">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Compra</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Venta</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
+            <tr v-for="p in productosPaginados" :key="p.id">
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre"
+                  class="rounded-lg" style="width:40px;height:40px;object-fit:cover">
+                <span v-else class="text-gray-500 dark:text-gray-400">&mdash;</span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.nombre }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <span :class="p.tipo === 'compuesto' ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : p.tipo === 'insumo' ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'">
+                  {{ p.tipo || 'directo' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.categoria }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ p.precioCompra }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ p.precioVenta }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.stock }} {{ p.unidad }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <span :class="p.stock <= p.stockMinimo ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'">
+                  {{ p.stock <= p.stockMinimo ? 'Bajo' : 'OK' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(p)">Editar</button>
+                <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(p.id)">X</button>
+              </td>
+            </tr>
+            <tr v-if="productosPaginados.length === 0">
+              <td colspan="9" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No se encontraron productos</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div v-if="totalPaginas > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Página {{ paginaActual }} de {{ totalPaginas }}</span>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-outline-secondary" :disabled="paginaActual <= 1" @click="paginaActual--">
+      <div v-if="totalPaginas > 1" class="flex items-center justify-between mt-3">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+        <div class="inline-flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+          <button class="px-3 py-1.5 text-xs border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" :disabled="paginaActual <= 1" @click="paginaActual--">
             Anterior
           </button>
-          <button class="btn btn-sm btn-outline-secondary" :disabled="paginaActual >= totalPaginas" @click="paginaActual++">
+          <button class="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" :disabled="paginaActual >= totalPaginas" @click="paginaActual++">
             Siguiente
           </button>
         </div>

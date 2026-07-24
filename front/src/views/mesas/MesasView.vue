@@ -121,36 +121,36 @@ function estadoColor(estado: string) {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Gestion de Mesas</h2>
-      <button class="btn btn-primary" @click="abrirModal()">+ Nueva Mesa</button>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Gestion de Mesas</h2>
+      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nueva Mesa</button>
     </div>
 
     <div v-if="mesaStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
-    <div class="row mt-3" v-else-if="mesaStore.mesas.length">
-      <div class="col-md-3 mb-3" v-for="mesa in mesaStore.mesas" :key="mesa.id">
-        <div class="card">
-          <div class="card-body text-center">
-            <h5>Mesa #{{ mesa.numero }}</h5>
-            <p>Capacidad: {{ mesa.capacidad }} personas</p>
-            <p v-if="mesa.ubicacion" class="text-muted small">{{ mesa.ubicacion }}</p>
-            <span :class="`badge bg-${estadoColor(mesa.estado)}`">{{ mesa.estado }}</span>
-            <div class="mt-2">
-              <button v-if="mesa.estado === 'disponible'" class="btn btn-sm btn-success me-1" @click="abrirPedido(mesa)">Ocupar</button>
-              <button v-if="mesa.estado === 'ocupada'" class="btn btn-sm btn-warning me-1" @click="verPedido(mesa)">Ver Pedido</button>
-              <button class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(mesa)">Editar</button>
-              <button class="btn btn-sm btn-outline-danger" @click="eliminar(mesa.id)">Eliminar</button>
+    <div class="grid grid-cols-12 gap-3 mt-3" v-else-if="mesaStore.mesas.length">
+      <div class="md:col-span-3 col-span-12 mb-3" v-for="mesa in mesaStore.mesas" :key="mesa.id">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full">
+          <div class="p-4 text-center">
+            <h5 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Mesa #{{ mesa.numero }}</h5>
+            <p class="text-sm text-gray-700 dark:text-gray-300">Capacidad: {{ mesa.capacidad }} personas</p>
+            <p v-if="mesa.ubicacion" class="text-gray-500 dark:text-gray-400 text-xs">{{ mesa.ubicacion }}</p>
+            <span :class="`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${estadoColor(mesa.estado) === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : estadoColor(mesa.estado) === 'danger' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : estadoColor(mesa.estado) === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`">{{ mesa.estado }}</span>
+            <div class="mt-2 flex items-center justify-center gap-1">
+              <button v-if="mesa.estado === 'disponible'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors mr-1" @click="abrirPedido(mesa)">Ocupar</button>
+              <button v-if="mesa.estado === 'ocupada'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors mr-1" @click="verPedido(mesa)">Ver Pedido</button>
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(mesa)">Editar</button>
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(mesa.id)">Eliminar</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div v-else-if="!mesaStore.loading" class="text-center mt-4">
-      <p>No hay mesas registradas</p>
+      <p class="text-gray-500 dark:text-gray-400">No hay mesas registradas</p>
     </div>
 
     <ModalBase v-if="modalAbierto" id="mesaModal" :titulo="editando ? 'Editar Mesa' : 'Nueva Mesa'" @cerrar="cerrarModal">
@@ -159,32 +159,32 @@ function estadoColor(estado: string) {
 
     <ModalBase v-if="ocupandoMesa" id="pedidoModal" :titulo="`Pedido - Mesa #${ocupandoMesa.numero}`" @cerrar="cerrarPedido">
       <div>
-        <button type="button" class="btn btn-sm btn-outline-success mb-2" @click="mostrarSelector = !mostrarSelector">
+        <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mb-2" @click="mostrarSelector = !mostrarSelector">
           + Agregar Producto
         </button>
 
         <div v-if="mostrarSelector">
-          <input v-model="busqueda" class="form-control form-control-sm mb-1" placeholder="Buscar...">
+          <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-1" placeholder="Buscar...">
           <div style="max-height: 150px; overflow-y: auto;">
             <button v-for="p in filtrados" :key="p.id" type="button"
-              class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1"
+              class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
               @click="agregarProducto(p)">
               {{ p.nombre }} - ${{ p.precioVenta }}
             </button>
-            <p v-if="!filtrados.length" class="text-muted small">Sin resultados</p>
+            <p v-if="!filtrados.length" class="text-gray-500 dark:text-gray-400 text-xs">Sin resultados</p>
           </div>
         </div>
 
-        <div v-for="(d, i) in seleccionados" :key="i" class="d-flex align-items-center gap-2 mt-2 mb-1">
-          <span class="flex-grow-1 small">{{ d.nombre }}</span>
-          <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
+        <div v-for="(d, i) in seleccionados" :key="i" class="flex items-center gap-2 mt-2 mb-1">
+          <span class="flex-1 text-xs text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
+          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             @input="d.subtotal = d.cantidad * d.precioUnitario">
-          <span class="small">${{ Number(d.subtotal).toFixed(2) }}</span>
-          <button class="btn btn-sm btn-danger" @click="quitarSeleccion(i)">X</button>
+          <span class="text-xs text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
+          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarSeleccion(i)">X</button>
         </div>
 
-        <h5 class="text-end mt-2">Total: ${{ totalPedido.toFixed(2) }}</h5>
-        <button class="btn btn-success w-100 mt-2" :disabled="!seleccionados.length" @click="guardarPedido">
+        <h5 class="text-right mt-2 text-base font-bold text-gray-900 dark:text-gray-100">Total: ${{ totalPedido.toFixed(2) }}</h5>
+        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="!seleccionados.length" @click="guardarPedido">
           Guardar Pedido
         </button>
       </div>

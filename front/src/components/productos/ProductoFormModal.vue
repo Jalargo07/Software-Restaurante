@@ -155,33 +155,33 @@ async function guardar() {
 <template>
   <form @submit.prevent="guardar">
     <div class="mb-2">
-      <label class="form-label">Imagen</label>
-      <input type="file" class="form-control" accept="image/*" @change="onFileChange">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imagen</label>
+      <input type="file" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" accept="image/*" @change="onFileChange">
       <div v-if="previewUrl" class="mt-2 text-center">
-        <img :src="previewUrl" alt="Preview" class="rounded" style="max-width:120px;max-height:120px;object-fit:cover">
+        <img :src="previewUrl" alt="Preview" class="rounded-lg" style="max-width:120px;max-height:120px;object-fit:cover">
       </div>
     </div>
     <div class="mb-2">
-      <label class="form-label">Nombre</label>
-      <input v-model="form.nombre" class="form-control" required>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+      <input v-model="form.nombre" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
     </div>
     <div class="mb-2">
-      <label class="form-label">Descripcion</label>
-      <textarea v-model="form.descripcion" class="form-control" rows="2"></textarea>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripcion</label>
+      <textarea v-model="form.descripcion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="2"></textarea>
     </div>
-    <div class="row mb-2">
-      <div class="col">
-        <label class="form-label">Categoria</label>
-        <select v-model="form.categoria" class="form-select">
+    <div class="grid grid-cols-12 gap-3 mb-2">
+      <div class="col-span-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoria</label>
+        <select v-model="form.categoria" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
           <option value="comida">Comida</option>
           <option value="bebida">Bebida</option>
           <option value="postre">Postre</option>
           <option value="insumo">Insumo</option>
         </select>
       </div>
-      <div class="col">
-        <label class="form-label">Unidad</label>
-        <select v-model="form.unidad" class="form-select">
+      <div class="col-span-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unidad</label>
+        <select v-model="form.unidad" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
           <option value="unidad">Unidad</option>
           <option value="kg">Kg</option>
           <option value="litro">Litro</option>
@@ -190,77 +190,77 @@ async function guardar() {
       </div>
     </div>
     <div class="mb-2">
-      <label class="form-label">Tipo</label>
-      <select v-model="form.tipo" class="form-select">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo</label>
+      <select v-model="form.tipo" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
         <option value="directo">Directo</option>
         <option value="insumo">Insumo</option>
         <option value="compuesto">Compuesto</option>
       </select>
     </div>
-    <div class="row mb-2">
-      <div class="col">
-        <label class="form-label">Precio Compra</label>
-        <input v-model.number="form.precioCompra" type="number" step="0.001" class="form-control" required min="0">
+    <div class="grid grid-cols-12 gap-3 mb-2">
+      <div class="col-span-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Compra</label>
+        <input v-model.number="form.precioCompra" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required min="0">
       </div>
-      <div class="col">
-        <label class="form-label">Precio Venta</label>
-        <input v-model.number="form.precioVenta" type="number" step="0.001" class="form-control" required min="0">
+      <div class="col-span-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Venta</label>
+        <input v-model.number="form.precioVenta" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required min="0">
       </div>
     </div>
-    <div class="row mb-2">
-      <div class="col">
-        <label class="form-label">Stock Minimo</label>
-        <input v-model.number="form.stockMinimo" type="number" class="form-control" min="0">
+    <div class="grid grid-cols-12 gap-3 mb-2">
+      <div class="col-span-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Minimo</label>
+        <input v-model.number="form.stockMinimo" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" min="0">
       </div>
-      <div v-if="!esNuevo" class="col">
-        <label class="form-label">Stock (se gestiona con compras)</label>
-        <input :value="form.stock" type="number" class="form-control bg-light" readonly>
+      <div v-if="!esNuevo" class="col-span-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock (se gestiona con compras)</label>
+        <input :value="form.stock" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-2 text-sm" readonly>
       </div>
-      <div v-else class="col d-flex align-items-end">
-        <span class="text-muted small">Stock: 0 (se actualiza con compras)</span>
+      <div v-else class="col-span-6 flex items-end">
+        <span class="text-gray-500 dark:text-gray-400 text-xs">Stock: 0 (se actualiza con compras)</span>
       </div>
     </div>
 
     <div v-if="form.tipo === 'insumo'" class="mb-2">
-      <label class="form-label">Merma %</label>
-      <input v-model.number="form.merma" type="number" step="0.001" min="0" max="100" class="form-control">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Merma %</label>
+      <input v-model.number="form.merma" type="number" step="0.001" min="0" max="100" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
     </div>
 
-    <div v-if="form.tipo === 'compuesto'" class="border rounded p-3 mt-2 mb-2">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <label class="form-label mb-0 fw-bold">Receta</label>
-        <button type="button" class="btn btn-sm btn-outline-success" @click="agregarIngrediente">+ Ingrediente</button>
+    <div v-if="form.tipo === 'compuesto'" class="border border-gray-300 dark:border-gray-600 rounded-lg p-3 mt-2 mb-2">
+      <div class="flex items-center justify-between mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-0 font-bold">Receta</label>
+        <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors" @click="agregarIngrediente">+ Ingrediente</button>
       </div>
-      <div class="row mb-2">
-        <div class="col-3">
-          <label class="form-label">Porciones</label>
-          <input v-model.number="recetaForm.porciones" type="number" min="1" class="form-control form-control-sm">
+      <div class="grid grid-cols-12 gap-3 mb-2">
+        <div class="col-span-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Porciones</label>
+          <input v-model.number="recetaForm.porciones" type="number" min="1" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
       </div>
-      <div v-if="recetaForm.detalles.length === 0" class="text-muted text-center mb-2">
+      <div v-if="recetaForm.detalles.length === 0" class="text-gray-500 dark:text-gray-400 text-center mb-2 text-sm">
         Sin ingredientes
       </div>
-      <div v-for="(d, i) in recetaForm.detalles" :key="i" class="row g-1 mb-1 align-items-end">
-        <div class="col-4">
-          <select v-model="d.insumoId" class="form-select form-select-sm" required>
+      <div v-for="(d, i) in recetaForm.detalles" :key="i" class="grid grid-cols-12 gap-1 mb-1 items-end">
+        <div class="col-span-4">
+          <select v-model="d.insumoId" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm" required>
             <option :value="null" disabled>Insumo</option>
             <option v-for="ins in insumos" :key="ins.id" :value="ins.id">{{ ins.nombre }}</option>
           </select>
         </div>
-        <div class="col-2">
-          <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="form-control form-control-sm" placeholder="Cant." required>
+        <div class="col-span-2">
+          <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Cant." required>
         </div>
-        <div class="col-2">
-          <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
+        <div class="col-span-2">
+          <span class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 block">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
         </div>
-        <div class="col-2 text-end">
-          <button type="button" class="btn btn-sm btn-outline-danger" @click="quitarIngrediente(i)">X</button>
+        <div class="col-span-2 text-right">
+          <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="quitarIngrediente(i)">X</button>
         </div>
       </div>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100 mt-2" :disabled="guardando">
-      <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="guardando">
+      <span v-if="guardando" class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span>
       {{ guardando ? 'Guardando...' : (producto ? 'Actualizar' : 'Crear') + ' Producto' }}
     </button>
   </form>

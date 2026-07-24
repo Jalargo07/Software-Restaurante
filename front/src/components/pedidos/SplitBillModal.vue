@@ -110,48 +110,51 @@ async function confirmarCobroDividido() {
 <template>
   <ModalBase id="splitBillModal" titulo="Dividir Cuenta (Split Bill)" @cerrar="emit('cerrar')">
     <div class="mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="fw-bold">Total a Pagar: ${{ Number(venta.total).toFixed(2) }}</span>
-        <span class="badge" :class="esValido ? 'bg-success' : 'bg-warning text-dark'">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-bold text-gray-900 dark:text-gray-100">Total a Pagar: ${{ Number(venta.total).toFixed(2) }}</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" :class="esValido ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'">
           Suma pagos: ${{ sumaPagos.toFixed(2) }}
         </span>
       </div>
 
       <!-- Selector de Modo -->
-      <div class="btn-group w-100 mb-3" role="group">
-        <input type="radio" class="btn-check" id="modoIguales" value="iguales" v-model="modo" autocomplete="off">
-        <label class="btn btn-outline-primary" for="modoIguales">Partes Iguales</label>
-
-        <input type="radio" class="btn-check" id="modoPersonalizado" value="personalizado" v-model="modo" autocomplete="off">
-        <label class="btn btn-outline-primary" for="modoPersonalizado">Montos Personalizados</label>
+      <div class="flex w-full mb-3 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+        <label class="flex-1 cursor-pointer">
+          <input type="radio" class="sr-only" id="modoIguales" value="iguales" v-model="modo" autocomplete="off">
+          <span class="block text-center px-4 py-2 text-sm font-medium transition-colors" :class="modo === 'iguales' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'">Partes Iguales</span>
+        </label>
+        <label class="flex-1 cursor-pointer">
+          <input type="radio" class="sr-only" id="modoPersonalizado" value="personalizado" v-model="modo" autocomplete="off">
+          <span class="block text-center px-4 py-2 text-sm font-medium transition-colors" :class="modo === 'personalizado' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'">Montos Personalizados</span>
+        </label>
       </div>
 
       <!-- Modo Partes Iguales -->
       <div v-if="modo === 'iguales'" class="mb-3">
-        <div class="row g-2 align-items-center mb-3">
+        <div class="grid grid-cols-12 gap-2 items-center mb-3">
           <div class="col-auto">
-            <label class="col-form-label">Número de personas:</label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">Número de personas:</label>
           </div>
           <div class="col">
-            <input type="number" min="2" max="50" v-model.number="numeroPersonas" class="form-control">
+            <input type="number" min="2" max="50" v-model.number="numeroPersonas" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Método de Pago (para todas las partes):</label>
-          <select v-model="metodoIguales" class="form-select">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Método de Pago (para todas las partes):</label>
+          <select v-model="metodoIguales" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
             <option value="efectivo">Efectivo</option>
             <option value="tarjeta">Tarjeta</option>
             <option value="transferencia">Transferencia</option>
           </select>
         </div>
 
-        <div class="card bg-light p-2 mb-2">
-          <p class="mb-1 fw-semibold">Desglose ({{ Math.max(2, numeroPersonas) }} partes):</p>
-          <ul class="list-group list-group-flush small">
-            <li v-for="(p, index) in pagosActuales" :key="index" class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 mb-2">
+          <p class="mb-1 font-semibold text-sm text-gray-900 dark:text-gray-100">Desglose ({{ Math.max(2, numeroPersonas) }} partes):</p>
+          <ul class="divide-y divide-gray-200 dark:divide-gray-600 text-sm">
+            <li v-for="(p, index) in pagosActuales" :key="index" class="flex items-center justify-between py-1.5 bg-transparent text-gray-900 dark:text-gray-100">
               <span>Persona #{{ index + 1 }} ({{ p.metodo }})</span>
-              <span class="fw-bold">${{ p.monto.toFixed(2) }}</span>
+              <span class="font-bold">${{ p.monto.toFixed(2) }}</span>
             </li>
           </ul>
         </div>
@@ -159,34 +162,34 @@ async function confirmarCobroDividido() {
 
       <!-- Modo Personalizado -->
       <div v-else class="mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="fw-semibold small">Asignar montos por parte:</span>
-          <button class="btn btn-sm btn-outline-primary" @click="agregarFila">+ Agregar Parte</button>
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-semibold text-xs text-gray-700 dark:text-gray-300">Asignar montos por parte:</span>
+          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" @click="agregarFila">+ Agregar Parte</button>
         </div>
 
-        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
-          <table class="table table-sm align-middle mb-2">
+        <div class="overflow-x-auto" style="max-height: 200px; overflow-y: auto;">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
             <thead>
-              <tr>
-                <th>Monto ($)</th>
-                <th>Método</th>
-                <th style="width: 40px;"></th>
+              <tr class="bg-gray-50 dark:bg-gray-800">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto ($)</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
+                <th class="px-4 py-3" style="width: 40px;"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="(fila, index) in filasPersonalizadas" :key="fila.id">
-                <td>
-                  <input type="number" step="0.01" min="0" v-model.number="fila.monto" class="form-control form-control-sm">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                  <input type="number" step="0.01" min="0" v-model.number="fila.monto" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </td>
-                <td>
-                  <select v-model="fila.metodo" class="form-select form-select-sm">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                  <select v-model="fila.metodo" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm">
                     <option value="efectivo">Efectivo</option>
                     <option value="tarjeta">Tarjeta</option>
                     <option value="transferencia">Transferencia</option>
                   </select>
                 </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-danger" :disabled="filasPersonalizadas.length <= 1" @click="eliminarFila(index)">X</button>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                  <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" :disabled="filasPersonalizadas.length <= 1" @click="eliminarFila(index)">X</button>
                 </td>
               </tr>
             </tbody>
@@ -195,29 +198,17 @@ async function confirmarCobroDividido() {
       </div>
 
       <!-- Validación visual en tiempo real -->
-      <div class="alert mt-3 py-2 px-3 mb-3 text-center small" :class="esValido ? 'alert-success' : diferencia > 0 ? 'alert-warning' : 'alert-danger'">
-        <span v-if="esValido" class="fw-bold">¡Los pagos coinciden exactamente con el total!</span>
+      <div class="mt-3 py-2 px-3 mb-3 text-center text-sm rounded-lg" :class="esValido ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : diferencia > 0 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'">
+        <span v-if="esValido" class="font-bold">¡Los pagos coinciden exactamente con el total!</span>
         <span v-else-if="diferencia > 0">Falta por cubrir: <strong>${{ diferencia.toFixed(2) }}</strong></span>
         <span v-else>Excede el total por: <strong>${{ Math.abs(diferencia).toFixed(2) }}</strong></span>
       </div>
 
       <!-- Botón Cobrar -->
-      <button class="btn btn-success w-100" :disabled="!esValido || cargando" @click="confirmarCobroDividido">
-        <span v-if="cargando" class="spinner-border spinner-border-sm me-1"></span>
+      <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors w-full" :disabled="!esValido || cargando" @click="confirmarCobroDividido">
+        <span v-if="cargando" class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span>
         Confirmar Cobro Dividido (${{ sumaPagos.toFixed(2) }})
       </button>
     </div>
   </ModalBase>
 </template>
-
-<style scoped>
-[data-theme="dark"] .card.bg-light {
-  background-color: #27272a !important;
-  color: #e4e4e7;
-}
-[data-theme="dark"] .list-group-item {
-  background-color: transparent !important;
-  color: #e4e4e7;
-  border-color: #3f3f46;
-}
-</style>
