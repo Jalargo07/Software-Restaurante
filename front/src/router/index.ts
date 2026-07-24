@@ -16,6 +16,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
     },
     {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/admin/AdminView.vue'),
+      meta: { requiresAuth: true, roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
+    },
+    {
       path: '/mesas',
       name: 'mesas',
       component: () => import('../views/mesas/MesasView.vue'),

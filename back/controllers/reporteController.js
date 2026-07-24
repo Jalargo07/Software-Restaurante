@@ -1,18 +1,19 @@
 const { Venta, DetalleVenta, Producto, Compra } = require('../models');
 const { Op, fn, col, literal } = require('sequelize');
+const sequelize = require('../config/database');
 const { scopeTenant } = require('../utils/tenantScope');
 
 const ventasHoy = async (req, res) => {
   try {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
+    const hoy = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
 
     const ventas = await Venta.findAll({
       where: scopeTenant({
         estado: 'cerrada',
-        createdAt: { [Op.gte]: hoy, [Op.lt]: manana },
+        createdAt: {
+          [Op.gte]: new Date(`${hoy}T00:00:00`),
+          [Op.lte]: new Date(`${hoy}T23:59:59`),
+        },
       }, req.tenantId),
     });
 
@@ -25,18 +26,26 @@ const ventasHoy = async (req, res) => {
 
 const ventasPorDia = async (req, res) => {
   try {
-    const resultados = await Venta.findAll({
-      attributes: [
-        [sequelize.literal(`DATE("Venta"."createdAt" AT TIME ZONE '-03:00')`), 'dia'],
-        [fn('COUNT', col('id')), 'cantidad'],
-        [fn('SUM', col('total')), 'total'],
-      ],
-      where: scopeTenant({ estado: 'cerrada' }, req.tenantId),
-      group: [sequelize.literal(`DATE("Venta"."createdAt" AT TIME ZONE '-03:00')`)],
-      order: [[sequelize.literal(`DATE("Venta"."createdAt" AT TIME ZONE '-03:00')`), 'DESC']],
-      limit: 7,
-      raw: true,
-    });
+    const resultados = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const fechaStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+      const ventasDia = await Venta.findAll({
+        where: scopeTenant({
+          estado: 'cerrada',
+          createdAt: {
+            [Op.gte]: new Date(`${fechaStr}T00:00:00`),
+            [Op.lte]: new Date(`${fechaStr}T23:59:59`),
+          },
+        }, req.tenantId),
+      });
+
+      const cantidad = ventasDia.length;
+      const total = ventasDia.reduce((sum, v) => sum + Number(v.total), 0);
+      resultados.push({ dia: fechaStr, cantidad, total });
+    }
 
     res.json(resultados);
   } catch (error) {

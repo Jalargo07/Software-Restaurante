@@ -1,4 +1,4 @@
-const { Producto } = require('../models');
+const { Producto, Receta, DetalleReceta } = require('../models');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
@@ -15,7 +15,19 @@ const obtenerTodos = async (req, res) => {
     if (buscar) where.nombre = { [Op.like]: `%${buscar}%` };
     const scopedWhere = scopeTenant(where, req.tenantId);
 
-    const productos = await Producto.findAll({ where: scopedWhere });
+    const productos = await Producto.findAll({
+      where: scopedWhere,
+      include: [{
+        model: Receta,
+        include: [{
+          model: DetalleReceta,
+          include: [{
+            model: Producto,
+            as: 'insumo',
+          }],
+        }],
+      }],
+    });
     res.json(productos);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener productos' });
@@ -24,7 +36,18 @@ const obtenerTodos = async (req, res) => {
 
 const obtenerPorId = async (req, res) => {
   try {
-    const producto = await Producto.findByPk(req.params.id);
+    const producto = await Producto.findByPk(req.params.id, {
+      include: [{
+        model: Receta,
+        include: [{
+          model: DetalleReceta,
+          include: [{
+            model: Producto,
+            as: 'insumo',
+          }],
+        }],
+      }],
+    });
     if (!producto || !belongsToTenant(producto, req.tenantId)) return res.status(404).json({ error: 'Producto no encontrado' });
     res.json(producto);
   } catch (error) {

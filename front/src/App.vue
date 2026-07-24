@@ -47,18 +47,13 @@ function salir() {
 
 const navItems = computed(() => {
   const items = [
-    { path: '/', icon: '📊', label: 'Dashboard', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
     { path: '/mesas', icon: '🪑', label: 'Mesas', roles: ['admin', 'mesero', 'cajero'] },
     { path: '/pedidos', icon: '📋', label: 'Pedidos', roles: ['admin', 'mesero', 'cajero'] },
     { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin', 'mesero'] },
-    { path: '/compras', icon: '🛒', label: 'Compras', roles: ['admin'] },
     { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
     { path: '/caja', icon: '🏦', label: 'Caja', roles: ['admin', 'cajero'] },
-    { path: '/proveedores', icon: '🏢', label: 'Proveedores', roles: ['admin', 'mesero'] },
     { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
-    { path: '/recetas', icon: '📖', label: 'Recetas', roles: ['admin'] },
-    { path: '/usuarios', icon: '👥', label: 'Usuarios', roles: ['admin'] },
-    { path: '/auditoria', icon: '📋', label: 'Auditoría', roles: ['admin'] },
+    { path: '/admin', icon: '⚙️', label: 'Admin', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
   ]
   return items.filter(item => item.roles.includes(authStore.user?.rol || ''))
 })
