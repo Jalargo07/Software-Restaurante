@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBrandingStore } from '../../stores/branding'
 import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
@@ -123,21 +123,21 @@ async function guardar() {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <h2 class="mb-4">Configuracion de Branding</h2>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Configuración de Branding</h2>
 
     <div v-if="brandingStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
-    <div v-else class="row g-4">
-      <div class="col-lg-7">
-        <form @submit.prevent="guardar" class="card p-4">
+    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div class="lg:col-span-7">
+        <form @submit.prevent="guardar" class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
           <div class="mb-3">
-            <label class="form-label">Logo</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo</label>
             <input
               type="file"
-              class="form-control"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               accept="image/*"
               @change="onLogoChange"
             >
@@ -145,17 +145,16 @@ async function guardar() {
               <img
                 :src="logoPreview"
                 alt="Logo preview"
-                class="rounded"
-                style="max-width:140px;max-height:140px;object-fit:contain"
+                class="rounded-lg max-w-[140px] max-h-[140px] object-contain mx-auto"
               >
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Banner</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner</label>
             <input
               type="file"
-              class="form-control"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               accept="image/*"
               @change="onBannerChange"
             >
@@ -163,59 +162,58 @@ async function guardar() {
               <img
                 :src="bannerPreview"
                 alt="Banner preview"
-                class="rounded"
-                style="width:100%;max-height:120px;object-fit:cover"
+                class="rounded-lg w-full max-h-[120px] object-cover"
               >
             </div>
           </div>
 
-          <hr>
+          <hr class="border-gray-200 dark:border-gray-700 my-4">
 
-          <div class="row g-3 mb-3">
-            <div class="col-md-4">
-              <label class="form-label">Color Primario</label>
-              <div class="d-flex align-items-center gap-2">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color Primario</label>
+              <div class="flex items-center gap-2">
                 <input
                   v-model="form.colorPrimario"
                   type="color"
-                  class="form-control form-control-color"
+                  class="w-11 h-[38px] p-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 cursor-pointer"
                 >
                 <input
                   v-model="form.colorPrimario"
                   type="text"
-                  class="form-control form-control-sm"
+                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="#000000"
                 >
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Color Secundario</label>
-              <div class="d-flex align-items-center gap-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color Secundario</label>
+              <div class="flex items-center gap-2">
                 <input
                   v-model="form.colorSecundario"
                   type="color"
-                  class="form-control form-control-color"
+                  class="w-11 h-[38px] p-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 cursor-pointer"
                 >
                 <input
                   v-model="form.colorSecundario"
                   type="text"
-                  class="form-control form-control-sm"
+                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="#000000"
                 >
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Color de Acento</label>
-              <div class="d-flex align-items-center gap-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color de Acento</label>
+              <div class="flex items-center gap-2">
                 <input
                   v-model="form.colorAcento"
                   type="color"
-                  class="form-control form-control-color"
+                  class="w-11 h-[38px] p-0.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 cursor-pointer"
                 >
                 <input
                   v-model="form.colorAcento"
                   type="text"
-                  class="form-control form-control-sm"
+                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="#000000"
                 >
               </div>
@@ -223,56 +221,56 @@ async function guardar() {
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Nombre Completo</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre Completo</label>
             <input
               v-model="form.nombreCompleto"
-              class="form-control"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Nombre del restaurante"
             >
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Fuente Principal</label>
-            <select v-model="form.fontPrincipal" class="form-select">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuente Principal</label>
+            <select v-model="form.fontPrincipal" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               <option v-for="f in fuentes" :key="f" :value="f">{{ f }}</option>
             </select>
           </div>
 
           <button
             type="submit"
-            class="btn btn-primary w-100"
+            class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none"
             :disabled="guardando"
           >
-            <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+            <span v-if="guardando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
             {{ guardando ? 'Guardando...' : 'Guardar Branding' }}
           </button>
         </form>
       </div>
 
-      <div class="col-lg-5">
-        <div class="card p-4">
-          <h5 class="mb-3">Vista Previa</h5>
+      <div class="lg:col-span-5">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+          <h5 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Vista Previa</h5>
           <div
-            class="preview-box"
+            class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
             :style="previewEstilo"
           >
-            <div class="preview-header" :style="{ background: form.colorPrimario }">
+            <div class="flex items-center gap-2.5 px-4 py-3.5" :style="{ background: form.colorPrimario }">
               <div
                 v-if="logoPreview"
-                class="preview-logo"
+                class="shrink-0"
               >
-                <img :src="logoPreview" alt="Logo">
+                <img :src="logoPreview" alt="Logo" class="h-7 w-auto object-contain rounded">
               </div>
-              <span class="preview-name" :style="{ color: '#fff' }">
+              <span class="font-semibold text-sm" :style="{ color: '#fff' }">
                 {{ form.nombreCompleto || 'Tu Restaurante' }}
               </span>
             </div>
-            <div class="preview-body">
-              <div class="preview-surface" :style="{ background: form.colorSecundario + '22', border: `1px solid ${form.colorSecundario}44` }">
+            <div class="p-4 flex flex-col gap-3">
+              <div class="px-3.5 py-2.5 rounded-lg text-sm" :style="{ background: form.colorSecundario + '22', border: `1px solid ${form.colorSecundario}44` }">
                 <span :style="{ color: form.colorSecundario }">Elemento secundario</span>
               </div>
               <button
-                class="preview-btn"
+                class="px-4 py-2 rounded-lg font-medium text-sm cursor-default"
                 :style="{ background: form.colorAcento, color: '#fff' }"
               >
                 Boton de Acento
@@ -280,9 +278,8 @@ async function guardar() {
             </div>
             <div
               v-if="bannerPreview"
-              class="preview-banner"
             >
-              <img :src="bannerPreview" alt="Banner">
+              <img :src="bannerPreview" alt="Banner" class="w-full h-20 object-cover">
             </div>
           </div>
         </div>
@@ -290,66 +287,3 @@ async function guardar() {
     </div>
   </div>
 </template>
-
-<style scoped>
-.form-control-color {
-  width: 44px;
-  height: 38px;
-  padding: 2px;
-  cursor: pointer;
-}
-
-.preview-box {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--bg);
-}
-
-.preview-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-}
-
-.preview-logo img {
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-  border-radius: 4px;
-}
-
-.preview-name {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.preview-body {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.preview-surface {
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.preview-btn {
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 13px;
-  cursor: default;
-}
-
-.preview-banner img {
-  width: 100%;
-  height: 80px;
-  object-fit: cover;
-}
-</style>

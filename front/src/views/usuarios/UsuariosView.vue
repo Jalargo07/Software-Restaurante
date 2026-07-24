@@ -80,85 +80,89 @@ async function toggleActivo(usuario: any) {
   }
 }
 
-function rolBadge(rol: string) {
+function rolBadgeClasses(rol: string): string {
   const map: Record<string, string> = {
-    admin: 'danger',
-    mesero: 'primary',
-    cajero: 'success',
-    cocinero: 'warning',
+    admin: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    mesero: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    cajero: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    cocinero: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
   }
-  return map[rol] || 'secondary'
+  return map[rol] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
 }
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Usuarios</h2>
-      <button v-if="canCreate" class="btn btn-primary" @click="abrirCrear">+ Nuevo Usuario</button>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Usuarios</h2>
+      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="abrirCrear">+ Nuevo Usuario</button>
     </div>
 
     <div v-if="usuarioStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
-    <table v-else class="table table-striped mt-3">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Rol</th>
-          <th>Estado</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="u in usuarioStore.usuarios" :key="u.id">
-          <td>{{ u.id }}</td>
-          <td>{{ u.nombre }}</td>
-          <td>{{ u.email }}</td>
-          <td><span :class="`badge bg-${rolBadge(u.rol)}`">{{ u.rol }}</span></td>
-          <td>
-            <span :class="`badge bg-${u.activo ? 'success' : 'secondary'}`">
-              {{ u.activo ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td>
-            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirEditar(u)">Editar</button>
-            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="toggleActivo(u)">
-              {{ u.activo ? 'Desactivar' : 'Activar' }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="overflow-x-auto mt-3">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
+            <tr v-for="u in usuarioStore.usuarios" :key="u.id" class="hover:bg-gray-100 dark:hover:bg-gray-700/50">
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ u.id }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ u.nombre }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ u.email }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm">
+              <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', rolBadgeClasses(u.rol)]">{{ u.rol }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm">
+              <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', u.activo ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200']">
+                {{ u.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm">
+              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none mr-1" @click="abrirEditar(u)">Editar</button>
+              <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="toggleActivo(u)">
+                {{ u.activo ? 'Desactivar' : 'Activar' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <ModalBase v-if="modalAbierto" id="usuarioModal" :titulo="esEdicion ? 'Editar Usuario' : 'Nuevo Usuario'" @cerrar="modalAbierto = false">
       <form @submit.prevent="guardar">
         <div class="mb-3">
-          <label class="form-label">Nombre</label>
-          <input v-model="form.nombre" class="form-control" required>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+          <input v-model="form.nombre" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input v-model="form.email" type="email" class="form-control" required>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+          <input v-model="form.email" type="email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ esEdicion ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña' }}</label>
-          <input v-model="form.password" type="password" class="form-control" :required="!esEdicion">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ esEdicion ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña' }}</label>
+          <input v-model="form.password" type="password" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :required="!esEdicion">
         </div>
         <div class="mb-3">
-          <label class="form-label">Rol</label>
-          <select v-model="form.rol" class="form-select">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
+          <select v-model="form.rol" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="admin">Admin</option>
             <option value="mesero">Mesero</option>
             <option value="cajero">Cajero</option>
             <option value="cocinero">Cocinero</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-primary w-100" :disabled="guardando">
-          <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+        <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" :disabled="guardando">
+          <span v-if="guardando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
           {{ guardando ? 'Guardando...' : esEdicion ? 'Actualizar' : 'Crear' }}
         </button>
       </form>

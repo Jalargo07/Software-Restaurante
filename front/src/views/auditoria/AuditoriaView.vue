@@ -39,13 +39,13 @@ function siguiente() {
 
 function badgeClass(accion: string): string {
   const a = accion?.toLowerCase() || ''
-  if (a.includes('crear') || a.includes('create')) return 'bg-success'
-  if (a.includes('editar') || a.includes('update')) return 'bg-primary'
-  if (a.includes('eliminar') || a.includes('delete')) return 'bg-danger'
-  if (a.includes('cobrar')) return 'bg-info'
-  if (a.includes('recibir')) return 'bg-warning text-dark'
-  if (a.includes('cancelar')) return 'bg-secondary'
-  return 'bg-info'
+  if (a.includes('crear') || a.includes('create')) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+  if (a.includes('editar') || a.includes('update')) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+  if (a.includes('eliminar') || a.includes('delete')) return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+  if (a.includes('cobrar')) return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200'
+  if (a.includes('recibir')) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+  if (a.includes('cancelar')) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200'
 }
 
 async function exportarLogs() {
@@ -70,23 +70,23 @@ async function exportarLogs() {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Auditoría</h2>
-      <button class="btn btn-success" @click="exportarLogs" :disabled="exportando">
-        <span v-if="exportando" class="spinner-border spinner-border-sm me-1"></span>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Auditoría</h2>
+      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="exportarLogs" :disabled="exportando">
+        <span v-if="exportando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
         Exportar Excel
       </button>
     </div>
 
-    <div class="row g-2 mt-3 align-items-end">
-      <div class="col-md-3">
-        <label class="form-label small">Usuario</label>
-        <input type="text" class="form-control" v-model="filtroUsuario" placeholder="Email o nombre..." />
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 mt-3 items-end">
+      <div class="md:col-span-3">
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Usuario</label>
+        <input type="text" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroUsuario" placeholder="Email o nombre..." />
       </div>
-      <div class="col-md-2">
-        <label class="form-label small">Entidad</label>
-        <select class="form-select" v-model="filtroEntidad">
+      <div class="md:col-span-2">
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Entidad</label>
+        <select class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroEntidad">
           <option value="">Todos</option>
           <option value="Venta">Venta</option>
           <option value="Compra">Compra</option>
@@ -95,57 +95,61 @@ async function exportarLogs() {
           <option value="Usuario">Usuario</option>
         </select>
       </div>
-      <div class="col-md-2">
-        <label class="form-label small">Desde</label>
-        <input type="date" class="form-control" v-model="filtroDesde" />
+      <div class="md:col-span-2">
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Desde</label>
+        <input type="date" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroDesde" />
       </div>
-      <div class="col-md-2">
-        <label class="form-label small">Hasta</label>
-        <input type="date" class="form-control" v-model="filtroHasta" />
+      <div class="md:col-span-2">
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Hasta</label>
+        <input type="date" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroHasta" />
       </div>
-      <div class="col-md-3">
-        <button class="btn btn-primary me-2" @click="aplicarFiltros">Buscar</button>
-        <button class="btn btn-outline-secondary" @click="filtroUsuario = ''; filtroEntidad = ''; filtroDesde = ''; filtroHasta = ''; auditoriaStore.page = 1; auditoriaStore.fetchLogs()">Limpiar</button>
+      <div class="md:col-span-3 flex gap-2">
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="aplicarFiltros">Buscar</button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="filtroUsuario = ''; filtroEntidad = ''; filtroDesde = ''; filtroHasta = ''; auditoriaStore.page = 1; auditoriaStore.fetchLogs()">Limpiar</button>
       </div>
     </div>
 
     <div v-if="auditoriaStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
     <template v-else>
-      <table class="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>Acción</th>
-            <th>Entidad</th>
-            <th>ID</th>
-            <th>Detalles</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="log in auditoriaStore.logs" :key="log.id">
-            <td>{{ new Date(log.createdAt).toLocaleString() }}</td>
-            <td>{{ log.usuario || log.usuarioEmail || '-' }}</td>
-            <td><span :class="`badge ${badgeClass(log.accion)}`">{{ log.accion }}</span></td>
-            <td>{{ log.entidad || '-' }}</td>
-            <td>{{ log.entidadId || log.registroId || '-' }}</td>
-            <td><JsonViewer :data="log.detalles || log.descripcion" :entidad="log.entidad" /></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto mt-3">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entidad</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalles</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
+            <tr v-for="log in auditoriaStore.logs" :key="log.id" class="hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ new Date(log.createdAt).toLocaleString() }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ log.usuario || log.usuarioEmail || '-' }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm">
+                <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', badgeClass(log.accion)]">{{ log.accion }}</span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ log.entidad || '-' }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ log.entidadId || log.registroId || '-' }}</td>
+              <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100"><JsonViewer :data="log.detalles || log.descripcion" :entidad="log.entidad" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div v-if="!auditoriaStore.logs.length" class="text-center text-muted py-4">
+      <div v-if="!auditoriaStore.logs.length" class="text-center text-gray-500 dark:text-gray-400 py-4">
         No hay logs de auditoría
       </div>
 
-      <div class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted small">Página {{ auditoriaStore.page }} de {{ auditoriaStore.totalPages }} ({{ auditoriaStore.total }} registros)</span>
-        <div>
-          <button class="btn btn-sm btn-outline-primary me-2" :disabled="auditoriaStore.page <= 1" @click="anterior">Anterior</button>
-          <button class="btn btn-sm btn-outline-primary" :disabled="auditoriaStore.page >= auditoriaStore.totalPages" @click="siguiente">Siguiente</button>
+      <div class="flex items-center justify-between mt-3">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Página {{ auditoriaStore.page }} de {{ auditoriaStore.totalPages }} ({{ auditoriaStore.total }} registros)</span>
+        <div class="inline-flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+          <button class="px-3 py-1.5 text-xs border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50" :disabled="auditoriaStore.page <= 1" @click="anterior">Anterior</button>
+          <button class="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50" :disabled="auditoriaStore.page >= auditoriaStore.totalPages" @click="siguiente">Siguiente</button>
         </div>
       </div>
     </template>
