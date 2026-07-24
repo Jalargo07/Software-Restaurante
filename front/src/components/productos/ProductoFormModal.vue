@@ -117,6 +117,18 @@ async function guardar() {
     let imagenUrl: string | null = null
     if (archivo.value) {
       imagenUrl = await subirImagen()
+      // Si estamos editando y había una imagen anterior, la eliminamos del bucket
+      if (props.producto?.imagen && props.producto.imagen !== imagenUrl) {
+        try {
+          const urlParts = props.producto.imagen.split('/')
+          const filename = urlParts[urlParts.length - 1]
+          if (filename) {
+            await api.delete(`/upload/${filename}`)
+          }
+        } catch (err) {
+          console.error('No se pudo eliminar la imagen anterior del bucket:', err)
+        }
+      }
     }
     const payload: any = { ...form.value }
     if (imagenUrl) payload.imagen = imagenUrl
