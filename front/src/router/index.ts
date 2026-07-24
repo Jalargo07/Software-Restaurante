@@ -81,6 +81,12 @@ const router = createRouter({
       component: () => import('../views/auditoria/AuditoriaView.vue'),
       meta: { requiresAuth: true, roles: ['admin'] },
     },
+    {
+      path: '/branding',
+      name: 'branding',
+      component: () => import('../views/branding/BrandingView.vue'),
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
   ],
 })
 
