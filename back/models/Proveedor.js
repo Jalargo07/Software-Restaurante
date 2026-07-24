@@ -6,10 +6,6 @@ const Proveedor = sequelize.define('Proveedor', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 1,
-    references: {
-      model: 'Tenants',
-      key: 'id'
-    }
   },
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   nombre: { type: DataTypes.STRING, allowNull: false },

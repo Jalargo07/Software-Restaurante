@@ -6,10 +6,6 @@ const DetalleReceta = sequelize.define('DetalleReceta', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 1,
-    references: {
-      model: 'Tenants',
-      key: 'id'
-    }
   },
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   cantidad: { type: DataTypes.DECIMAL(8, 3), allowNull: false },

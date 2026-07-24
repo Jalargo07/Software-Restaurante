@@ -6,10 +6,6 @@ const Venta = sequelize.define('Venta', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 1,
-    references: {
-      model: 'Tenants',
-      key: 'id'
-    }
   },
   id: {
     type: DataTypes.INTEGER,

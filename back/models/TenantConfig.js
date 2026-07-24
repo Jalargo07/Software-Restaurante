@@ -13,11 +13,6 @@ const TenantConfig = sequelize.define('TenantConfig', {
     type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
-    references: {
-      model: 'Tenants',
-      key: 'id',
-    },
-    onDelete: 'CASCADE',
   },
   logo: {
     type: DataTypes.STRING,
