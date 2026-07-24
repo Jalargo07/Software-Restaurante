@@ -158,6 +158,34 @@ export interface Auditoria {
   createdAt: string
 }
 
+export interface TenantConfig {
+  id: number
+  tenant_id: number
+  logo: string | null
+  banner: string | null
+  colorPrimario: string
+  colorSecundario: string
+  colorAcento: string
+  nombreCompleto: string | null
+  fontPrincipal: string
+}
+
+export interface TenantConfigUpdatePayload {
+  logo?: string | null
+  banner?: string | null
+  colorPrimario?: string
+  colorSecundario?: string
+  colorAcento?: string
+  nombreCompleto?: string | null
+  fontPrincipal?: string
+}
+
+export interface PublicBrandingResponse {
+  tenant: string
+  slug: string
+  branding: TenantConfig
+}
+
 // ─── API Payloads ────────────────────────────────────
 
 export interface LoginPayload {
