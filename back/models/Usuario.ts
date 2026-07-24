@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
-const bcrypt = require('bcryptjs');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import bcrypt from 'bcryptjs';
+import sequelize from '../config/database';
 
 const Usuario = sequelize.define('Usuario', {
   tenant_id: {
@@ -25,7 +25,7 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false,
   },
   rol: {
-    type: DataTypes.ENUM('admin', 'mesero', 'cajero', 'cocinero'),
+    type: DataTypes.ENUM('admin', 'mesero', 'cajero', 'cocinero', 'super-admin'),
     defaultValue: 'mesero',
   },
   activo: {
@@ -38,12 +38,12 @@ const Usuario = sequelize.define('Usuario', {
     { unique: true, fields: ['tenant_id', 'email'] }
   ],
   hooks: {
-    beforeCreate: async (usuario) => {
+    beforeCreate: async (usuario: any) => {
       if (usuario.password) {
         usuario.password = await bcrypt.hash(usuario.password, 10);
       }
     },
-    beforeUpdate: async (usuario) => {
+    beforeUpdate: async (usuario: any) => {
       if (usuario.changed('password')) {
         usuario.password = await bcrypt.hash(usuario.password, 10);
       }
@@ -51,4 +51,4 @@ const Usuario = sequelize.define('Usuario', {
   },
 });
 
-module.exports = Usuario;
+export default Usuario;

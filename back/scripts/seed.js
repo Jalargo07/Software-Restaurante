@@ -3,8 +3,11 @@ const bcrypt = require('bcryptjs');
 const { Tenant, TenantConfig, Producto, Proveedor, Mesa, DetalleReceta, Usuario } = require('../models');
 
 async function seed() {
+  console.log('🔄 Reiniciando base de datos (schema public)...');
+  await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+
   console.log('🔄 Sincronizando modelos...');
-  await sequelize.sync({ alter: true });
+  await sequelize.sync();
 
   console.log('🏢 Creando tenant por defecto...');
   const [tenant] = await Tenant.findOrCreate({

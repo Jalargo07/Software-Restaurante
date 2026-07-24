@@ -5,7 +5,6 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
   tenant_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1,
   },
   id: {
     type: DataTypes.INTEGER,

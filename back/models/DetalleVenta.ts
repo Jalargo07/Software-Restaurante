@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
-const DetalleCompra = sequelize.define('DetalleCompra', {
+const DetalleVenta = sequelize.define('DetalleVenta', {
   tenant_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -23,12 +23,16 @@ const DetalleCompra = sequelize.define('DetalleCompra', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
+  estadoComanda: {
+    type: DataTypes.ENUM('pendiente', 'en_preparacion', 'listo'),
+    defaultValue: 'pendiente',
+  },
 }, {
   indexes: [
     { fields: ['tenant_id', 'id'] },
-    { fields: ['tenant_id', 'CompraId'] },
+    { fields: ['tenant_id', 'VentaId'] },
     { fields: ['tenant_id', 'ProductoId'] }
   ]
 });
 
-module.exports = DetalleCompra;
+export default DetalleVenta;

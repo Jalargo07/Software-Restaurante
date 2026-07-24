@@ -37,6 +37,7 @@ async function setup() {
     password: 'admin123',
     rol: 'admin',
     activo: true,
+    tenant_id: 1,
   });
 }
 

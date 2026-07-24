@@ -1,6 +1,6 @@
-const { Auditoria } = require('../models');
+import { Auditoria } from '../models';
 
-const registrarAuditoria = async ({ req, accion, entidad, entidadId, detalles }) => {
+export const registrarAuditoria = async ({ req, accion, entidad, entidadId, detalles }: { req: any; accion: string; entidad: string; entidadId?: any; detalles?: any }) => {
   try {
     await Auditoria.create({
       tenant_id: req?.tenantId || req?.user?.tenant_id || 1,
@@ -13,9 +13,9 @@ const registrarAuditoria = async ({ req, accion, entidad, entidadId, detalles })
       ipAddress: req?.ip || req?.connection?.remoteAddress || null,
       userAgent: req?.headers?.['user-agent'] || null,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al registrar auditoría:', error.message);
   }
 };
 
-module.exports = { registrarAuditoria };
+export default registrarAuditoria;

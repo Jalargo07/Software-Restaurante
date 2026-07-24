@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
 const DetalleCompra = sequelize.define('DetalleCompra', {
   tenant_id: {
@@ -31,4 +31,4 @@ const DetalleCompra = sequelize.define('DetalleCompra', {
   ]
 });
 
-module.exports = DetalleCompra;
+export default DetalleCompra;

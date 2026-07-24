@@ -11,16 +11,26 @@ export const useReporteStore = defineStore('reportes', {
     comprasMes: { total: 0, cantidad: 0 } as ResumenCaja,
     loading: false,
     exportando: false,
+    filtroPeriodo: 'hoy' as 'hoy' | '7dias' | '30dias' | 'mes' | 'personalizado',
+    fechaDesde: '',
+    fechaHasta: '',
   }),
   actions: {
-    async fetchAll() {
+    async fetchAll(params?: { fechaDesde?: string; fechaHasta?: string; dias?: number }) {
       this.loading = true
       try {
+        const queryParams = new URLSearchParams()
+        if (params?.fechaDesde) queryParams.append('fechaDesde', params.fechaDesde)
+        if (params?.fechaHasta) queryParams.append('fechaHasta', params.fechaHasta)
+        if (params?.dias !== undefined) queryParams.append('dias', params.dias.toString())
+
+        const qs = queryParams.toString() ? `?${queryParams.toString()}` : ''
+
         const [vh, vpd, pmv, cm] = await Promise.all([
-          api.get('/reportes/ventas-hoy'),
-          api.get('/reportes/ventas-por-dia'),
-          api.get('/reportes/productos-mas-vendidos'),
-          api.get('/reportes/compras-mes'),
+          api.get(`/reportes/ventas-hoy${qs}`),
+          api.get(`/reportes/ventas-por-dia${qs}`),
+          api.get(`/reportes/productos-mas-vendidos${qs}`),
+          api.get(`/reportes/compras-mes${qs}`),
         ])
         this.ventasHoy = vh.data
         this.ventasPorDia = vpd.data

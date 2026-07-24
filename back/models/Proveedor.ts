@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
 const Proveedor = sequelize.define('Proveedor', {
   tenant_id: {
@@ -20,4 +20,4 @@ const Proveedor = sequelize.define('Proveedor', {
   ]
 });
 
-module.exports = Proveedor;
+export default Proveedor;

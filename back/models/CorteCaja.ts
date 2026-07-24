@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
 const CorteCaja = sequelize.define('CorteCaja', {
   tenant_id: {
@@ -54,7 +54,7 @@ const CorteCaja = sequelize.define('CorteCaja', {
         return rawValue;
       }
     },
-    set(value) {
+    set(value: any) {
       this.setDataValue('ventasCerradas', value ? JSON.stringify(value) : null);
     },
   },
@@ -73,4 +73,4 @@ const CorteCaja = sequelize.define('CorteCaja', {
   ]
 });
 
-module.exports = CorteCaja;
+export default CorteCaja;

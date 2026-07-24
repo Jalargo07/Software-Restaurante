@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
 const Auditoria = sequelize.define('Auditoria', {
   tenant_id: {
@@ -42,7 +42,7 @@ const Auditoria = sequelize.define('Auditoria', {
         return rawValue;
       }
     },
-    set(value) {
+    set(value: any) {
       this.setDataValue('detalles', value ? JSON.stringify(value) : null);
     },
   },
@@ -61,4 +61,4 @@ const Auditoria = sequelize.define('Auditoria', {
   ]
 });
 
-module.exports = Auditoria;
+export default Auditoria;

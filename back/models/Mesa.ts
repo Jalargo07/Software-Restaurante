@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
 const Mesa = sequelize.define('Mesa', {
   tenant_id: {
@@ -35,4 +35,4 @@ const Mesa = sequelize.define('Mesa', {
   ]
 });
 
-module.exports = Mesa;
+export default Mesa;
