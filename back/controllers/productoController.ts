@@ -36,7 +36,7 @@ export const obtenerTodos = async (req: Request, res: Response) => {
 
 export const obtenerPorId = async (req: Request, res: Response) => {
   try {
-    const producto: any = await Producto.findByPk(req.params.id, {
+    const producto: any = await Producto.findByPk(req.params.id as string, {
       include: [{
         model: DetalleReceta,
         as: 'detallesReceta',
@@ -102,7 +102,7 @@ export const crear = async (req: Request, res: Response) => {
 export const actualizar = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
-    const producto: any = await Producto.findByPk(req.params.id, { transaction: t });
+    const producto: any = await Producto.findByPk(req.params.id as string, { transaction: t });
     if (!producto || !belongsToTenant(producto, req.tenantId!)) {
       await t.rollback();
       return res.status(404).json({ error: 'Producto no encontrado' });
@@ -162,7 +162,7 @@ export const actualizar = async (req: Request, res: Response) => {
 
 export const desactivar = async (req: Request, res: Response) => {
   try {
-    const producto: any = await Producto.findByPk(req.params.id);
+    const producto: any = await Producto.findByPk(req.params.id as string);
     if (!producto || !belongsToTenant(producto, req.tenantId!)) return res.status(404).json({ error: 'Producto no encontrado' });
     await producto.update({ activo: false });
 

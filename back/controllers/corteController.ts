@@ -176,7 +176,7 @@ export const obtenerCortes = async (req: Request, res: Response) => {
 
 export const obtenerCortePorId = async (req: Request, res: Response) => {
   try {
-    const corte: any = await CorteCaja.findByPk(req.params.id, {
+    const corte: any = await CorteCaja.findByPk(req.params.id as string, {
       include: [{ model: Usuario, attributes: ['id', 'nombre', 'email'] }],
     });
     if (!corte) return res.status(404).json({ error: 'Corte de caja no encontrado' });

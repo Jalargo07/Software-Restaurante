@@ -33,7 +33,7 @@ export const actualizarEstado = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Estado inválido' });
     }
 
-    const detalle: any = await DetalleVenta.findByPk(id);
+    const detalle: any = await DetalleVenta.findByPk(id as string);
     if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
 
     await detalle.update({ estadoComanda });

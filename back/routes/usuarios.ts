@@ -1,0 +1,85 @@
+import { Router, Request, Response } from 'express';
+import Usuario from '../models/Usuario';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { authenticateToken, authorizeRole } from '../middleware/auth';
+import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
+
+const router = Router();
+
+router.post('/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const usuario = await Usuario.findOne({ where: { email } });
+  if (!usuario) return res.status(401).json({ error: 'Credenciales inválidas' });
+
+  const valid = await bcrypt.compare(password, usuario.password);
+  if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' });
+
+  const token = jwt.sign(
+    { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id },
+    process.env.JWT_SECRET!,
+    { expiresIn: '24h' }
+  );
+
+  res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id } });
+});
+
+router.get('/', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {
+  const usuarios = await Usuario.findAll({ where: scopeTenant({}, req.tenantId!), attributes: { exclude: ['password'] } });
+  res.json(usuarios);
+});
+
+router.post('/', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {
+  try {
+    const { nombre, email, password, rol } = req.body;
+    if (!nombre || !email || !password) {
+      return res.status(400).json({ error: 'Nombre, email y password son requeridos' });
+    }
+    const existe = await Usuario.findOne({ where: { email } });
+    if (existe) return res.status(400).json({ error: 'El email ya está registrado' });
+    const usuario = await Usuario.create(withTenant({ nombre, email, password, rol: rol || 'mesero' }, req.tenantId!));
+    res.status(201).json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al crear usuario' });
+  }
+});
+
+router.put('/:id', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {
+  try {
+    const usuario = await Usuario.findByPk(Number(req.params.id));
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!belongsToTenant(usuario, req.tenantId!)) return res.status(403).json({ error: 'Acceso denegado' });
+
+    const { nombre, email, password, rol, activo } = req.body;
+    if (email && email !== usuario.email) {
+      const existe = await Usuario.findOne({ where: { email } });
+      if (existe) return res.status(400).json({ error: 'El email ya está registrado' });
+    }
+
+    const datos: any = {};
+    if (nombre !== undefined) datos.nombre = nombre;
+    if (email !== undefined) datos.email = email;
+    if (rol !== undefined) datos.rol = rol;
+    if (activo !== undefined) datos.activo = activo;
+    if (password) datos.password = password;
+
+    await usuario.update(datos);
+    res.json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, activo: usuario.activo });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar usuario' });
+  }
+});
+
+router.delete('/:id', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {
+  try {
+    const usuario = await Usuario.findByPk(Number(req.params.id));
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!belongsToTenant(usuario, req.tenantId!)) return res.status(403).json({ error: 'Acceso denegado' });
+    await usuario.update({ activo: false });
+    res.json({ message: 'Usuario desactivado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar usuario' });
+  }
+});
+
+export default router;

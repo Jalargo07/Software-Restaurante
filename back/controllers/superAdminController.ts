@@ -49,7 +49,7 @@ export const updateTenantEstado = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Estado inválido' });
     }
 
-    const tenant: any = await Tenant.findByPk(id);
+    const tenant: any = await Tenant.findByPk(id as string);
     if (!tenant) {
       return res.status(404).json({ error: 'Tenant no encontrado' });
     }
@@ -82,7 +82,7 @@ export const updateTenantPlan = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Plan inválido' });
     }
 
-    const tenant: any = await Tenant.findByPk(id);
+    const tenant: any = await Tenant.findByPk(id as string);
     if (!tenant) {
       return res.status(404).json({ error: 'Tenant no encontrado' });
     }

@@ -1,0 +1,43 @@
+import { Router, Request, Response } from 'express';
+import Mesa from '../models/Mesa';
+import { authenticateToken } from '../middleware/auth';
+import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
+
+const router = Router();
+
+router.get('/', authenticateToken, async (req: Request, res: Response) => {
+  const where: any = {};
+  if (req.query.estado) where.estado = req.query.estado;
+  const mesas = await Mesa.findAll({ where: scopeTenant(where, req.tenantId!) });
+  res.json(mesas);
+});
+
+router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
+  const mesa = await Mesa.findByPk(Number(req.params.id));
+  if (!mesa) return res.status(404).json({ error: 'Mesa no encontrada' });
+  if (!belongsToTenant(mesa, req.tenantId!)) return res.status(403).json({ error: 'Acceso denegado' });
+  res.json(mesa);
+});
+
+router.post('/', authenticateToken, async (req: Request, res: Response) => {
+  const mesa = await Mesa.create(withTenant(req.body, req.tenantId!));
+  res.status(201).json(mesa);
+});
+
+router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
+  const mesa = await Mesa.findByPk(Number(req.params.id));
+  if (!mesa) return res.status(404).json({ error: 'Mesa no encontrada' });
+  if (!belongsToTenant(mesa, req.tenantId!)) return res.status(403).json({ error: 'Acceso denegado' });
+  await mesa.update(req.body);
+  res.json(mesa);
+});
+
+router.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
+  const mesa = await Mesa.findByPk(Number(req.params.id));
+  if (!mesa) return res.status(404).json({ error: 'Mesa no encontrada' });
+  if (!belongsToTenant(mesa, req.tenantId!)) return res.status(403).json({ error: 'Acceso denegado' });
+  await mesa.destroy();
+  res.json({ message: 'Mesa eliminada' });
+});
+
+export default router;

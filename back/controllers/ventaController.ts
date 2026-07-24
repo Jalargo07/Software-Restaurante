@@ -38,7 +38,7 @@ export const obtenerTodas = async (req: Request, res: Response) => {
 
 export const obtenerPorId = async (req: Request, res: Response) => {
   try {
-    const venta: any = await Venta.findByPk(req.params.id, {
+    const venta: any = await Venta.findByPk(req.params.id as string, {
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
     });
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
@@ -77,7 +77,7 @@ export const crear = async (req: Request, res: Response) => {
 
 export const agregarProductos = async (req: Request, res: Response) => {
   try {
-    const venta: any = await Venta.findByPk(req.params.id);
+    const venta: any = await Venta.findByPk(req.params.id as string);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
     if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'La venta ya esta cerrada' });
@@ -123,7 +123,7 @@ export const agregarProductos = async (req: Request, res: Response) => {
 export const cobrar = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
-    const venta: any = await Venta.findByPk(req.params.id, { transaction: t });
+    const venta: any = await Venta.findByPk(req.params.id as string, { transaction: t });
     if (!venta) {
       await t.rollback();
       return res.status(404).json({ error: 'Venta no encontrada' });
@@ -398,7 +398,7 @@ export const crearRapida = async (req: Request, res: Response) => {
 
 export const actualizar = async (req: Request, res: Response) => {
   try {
-    const venta: any = await Venta.findByPk(req.params.id);
+    const venta: any = await Venta.findByPk(req.params.id as string);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
     if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
@@ -422,7 +422,7 @@ export const actualizar = async (req: Request, res: Response) => {
 
 export const cancelar = async (req: Request, res: Response) => {
   try {
-    const venta: any = await Venta.findByPk(req.params.id);
+    const venta: any = await Venta.findByPk(req.params.id as string);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
     if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
 
@@ -453,12 +453,12 @@ export const cancelar = async (req: Request, res: Response) => {
 
 export const actualizarDetalle = async (req: Request, res: Response) => {
   try {
-    const venta: any = await Venta.findByPk(req.params.id);
+    const venta: any = await Venta.findByPk(req.params.id as string);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
     if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
 
-    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId);
+    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId as string);
     if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
     if (!belongsToTenant(detalle, req.tenantId!)) return res.status(404).json({ error: 'Detalle no encontrado' });
     if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
@@ -492,12 +492,12 @@ export const actualizarDetalle = async (req: Request, res: Response) => {
 
 export const eliminarDetalle = async (req: Request, res: Response) => {
   try {
-    const venta: any = await Venta.findByPk(req.params.id);
+    const venta: any = await Venta.findByPk(req.params.id as string);
     if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
     if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
     if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
 
-    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId);
+    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId as string);
     if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
     if (!belongsToTenant(detalle, req.tenantId!)) return res.status(404).json({ error: 'Detalle no encontrado' });
     if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });

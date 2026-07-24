@@ -38,7 +38,7 @@ export const obtenerTodos = async (req: Request, res: Response) => {
 
 export const obtenerPorId = async (req: Request, res: Response) => {
   try {
-    const proveedor: any = await Proveedor.findByPk(req.params.id);
+    const proveedor: any = await Proveedor.findByPk(req.params.id as string);
     if (!proveedor || !belongsToTenant(proveedor, req.tenantId!)) return res.status(404).json({ error: 'Proveedor no encontrado' });
     return res.json(proveedor);
   } catch (error: any) {
@@ -66,7 +66,7 @@ export const crear = async (req: Request, res: Response) => {
 
 export const actualizar = async (req: Request, res: Response) => {
   try {
-    const proveedor: any = await Proveedor.findByPk(req.params.id);
+    const proveedor: any = await Proveedor.findByPk(req.params.id as string);
     if (!proveedor || !belongsToTenant(proveedor, req.tenantId!)) return res.status(404).json({ error: 'Proveedor no encontrado' });
     await proveedor.update(req.body);
 
@@ -86,7 +86,7 @@ export const actualizar = async (req: Request, res: Response) => {
 
 export const desactivar = async (req: Request, res: Response) => {
   try {
-    const proveedor: any = await Proveedor.findByPk(req.params.id);
+    const proveedor: any = await Proveedor.findByPk(req.params.id as string);
     if (!proveedor || !belongsToTenant(proveedor, req.tenantId!)) return res.status(404).json({ error: 'Proveedor no encontrado' });
     await proveedor.update({ activo: false });
 
@@ -106,11 +106,11 @@ export const desactivar = async (req: Request, res: Response) => {
 
 export const historialCompras = async (req: Request, res: Response) => {
   try {
-    const proveedor: any = await Proveedor.findByPk(req.params.id);
+    const proveedor: any = await Proveedor.findByPk(req.params.id as string);
     if (!proveedor || !belongsToTenant(proveedor, req.tenantId!)) return res.status(404).json({ error: 'Proveedor no encontrado' });
 
     const compras: any = await Compra.findAll({
-      where: scopeTenant({ proveedorId: req.params.id }, req.tenantId!),
+      where: scopeTenant({ proveedorId: req.params.id as string }, req.tenantId!),
       include: [{ model: DetalleCompra, include: [Producto] }],
       order: [['fecha', 'DESC']],
     });

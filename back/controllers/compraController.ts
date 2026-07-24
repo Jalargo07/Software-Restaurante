@@ -33,7 +33,7 @@ export const obtenerTodas = async (req: Request, res: Response) => {
 
 export const obtenerPorId = async (req: Request, res: Response) => {
   try {
-    const compra: any = await Compra.findByPk(req.params.id, {
+    const compra: any = await Compra.findByPk(req.params.id as string, {
       include: [{ model: DetalleCompra, include: [Producto] }, { model: Proveedor }],
     });
     if (!compra) return res.status(404).json({ error: 'Compra no encontrada' });
@@ -95,7 +95,7 @@ export const crear = async (req: Request, res: Response) => {
 export const recibir = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
-    const compra: any = await Compra.findByPk(req.params.id, {
+    const compra: any = await Compra.findByPk(req.params.id as string, {
       include: [{ model: DetalleCompra }],
       transaction: t,
     });
@@ -152,7 +152,7 @@ export const recibir = async (req: Request, res: Response) => {
 export const actualizar = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
-    const compra: any = await Compra.findByPk(req.params.id, {
+    const compra: any = await Compra.findByPk(req.params.id as string, {
       include: [{ model: DetalleCompra }],
       transaction: t,
     });
@@ -219,7 +219,7 @@ export const actualizar = async (req: Request, res: Response) => {
 
 export const cancelar = async (req: Request, res: Response) => {
   try {
-    const compra: any = await Compra.findByPk(req.params.id);
+    const compra: any = await Compra.findByPk(req.params.id as string);
     if (!compra) return res.status(404).json({ error: 'Compra no encontrada' });
     if (!belongsToTenant(compra, req.tenantId!)) return res.status(403).json({ error: 'Acceso denegado' });
     if (compra.estado === 'cancelada') return res.status(400).json({ error: 'La compra ya está cancelada' });

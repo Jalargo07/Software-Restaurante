@@ -57,7 +57,7 @@ export const eliminarImagen = async (req: Request, res: Response) => {
 
     await s3Client.send(new DeleteObjectCommand({
       Bucket: BUCKET,
-      Key: resolvedKey,
+      Key: resolvedKey as string,
     }));
 
     return res.json({ message: 'Imagen eliminada' });
