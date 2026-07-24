@@ -49,5 +49,11 @@ export const useVentaStore = defineStore('ventas', {
       if (idx !== -1) this.ventas[idx] = res.data
       return res.data
     },
+    async cobrarVentaDividida(ventaId: number, pagos: Array<{ metodo: MetodoPago; monto: number }>) {
+      const res = await api.put(`/ventas/${ventaId}/cobrar`, { pagos })
+      const idx = this.ventas.findIndex((v) => v.id === ventaId)
+      if (idx !== -1) this.ventas[idx] = res.data
+      return res.data
+    },
   },
 })

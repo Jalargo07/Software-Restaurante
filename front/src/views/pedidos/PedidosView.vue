@@ -5,6 +5,7 @@ import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 import PedidoFormModal from '../../components/pedidos/PedidoFormModal.vue'
+import SplitBillModal from '../../components/pedidos/SplitBillModal.vue'
 
 const pedidoStore = usePedidoStore()
 const toast = useToastStore()
@@ -19,6 +20,7 @@ const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number
 const modalNuevoAbierto = ref(false)
 const editandoDetalle = ref<any>(null)
 const cantidadEditar = ref(1)
+const ventaSplit = ref<any>(null)
 
 async function cargarDatos() {
   try {
@@ -204,6 +206,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
             <div class="d-flex gap-2">
               <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-warning" @click="abrirAgregar(v)">+ Agregar Producto</button>
               <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-success" @click="abrirCobro(v)">Cobrar</button>
+              <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-info text-white" @click="ventaSplit = v">Dividir Cuenta</button>
               <button v-if="v.estado === 'abierta'" class="btn btn-sm btn-outline-danger" @click="cancelarPedido(v.id)">Cancelar</button>
             </div>
           </div>
@@ -285,6 +288,8 @@ async function eliminarProducto(ventaId: number, detalle: any) {
         <button class="btn btn-primary w-100" @click="guardarCantidad">Guardar</button>
       </div>
     </ModalBase>
+
+    <SplitBillModal v-if="ventaSplit" :venta="ventaSplit" @cerrar="ventaSplit = null" @cobrado="ventaSplit = null; cargarDatos()" />
   </div>
 </template>
 

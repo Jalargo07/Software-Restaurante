@@ -99,4 +99,57 @@ describe('Ventas - Crear y cobrar', () => {
     expect(res.body.metodoPago).toBe('tarjeta');
     expect(Number(res.body.total)).toBe(250);
   });
+
+  test('Cobrar venta con pagos divididos (ej. 50% efectivo, 50% tarjeta) → 200 OK', async () => {
+    const vRes = await request(app)
+      .post('/api/ventas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({});
+    const splitVentaId = vRes.body.id;
+
+    await request(app)
+      .post(`/api/ventas/${splitVentaId}/productos`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productos: [{ productoId, cantidad: 2 }] });
+
+    const res = await request(app)
+      .put(`/api/ventas/${splitVentaId}/cobrar`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        pagos: [
+          { metodo: 'efectivo', monto: 300 },
+          { metodo: 'tarjeta', monto: 200 },
+        ],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.estado).toBe('cerrada');
+    expect(res.body.metodoPago).toBe('mixto');
+  });
+
+  test('Rechazar pago dividido cuya suma no coincida con el total → 400 Bad Request', async () => {
+    const vRes = await request(app)
+      .post('/api/ventas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({});
+    const badVentaId = vRes.body.id;
+
+    await request(app)
+      .post(`/api/ventas/${badVentaId}/productos`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productos: [{ productoId, cantidad: 2 }] });
+
+    const res = await request(app)
+      .put(`/api/ventas/${badVentaId}/cobrar`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        pagos: [
+          { metodo: 'efectivo', monto: 300 },
+          { metodo: 'tarjeta', monto: 100 },
+        ],
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
 });

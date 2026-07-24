@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import api from '../services/api'
-import type { Venta, VentaProductoPayload } from '../types'
+import type { Venta, VentaProductoPayload, MetodoPago } from '../types'
 
 export const usePedidoStore = defineStore('pedidos', {
   state: () => ({
@@ -47,6 +47,12 @@ export const usePedidoStore = defineStore('pedidos', {
     },
     async eliminarDetalle(ventaId: number, detalleId: number) {
       const { data } = await api.delete(`/ventas/${ventaId}/detalle/${detalleId}`)
+      const index = this.pedidos.findIndex((p) => p.id === ventaId)
+      if (index !== -1) this.pedidos[index] = data
+      return data
+    },
+    async cobrarVentaDividida(ventaId: number, pagos: Array<{ metodo: MetodoPago; monto: number }>) {
+      const { data } = await api.put(`/ventas/${ventaId}/cobrar`, { pagos })
       const index = this.pedidos.findIndex((p) => p.id === ventaId)
       if (index !== -1) this.pedidos[index] = data
       return data

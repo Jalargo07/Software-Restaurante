@@ -20,7 +20,16 @@ const validarProductos = [
 ];
 
 const validarCobro = [
-  body('metodoPago').isIn(['efectivo', 'tarjeta', 'transferencia']).withMessage('Método de pago inválido'),
+  body('metodoPago').optional().isIn(['efectivo', 'tarjeta', 'transferencia', 'mixto']).withMessage('Método de pago inválido'),
+  body('pagos').optional().isArray().withMessage('Pagos debe ser un arreglo'),
+  body('pagos.*.metodo').optional().isIn(['efectivo', 'tarjeta', 'transferencia']).withMessage('Método de pago inválido'),
+  body('pagos.*.monto').optional().isFloat({ min: 0 }).withMessage('El monto debe ser un número positivo'),
+  body().custom((value, { req }) => {
+    if (!req.body.metodoPago && (!req.body.pagos || !Array.isArray(req.body.pagos) || req.body.pagos.length === 0)) {
+      throw new Error('Debe especificar un método de pago o un arreglo de pagos');
+    }
+    return true;
+  }),
 ];
 
 const validarRapida = [

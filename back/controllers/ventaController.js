@@ -125,7 +125,60 @@ const cobrar = async (req, res) => {
       return res.status(400).json({ error: 'La venta ya esta cerrada o cancelada' });
     }
 
-    const { metodoPago } = req.body;
+    const { metodoPago, pagos } = req.body;
+
+    let metodoPagoToSave = null;
+    const metodosPermitidos = ['efectivo', 'tarjeta', 'transferencia'];
+    let desglosePagos = null;
+
+    if (pagos && Array.isArray(pagos)) {
+      if (pagos.length === 0) {
+        await t.rollback();
+        return res.status(400).json({ error: 'El arreglo de pagos no puede estar vacío' });
+      }
+
+      let sumaMontos = 0;
+      for (const pago of pagos) {
+        if (!metodosPermitidos.includes(pago.metodo)) {
+          await t.rollback();
+          return res.status(400).json({ error: `Método de pago inválido: ${pago.metodo}` });
+        }
+        const monto = Number(pago.monto);
+        if (isNaN(monto) || monto < 0) {
+          await t.rollback();
+          return res.status(400).json({ error: 'Monto de pago inválido' });
+        }
+        sumaMontos += monto;
+      }
+
+      if (Math.abs(sumaMontos - Number(venta.total)) > 0.05) {
+        await t.rollback();
+        return res.status(400).json({ error: 'La suma de los pagos no coincide con el total de la venta' });
+      }
+
+      desglosePagos = pagos;
+
+      if (pagos.length === 1) {
+        metodoPagoToSave = pagos[0].metodo;
+      } else {
+        const metodosUnicos = [...new Set(pagos.map(p => p.metodo))];
+        if (metodosUnicos.length === 1) {
+          metodoPagoToSave = metodosUnicos[0];
+        } else {
+          metodoPagoToSave = 'mixto';
+        }
+      }
+    } else if (metodoPago) {
+      if (!metodosPermitidos.includes(metodoPago)) {
+        await t.rollback();
+        return res.status(400).json({ error: 'Método de pago inválido' });
+      }
+      metodoPagoToSave = metodoPago;
+      desglosePagos = [{ metodo: metodoPago, monto: Number(venta.total) }];
+    } else {
+      await t.rollback();
+      return res.status(400).json({ error: 'Debe especificar un método de pago o pagos' });
+    }
 
     const detalles = await DetalleVenta.findAll({
       where: { VentaId: venta.id },
@@ -188,7 +241,7 @@ const cobrar = async (req, res) => {
 
     await venta.update({
       estado: 'cerrada',
-      metodoPago: metodoPago || null,
+      metodoPago: metodoPagoToSave,
       total: Number(venta.total),
     }, { transaction: t });
 
@@ -206,7 +259,7 @@ const cobrar = async (req, res) => {
       accion: 'cobrar',
       entidad: 'Venta',
       entidadId: venta.id,
-      detalles: { total: Number(venta.total), metodoPago },
+      detalles: { total: Number(venta.total), metodoPago: metodoPagoToSave, pagos: desglosePagos },
     });
 
     const ventaCompleta = await Venta.findByPk(venta.id, {

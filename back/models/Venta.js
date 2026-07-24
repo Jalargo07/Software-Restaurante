@@ -20,7 +20,7 @@ const Venta = sequelize.define('Venta', {
     defaultValue: 'abierta',
   },
   metodoPago: {
-    type: DataTypes.ENUM('efectivo', 'tarjeta', 'transferencia'),
+    type: DataTypes.ENUM('efectivo', 'tarjeta', 'transferencia', 'mixto'),
     allowNull: true,
   },
   cliente: {
