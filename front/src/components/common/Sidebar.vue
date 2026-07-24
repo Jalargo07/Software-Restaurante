@@ -101,10 +101,12 @@ function isActive(path: string) {
       </div>
       <div class="space-y-1">
         <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-700 hover:text-white transition-colors" @click="$emit('toggle-theme')" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
-          {{ theme === 'light' ? '🌙' : '☀️' }} <span>Tema</span>
+          <span>{{ theme === 'light' ? '🌙' : '☀️' }}</span>
+          <span>Tema</span>
         </button>
         <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-400 hover:bg-red-600 hover:text-white transition-colors" @click="$emit('logout')" title="Cerrar sesión">
-          🚪 <span>Salir</span>
+          <span>🚪</span>
+          <span>Salir</span>
         </button>
       </div>
     </div>
