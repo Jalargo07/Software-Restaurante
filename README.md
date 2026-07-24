@@ -97,7 +97,7 @@ docker compose up --build -d
 
 ## 🧪 Pruebas Automatizadas
 
-El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (62 tests distribuidos en 9 suites: auth, productos, ventas, compras, recetas, tenant, tenantScope, tenantConfig y branding).
+El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (72 tests distribuidos en 10 suites: auth, productos, ventas, compras, recetas, tenant, tenantScope, tenantConfig, branding y cache).
 
 ```bash
 cd back
@@ -136,4 +136,5 @@ pnpm run test:watch  # Ejecuta en modo watch
 | **Sprint 6** | ✅ Completado | PWA, Split Bill, Paginación, PostgreSQL, S3 desacoplado para Cloud |
 | **Sprint 7** | ✅ Completado | Arquitectura Multi-tenant (Modelo Tenant, middleware, scoping controllers) |
 | **Sprint 8** | ✅ Completado | Branding dinámico (White-label, logo, colores CSS Variables, login personalizado) |
-| **Sprint 9** | 🔄 En curso | Caché de Alto Rendimiento e Invalidación en Tiempo Real |
+| **Sprint 9** | ✅ Completado | Caché con Redis, invalidación por WebSockets, middleware genérico |
+| **Sprint 10** | 🔄 En curso | Super Admin, Planes de Suscripción, Límites por Tenant |
