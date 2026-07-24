@@ -27,6 +27,7 @@ app.use('/api/auditoria', require('./routes/auditoria'));
 app.use('/api/recetas', require('./routes/recetas'));
 app.use('/api/cortes', require('./routes/corteCaja'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/branding', require('./routes/branding'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
