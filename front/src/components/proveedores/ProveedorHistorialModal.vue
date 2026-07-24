@@ -44,64 +44,66 @@ async function exportarExcel() {
 
 <template>
   <div v-if="loading" class="text-center py-4">
-    <span class="spinner-border text-primary"></span>
+    <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
   </div>
 
   <template v-else-if="historial">
-    <div class="row g-3 mb-3">
-      <div class="col-6">
-        <div class="card border-0 bg-light">
-          <div class="card-body text-center py-2">
-            <div class="fs-4 fw-bold text-primary">{{ historial.resumen?.totalCompras || 0 }}</div>
-            <div class="text-muted small">Total Compras</div>
+    <div class="grid grid-cols-12 gap-3 mb-3">
+      <div class="col-span-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+          <div class="text-center py-3 px-4">
+            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ historial.resumen?.totalCompras || 0 }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">Total Compras</div>
           </div>
         </div>
       </div>
-      <div class="col-6">
-        <div class="card border-0 bg-light">
-          <div class="card-body text-center py-2">
-            <div class="fs-4 fw-bold text-success">${{ Number(historial.resumen?.montoTotal || 0).toFixed(2) }}</div>
-            <div class="text-muted small">Monto Total</div>
+      <div class="col-span-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+          <div class="text-center py-3 px-4">
+            <div class="text-2xl font-bold text-green-600 dark:text-green-400">${{ Number(historial.resumen?.montoTotal || 0).toFixed(2) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">Monto Total</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="d-flex justify-content-end mb-2">
-      <button class="btn btn-sm btn-success" @click="exportarExcel" :disabled="loading">
+    <div class="flex justify-end mb-2">
+      <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors" @click="exportarExcel" :disabled="loading">
         Exportar Excel
       </button>
     </div>
 
-    <table class="table table-striped table-sm">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Fecha</th>
-          <th>Estado</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="c in (historial.compras || [])" :key="c.id">
-          <td>{{ c.id }}</td>
-          <td>{{ new Date(c.fecha || c.createdAt).toLocaleDateString() }}</td>
-          <td>
-            <span :class="`badge bg-${c.estado === 'recibida' ? 'success' : c.estado === 'cancelada' ? 'danger' : 'warning'}`">
-              {{ c.estado }}
-            </span>
-          </td>
-          <td>${{ c.total }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+        <thead class="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
+          <tr v-for="c in (historial.compras || [])" :key="c.id">
+            <td class="px-3 py-2 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ c.id }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ new Date(c.fecha || c.createdAt).toLocaleDateString() }}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-gray-900 dark:text-gray-100">
+              <span :class="c.estado === 'recibida' ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : c.estado === 'cancelada' ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'">
+                {{ c.estado }}
+              </span>
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-gray-900 dark:text-gray-100">${{ c.total }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <div v-if="!historial.compras?.length" class="text-center text-muted py-3">
+    <div v-if="!historial.compras?.length" class="text-center text-gray-500 dark:text-gray-400 py-3">
       No hay compras registradas para este proveedor
     </div>
   </template>
 
-  <div class="modal-footer px-0">
-    <button class="btn btn-secondary" @click="emit('cerrar')">Cerrar</button>
+  <div class="flex justify-end mt-4">
+    <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors" @click="emit('cerrar')">Cerrar</button>
   </div>
 </template>

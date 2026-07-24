@@ -59,62 +59,64 @@ async function eliminar(id: number) {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Proveedores</h2>
-      <button class="btn btn-primary" @click="abrirModal()">+ Nuevo Proveedor</button>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Proveedores</h2>
+      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Proveedor</button>
     </div>
 
     <div class="mt-3">
-      <input type="text" class="form-control w-auto" v-model="busqueda" placeholder="Buscar por nombre...">
+      <input type="text" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-auto" v-model="busqueda" placeholder="Buscar por nombre...">
     </div>
 
     <div v-if="proveedorStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
     <template v-else>
-      <table class="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Dirección</th>
-            <th>Estado</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="p in proveedorStore.proveedores" :key="p.id">
-            <td>{{ p.nombre }}</td>
-            <td>{{ p.telefono }}</td>
-            <td>{{ p.email }}</td>
-            <td>{{ p.direccion }}</td>
-            <td>
-              <span :class="p.activo ? 'badge bg-success' : 'badge bg-danger'">
-                {{ p.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-info me-1" @click="abrirHistorial(p)">Historial</button>
-              <button class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
-              <button class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
-            </td>
-          </tr>
-          <tr v-if="proveedorStore.proveedores.length === 0">
-            <td colspan="6" class="text-center text-muted py-3">No se encontraron proveedores</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto mt-3">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
+            <tr v-for="p in proveedorStore.proveedores" :key="p.id">
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.nombre }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.telefono }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.email }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.direccion }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <span :class="p.activo ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'">
+                  {{ p.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-cyan-500 text-cyan-600 hover:bg-cyan-500 hover:text-white rounded-lg transition-colors mr-1" @click="abrirHistorial(p)">Historial</button>
+                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(p)">Editar</button>
+                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(p.id)">X</button>
+              </td>
+            </tr>
+            <tr v-if="proveedorStore.proveedores.length === 0">
+              <td colspan="6" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No se encontraron proveedores</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div v-if="proveedorStore.paginas > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Página {{ proveedorStore.pagina }} de {{ proveedorStore.paginas }}</span>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-outline-secondary" :disabled="paginaActual <= 1" @click="paginaActual--">
+      <div v-if="proveedorStore.paginas > 1" class="flex items-center justify-between mt-3">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Página {{ proveedorStore.pagina }} de {{ proveedorStore.paginas }}</span>
+        <div class="inline-flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+          <button class="px-3 py-1.5 text-xs border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" :disabled="paginaActual <= 1" @click="paginaActual--">
             Anterior
           </button>
-          <button class="btn btn-sm btn-outline-secondary" :disabled="paginaActual >= proveedorStore.paginas" @click="paginaActual++">
+          <button class="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" :disabled="paginaActual >= proveedorStore.paginas" @click="paginaActual++">
             Siguiente
           </button>
         </div>

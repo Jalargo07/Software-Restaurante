@@ -46,55 +46,57 @@ async function eliminar(id: number) {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Recetas (Productos Compuestos)</h2>
-      <button v-if="canCreate" class="btn btn-primary" @click="abrirModal()">+ Nuevo Producto Compuesto</button>
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Recetas (Productos Compuestos)</h2>
+      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Producto Compuesto</button>
     </div>
 
     <div v-if="productoStore.loading" class="text-center mt-4">
-      <span class="spinner-border text-primary"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
     </div>
 
-    <table v-else-if="productosCompuestos.length > 0" class="table table-striped align-middle">
-      <thead>
-        <tr>
-          <th>Imagen</th>
-          <th>Producto Compuesto</th>
-          <th>Categoría</th>
-          <th>Precio Venta</th>
-          <th>Ingredientes (Receta)</th>
-          <th class="text-end">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="p in productosCompuestos" :key="p.id">
-          <td>
-            <img v-if="p.imagen" :src="p.imagen" alt="" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
-            <span v-else class="text-muted">—</span>
-          </td>
-          <td class="fw-bold">{{ p.nombre }}</td>
-          <td class="text-capitalize">{{ p.categoria }}</td>
-          <td>${{ Number(p.precioVenta).toFixed(2) }}</td>
-          <td>
-            <ul v-if="p.detallesReceta && p.detallesReceta.length > 0" class="mb-0 ps-3 small">
-              <li v-for="d in p.detallesReceta" :key="d.id">
-                {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
-                — {{ d.cantidad }} {{ d.unidad }}
-                <span v-if="d.merma > 0" class="text-muted">(merma {{ d.merma }}%)</span>
-              </li>
-            </ul>
-            <span v-else class="text-muted small">Sin ingredientes</span>
-          </td>
-          <td class="text-end">
-            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
-            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else-if="productosCompuestos.length > 0" class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 align-middle">
+        <thead class="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto Compuesto</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Venta</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingredientes (Receta)</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
+          <tr v-for="p in productosCompuestos" :key="p.id">
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              <img v-if="p.imagen" :src="p.imagen" alt="" class="rounded-lg" style="width: 40px; height: 40px; object-fit: cover;">
+              <span v-else class="text-gray-500 dark:text-gray-400">—</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">{{ p.nombre }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 capitalize">{{ p.categoria }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ Number(p.precioVenta).toFixed(2) }}</td>
+            <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+              <ul v-if="p.detallesReceta && p.detallesReceta.length > 0" class="mb-0 ps-3 text-xs">
+                <li v-for="d in p.detallesReceta" :key="d.id">
+                  {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
+                  — {{ d.cantidad }} {{ d.unidad }}
+                  <span v-if="d.merma > 0" class="text-gray-500 dark:text-gray-400">(merma {{ d.merma }}%)</span>
+                </li>
+              </ul>
+              <span v-else class="text-gray-500 dark:text-gray-400 text-xs">Sin ingredientes</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
+              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(p)">Editar</button>
+              <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(p.id)">X</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <div v-if="!productoStore.loading && productosCompuestos.length === 0" class="text-center text-muted mt-4">
+    <div v-if="!productoStore.loading && productosCompuestos.length === 0" class="text-center text-gray-500 dark:text-gray-400 mt-4">
       No hay productos compuestos (recetas) registrados
     </div>
 

@@ -104,43 +104,43 @@ async function guardar() {
 <template>
   <form @submit.prevent="guardar">
     <div class="mb-2">
-      <label class="form-label">Proveedor</label>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proveedor</label>
       <div v-if="!proveedorNombre">
-        <button type="button" class="btn btn-outline-secondary w-100" @click="mostrarProveedorSelector = !mostrarProveedorSelector">
+        <button type="button" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-400 text-gray-600 hover:bg-gray-400 hover:text-white text-sm font-medium rounded-lg transition-colors w-full" @click="mostrarProveedorSelector = !mostrarProveedorSelector">
           Seleccionar Proveedor
         </button>
         <ProveedorSelector v-if="mostrarProveedorSelector" @seleccionar="seleccionarProveedor" />
       </div>
-      <div v-else class="d-flex align-items-center gap-2">
-        <span class="badge bg-info">{{ proveedorNombre }}</span>
-        <button type="button" class="btn btn-sm btn-outline-danger" @click="proveedorId = null; proveedorNombre = ''">X</button>
+      <div v-else class="flex items-center gap-2">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200">{{ proveedorNombre }}</span>
+        <button type="button" class="inline-flex items-center gap-1.5 px-2 py-1 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="proveedorId = null; proveedorNombre = ''">X</button>
       </div>
     </div>
     <div class="mb-2">
-      <label class="form-label">Observaciones</label>
-      <textarea v-model="observaciones" class="form-control" rows="2"></textarea>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observaciones</label>
+      <textarea v-model="observaciones" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="2"></textarea>
     </div>
 
     <div class="mb-2">
-      <label class="form-label">Productos</label>
-      <button type="button" class="btn btn-sm btn-outline-success mb-2" @click="mostrarSelector = !mostrarSelector">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Productos</label>
+      <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mb-2" @click="mostrarSelector = !mostrarSelector">
         + Agregar Producto
       </button>
       <ProductoSelector v-if="mostrarSelector" @seleccionar="agregarProducto" />
-      <div v-for="(d, i) in detalles" :key="i" class="d-flex align-items-center gap-2 mb-1">
-        <span class="flex-grow-1">{{ d.nombre }}</span>
-        <input v-model.number="d.cantidad" type="number" min="1" class="form-control form-control-sm w-25"
+      <div v-for="(d, i) in detalles" :key="i" class="flex items-center gap-2 mb-1">
+        <span class="flex-1 text-sm text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
+        <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           @input="d.subtotal = d.cantidad * d.precioUnitario">
-        <input v-model.number="d.precioUnitario" type="number" step="0.01" class="form-control form-control-sm w-25"
+        <input v-model.number="d.precioUnitario" type="number" step="0.01" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           @input="d.subtotal = d.cantidad * d.precioUnitario">
-        <span>${{ Number(d.subtotal).toFixed(2) }}</span>
-        <button type="button" class="btn btn-sm btn-danger" @click="quitarDetalle(i)">X</button>
+        <span class="text-sm text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
+        <button type="button" class="inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarDetalle(i)">X</button>
       </div>
     </div>
 
-    <h5 class="text-end">Total: ${{ total.toFixed(2) }}</h5>
-    <button type="submit" class="btn btn-primary w-100" :disabled="!detalles.length || guardando">
-      <span v-if="guardando" class="spinner-border spinner-border-sm me-1"></span>
+    <h5 class="text-right text-base font-bold text-gray-900 dark:text-gray-100">Total: ${{ total.toFixed(2) }}</h5>
+    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full" :disabled="!detalles.length || guardando">
+      <span v-if="guardando" class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span>
       {{ guardando ? 'Guardando...' : esEdicion ? 'Actualizar Compra' : 'Registrar Compra' }}
     </button>
   </form>
