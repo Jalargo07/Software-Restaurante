@@ -2,6 +2,6 @@
 set -e
 cd /app
 echo "Ejecutando seed..."
-pnpm run seed
+node dist/scripts/seed.js
 echo "Arrancando servidor..."
 exec pnpm start
