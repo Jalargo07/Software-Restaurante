@@ -49,11 +49,11 @@ async function eliminar(id: number) {
   <div class="max-w-7xl mx-auto px-4 pt-4">
     <div class="flex items-center justify-between mb-3">
       <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Recetas (Productos Compuestos)</h2>
-      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Producto Compuesto</button>
+      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Producto Compuesto</button>
     </div>
 
     <div v-if="productoStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <div v-else-if="productosCompuestos.length > 0" class="overflow-x-auto">
@@ -88,7 +88,7 @@ async function eliminar(id: number) {
               <span v-else class="text-gray-500 dark:text-gray-400 text-xs">Sin ingredientes</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
-              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(p)">Editar</button>
+              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(p)">Editar</button>
               <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(p.id)">X</button>
             </td>
           </tr>

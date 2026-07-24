@@ -6,7 +6,7 @@ defineProps<{
 }>()
 
 const iconColorClasses: Record<string, string> = {
-  blue: 'text-blue-600 dark:text-blue-400',
+  blue: 'text-[var(--color-primario)] dark:text-[var(--color-primario)]',
   cyan: 'text-cyan-500 dark:text-cyan-400',
   amber: 'text-amber-500 dark:text-amber-400',
 }

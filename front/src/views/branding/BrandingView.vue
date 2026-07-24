@@ -127,7 +127,7 @@ async function guardar() {
     <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Configuración de Branding</h2>
 
     <div v-if="brandingStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -137,7 +137,7 @@ async function guardar() {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo</label>
             <input
               type="file"
-              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
               accept="image/*"
               @change="onLogoChange"
             >
@@ -154,7 +154,7 @@ async function guardar() {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner</label>
             <input
               type="file"
-              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
               accept="image/*"
               @change="onBannerChange"
             >
@@ -181,7 +181,7 @@ async function guardar() {
                 <input
                   v-model="form.colorPrimario"
                   type="text"
-                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
                   placeholder="#000000"
                 >
               </div>
@@ -197,7 +197,7 @@ async function guardar() {
                 <input
                   v-model="form.colorSecundario"
                   type="text"
-                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
                   placeholder="#000000"
                 >
               </div>
@@ -213,7 +213,7 @@ async function guardar() {
                 <input
                   v-model="form.colorAcento"
                   type="text"
-                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
                   placeholder="#000000"
                 >
               </div>
@@ -224,21 +224,21 @@ async function guardar() {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre Completo</label>
             <input
               v-model="form.nombreCompleto"
-              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
               placeholder="Nombre del restaurante"
             >
           </div>
 
           <div class="mb-3">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuente Principal</label>
-            <select v-model="form.fontPrincipal" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <select v-model="form.fontPrincipal" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
               <option v-for="f in fuentes" :key="f" :value="f">{{ f }}</option>
             </select>
           </div>
 
           <button
             type="submit"
-            class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none"
             :disabled="guardando"
           >
             <span v-if="guardando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>

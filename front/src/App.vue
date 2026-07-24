@@ -121,7 +121,7 @@ function isActive(path: string) {
         :key="item.path"
         :to="item.path"
         class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors min-w-[64px]"
-        :class="{ '!text-white !bg-blue-600': isActive(item.path) }"
+        :class="{ '!text-white !bg-[var(--color-primario)]': isActive(item.path) }"
       >
         <span class="text-lg leading-none">{{ item.icon }}</span>
         <span class="text-[10px] leading-tight">{{ item.label }}</span>

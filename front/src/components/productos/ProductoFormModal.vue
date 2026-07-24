@@ -156,18 +156,18 @@ async function guardar() {
   <form @submit.prevent="guardar">
     <div class="mb-2">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imagen</label>
-      <input type="file" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" accept="image/*" @change="onFileChange">
+      <input type="file" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" accept="image/*" @change="onFileChange">
       <div v-if="previewUrl" class="mt-2 text-center">
         <img :src="previewUrl" alt="Preview" class="rounded-lg" style="max-width:120px;max-height:120px;object-fit:cover">
       </div>
     </div>
     <div class="mb-2">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-      <input v-model="form.nombre" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+      <input v-model="form.nombre" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required>
     </div>
     <div class="mb-2">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripcion</label>
-      <textarea v-model="form.descripcion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="2"></textarea>
+      <textarea v-model="form.descripcion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" rows="2"></textarea>
     </div>
     <div class="grid grid-cols-12 gap-3 mb-2">
       <div class="col-span-6">
@@ -200,17 +200,17 @@ async function guardar() {
     <div class="grid grid-cols-12 gap-3 mb-2">
       <div class="col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Compra</label>
-        <input v-model.number="form.precioCompra" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required min="0">
+        <input v-model.number="form.precioCompra" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required min="0">
       </div>
       <div class="col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Venta</label>
-        <input v-model.number="form.precioVenta" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required min="0">
+        <input v-model.number="form.precioVenta" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required min="0">
       </div>
     </div>
     <div class="grid grid-cols-12 gap-3 mb-2">
       <div class="col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Minimo</label>
-        <input v-model.number="form.stockMinimo" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" min="0">
+        <input v-model.number="form.stockMinimo" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" min="0">
       </div>
       <div v-if="!esNuevo" class="col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock (se gestiona con compras)</label>
@@ -223,7 +223,7 @@ async function guardar() {
 
     <div v-if="form.tipo === 'insumo'" class="mb-2">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Merma %</label>
-      <input v-model.number="form.merma" type="number" step="0.001" min="0" max="100" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      <input v-model.number="form.merma" type="number" step="0.001" min="0" max="100" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
     </div>
 
     <div v-if="form.tipo === 'compuesto'" class="border border-gray-300 dark:border-gray-600 rounded-lg p-3 mt-2 mb-2">
@@ -234,7 +234,7 @@ async function guardar() {
       <div class="grid grid-cols-12 gap-3 mb-2">
         <div class="col-span-3">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Porciones</label>
-          <input v-model.number="recetaForm.porciones" type="number" min="1" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <input v-model.number="recetaForm.porciones" type="number" min="1" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
         </div>
       </div>
       <div v-if="recetaForm.detalles.length === 0" class="text-gray-500 dark:text-gray-400 text-center mb-2 text-sm">
@@ -248,7 +248,7 @@ async function guardar() {
           </select>
         </div>
         <div class="col-span-2">
-          <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Cant." required>
+          <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Cant." required>
         </div>
         <div class="col-span-2">
           <span class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 block">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
@@ -259,7 +259,7 @@ async function guardar() {
       </div>
     </div>
 
-    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="guardando">
+    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="guardando">
       <span v-if="guardando" class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span>
       {{ guardando ? 'Guardando...' : (producto ? 'Actualizar' : 'Crear') + ' Producto' }}
     </button>

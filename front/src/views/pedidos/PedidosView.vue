@@ -154,7 +154,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
   <div class="max-w-7xl mx-auto px-4 pt-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Pedidos</h2>
-      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="modalNuevoAbierto = true">+ Nuevo Pedido</button>
+      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors" @click="modalNuevoAbierto = true">+ Nuevo Pedido</button>
     </div>
 
     <div class="mt-3">
@@ -167,7 +167,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
     </div>
 
     <div v-if="pedidoStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <div v-else-if="!pedidoStore.pedidos.length" class="text-center mt-4">
@@ -204,7 +204,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
                     <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors mr-1" :disabled="d.cantidad <= 1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad - 1).then(() => cargarDatos())">-</button>
                     <span class="mx-1 text-gray-900 dark:text-gray-100">{{ d.cantidad }}</span>
                     <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors mr-1" @click="pedidoStore.editarDetalle(v.id, d.id, d.cantidad + 1).then(() => cargarDatos())">+</button>
-                    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="abrirEditarCantidad(d)">&#9998;</button>
+                    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="abrirEditarCantidad(d)">&#9998;</button>
                     <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminarProducto(v.id, d)">&#128465;</button>
                   </td>
                 </tr>
@@ -228,7 +228,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
 
     <ModalBase v-if="agregandoAVenta" id="addProductosModal" titulo="Agregar Productos" @cerrar="agregandoAVenta = null">
       <div>
-        <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2" placeholder="Buscar...">
+        <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500 mb-2" placeholder="Buscar...">
         <div style="max-height:150px;overflow-y:auto">
           <button v-for="p in filtrados" :key="p.id" type="button"
             class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
@@ -240,12 +240,12 @@ async function eliminarProducto(ventaId: number, detalle: any) {
         </div>
         <div v-for="(d,i) in seleccionados" :key="i" class="flex items-center gap-2 mt-2">
           <span class="flex-1 text-xs text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
-          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
             @input="d.subtotal = d.cantidad * d.precioUnitario">
           <span class="text-xs text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarSeleccion(i)">X</button>
         </div>
-        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="!seleccionados.length" @click="guardarProductos">
+        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors w-full mt-2" :disabled="!seleccionados.length" @click="guardarProductos">
           Agregar (${{ totalAgregar.toFixed(2) }})
         </button>
       </div>
@@ -296,11 +296,11 @@ async function eliminarProducto(ventaId: number, detalle: any) {
         <p class="text-sm text-gray-900 dark:text-gray-100 mb-2"><strong>Producto:</strong> {{ editandoDetalle.Producto?.nombre }}</p>
         <div class="flex items-center gap-2 mb-3">
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors" :disabled="cantidadEditar <= 1" @click="cantidadEditar--">-</button>
-          <input v-model.number="cantidadEditar" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <input v-model.number="cantidadEditar" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-center focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors" @click="cantidadEditar++">+</button>
         </div>
         <p class="text-sm text-gray-900 dark:text-gray-100 mb-3"><strong>Subtotal:</strong> ${{ (cantidadEditar * editandoDetalle.precioUnitario).toFixed(2) }}</p>
-        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full" @click="guardarCantidad">Guardar</button>
+        <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors w-full" @click="guardarCantidad">Guardar</button>
       </div>
     </ModalBase>
 

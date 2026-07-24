@@ -154,13 +154,13 @@ async function exportarReporteExcel() {
         <div v-if="reporteStore.filtroPeriodo === 'personalizado'" class="flex items-center gap-2 transition-all">
           <div class="flex">
             <span class="inline-flex items-center px-2 py-1.5 text-sm rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-r-0 border-gray-300 dark:border-gray-600">Desde</span>
-            <input type="date" class="rounded-none rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="reporteStore.fechaDesde" />
+            <input type="date" class="rounded-none rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primario)]" v-model="reporteStore.fechaDesde" />
           </div>
           <div class="flex">
             <span class="inline-flex items-center px-2 py-1.5 text-sm rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-r-0 border-gray-300 dark:border-gray-600">Hasta</span>
-            <input type="date" class="rounded-none rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="reporteStore.fechaHasta" />
+            <input type="date" class="rounded-none rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primario)]" v-model="reporteStore.fechaHasta" />
           </div>
-          <button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap" @click="aplicarFiltroPersonalizado">
+          <button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--color-primario)] text-white hover:brightness-90 transition-colors shadow-sm whitespace-nowrap" @click="aplicarFiltroPersonalizado">
             <Check :size="14" /> Aplicar
           </button>
         </div>
@@ -168,7 +168,7 @@ async function exportarReporteExcel() {
     </div>
 
     <div v-if="reporteStore.loading && stats.pedidosActivos === 0" class="text-center py-5">
-      <div class="animate-spin w-12 h-12 border-2 border-current border-t-transparent rounded-full text-blue-600 mx-auto"></div>
+      <div class="animate-spin w-12 h-12 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)] mx-auto"></div>
       <p class="text-gray-500 dark:text-gray-400 mt-3 font-medium">Actualizando métricas...</p>
     </div>
 

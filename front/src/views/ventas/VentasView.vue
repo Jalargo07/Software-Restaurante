@@ -103,7 +103,7 @@ async function exportarExcel() {
     </div>
 
     <div v-if="ventaStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <template v-else>

@@ -19,7 +19,7 @@ const iconColorClasses: Record<string, string> = {
 <template>
   <div
     :class="variante === 'gradient'
-      ? 'bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg'
+      ? 'bg-gradient-to-br from-[var(--color-primario)] to-[var(--color-secundario)] rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg'
       : 'bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg'"
   >
     <div class="p-4">

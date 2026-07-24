@@ -73,7 +73,7 @@ async function exportarLogs() {
   <div class="max-w-7xl mx-auto px-4 pt-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Auditoría</h2>
-      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="exportarLogs" :disabled="exportando">
+      <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none" @click="exportarLogs" :disabled="exportando">
         <span v-if="exportando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
         Exportar Excel
       </button>
@@ -82,11 +82,11 @@ async function exportarLogs() {
     <div class="grid grid-cols-1 md:grid-cols-12 gap-2 mt-3 items-end">
       <div class="md:col-span-3">
         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Usuario</label>
-        <input type="text" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroUsuario" placeholder="Email o nombre..." />
+        <input type="text" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" v-model="filtroUsuario" placeholder="Email o nombre..." />
       </div>
       <div class="md:col-span-2">
         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Entidad</label>
-        <select class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroEntidad">
+        <select class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" v-model="filtroEntidad">
           <option value="">Todos</option>
           <option value="Venta">Venta</option>
           <option value="Compra">Compra</option>
@@ -97,20 +97,20 @@ async function exportarLogs() {
       </div>
       <div class="md:col-span-2">
         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Desde</label>
-        <input type="date" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroDesde" />
+        <input type="date" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" v-model="filtroDesde" />
       </div>
       <div class="md:col-span-2">
         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Hasta</label>
-        <input type="date" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroHasta" />
+        <input type="date" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" v-model="filtroHasta" />
       </div>
       <div class="md:col-span-3 flex gap-2">
-        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="aplicarFiltros">Buscar</button>
-        <button class="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="filtroUsuario = ''; filtroEntidad = ''; filtroDesde = ''; filtroHasta = ''; auditoriaStore.page = 1; auditoriaStore.fetchLogs()">Limpiar</button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none" @click="aplicarFiltros">Buscar</button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none" @click="filtroUsuario = ''; filtroEntidad = ''; filtroDesde = ''; filtroHasta = ''; auditoriaStore.page = 1; auditoriaStore.fetchLogs()">Limpiar</button>
       </div>
     </div>
 
     <div v-if="auditoriaStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <template v-else>
@@ -148,8 +148,8 @@ async function exportarLogs() {
       <div class="flex items-center justify-between mt-3">
         <span class="text-sm text-gray-500 dark:text-gray-400">Página {{ auditoriaStore.page }} de {{ auditoriaStore.totalPages }} ({{ auditoriaStore.total }} registros)</span>
         <div class="inline-flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
-          <button class="px-3 py-1.5 text-xs border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50" :disabled="auditoriaStore.page <= 1" @click="anterior">Anterior</button>
-          <button class="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50" :disabled="auditoriaStore.page >= auditoriaStore.totalPages" @click="siguiente">Siguiente</button>
+          <button class="px-3 py-1.5 text-xs border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none disabled:opacity-50" :disabled="auditoriaStore.page <= 1" @click="anterior">Anterior</button>
+          <button class="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none disabled:opacity-50" :disabled="auditoriaStore.page >= auditoriaStore.totalPages" @click="siguiente">Siguiente</button>
         </div>
       </div>
     </template>

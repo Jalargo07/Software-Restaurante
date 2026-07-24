@@ -95,11 +95,11 @@ function rolBadgeClasses(rol: string): string {
   <div class="max-w-7xl mx-auto px-4 pt-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Usuarios</h2>
-      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="abrirCrear">+ Nuevo Usuario</button>
+      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none" @click="abrirCrear">+ Nuevo Usuario</button>
     </div>
 
     <div v-if="usuarioStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <div v-else class="overflow-x-auto mt-3">
@@ -128,8 +128,8 @@ function rolBadgeClasses(rol: string): string {
               </span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm">
-              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none mr-1" @click="abrirEditar(u)">Editar</button>
-              <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" @click="toggleActivo(u)">
+              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none mr-1" @click="abrirEditar(u)">Editar</button>
+              <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none" @click="toggleActivo(u)">
                 {{ u.activo ? 'Desactivar' : 'Activar' }}
               </button>
             </td>
@@ -142,26 +142,26 @@ function rolBadgeClasses(rol: string): string {
       <form @submit.prevent="guardar">
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-          <input v-model="form.nombre" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input v-model="form.nombre" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required>
         </div>
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-          <input v-model="form.email" type="email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input v-model="form.email" type="email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required>
         </div>
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ esEdicion ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña' }}</label>
-          <input v-model="form.password" type="password" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :required="!esEdicion">
+          <input v-model="form.password" type="password" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" :required="!esEdicion">
         </div>
         <div class="mb-3">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
-          <select v-model="form.rol" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <select v-model="form.rol" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
             <option value="admin">Admin</option>
             <option value="mesero">Mesero</option>
             <option value="cajero">Cajero</option>
             <option value="cocinero">Cocinero</option>
           </select>
         </div>
-        <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none" :disabled="guardando">
+        <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none" :disabled="guardando">
           <span v-if="guardando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
           {{ guardando ? 'Guardando...' : esEdicion ? 'Actualizar' : 'Crear' }}
         </button>

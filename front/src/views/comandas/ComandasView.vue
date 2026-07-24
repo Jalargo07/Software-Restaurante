@@ -90,13 +90,13 @@ async function avanzarEstado(detalle: DetalleVenta) {
   <div class="max-w-7xl mx-auto px-4 pt-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Comandas / Cocina</h2>
-      <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" @click="comandaStore.fetchComandas()">
+      <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors" @click="comandaStore.fetchComandas()">
         ↻ Actualizar
       </button>
     </div>
 
     <div class="mt-3 flex gap-2 flex-wrap">
-      <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors" :class="filtroEstado === '' ? 'bg-blue-600 text-white' : 'border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'"
+      <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors" :class="filtroEstado === '' ? 'bg-[var(--color-primario)] text-white' : 'border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white'"
         @click="filtroEstado = ''">
         Todas
       </button>
@@ -115,7 +115,7 @@ async function avanzarEstado(detalle: DetalleVenta) {
     </div>
 
     <div v-if="comandaStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <div v-else-if="!comandasFiltradas.length" class="text-center mt-4">

@@ -121,11 +121,11 @@ async function confirmarCobroDividido() {
       <div class="flex w-full mb-3 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
         <label class="flex-1 cursor-pointer">
           <input type="radio" class="sr-only" id="modoIguales" value="iguales" v-model="modo" autocomplete="off">
-          <span class="block text-center px-4 py-2 text-sm font-medium transition-colors" :class="modo === 'iguales' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'">Partes Iguales</span>
+          <span class="block text-center px-4 py-2 text-sm font-medium transition-colors" :class="modo === 'iguales' ? 'bg-[var(--color-primario)] text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'">Partes Iguales</span>
         </label>
         <label class="flex-1 cursor-pointer">
           <input type="radio" class="sr-only" id="modoPersonalizado" value="personalizado" v-model="modo" autocomplete="off">
-          <span class="block text-center px-4 py-2 text-sm font-medium transition-colors" :class="modo === 'personalizado' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'">Montos Personalizados</span>
+          <span class="block text-center px-4 py-2 text-sm font-medium transition-colors" :class="modo === 'personalizado' ? 'bg-[var(--color-primario)] text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'">Montos Personalizados</span>
         </label>
       </div>
 
@@ -136,7 +136,7 @@ async function confirmarCobroDividido() {
             <label class="text-sm text-gray-700 dark:text-gray-300">Número de personas:</label>
           </div>
           <div class="col">
-            <input type="number" min="2" max="50" v-model.number="numeroPersonas" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <input type="number" min="2" max="50" v-model.number="numeroPersonas" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
           </div>
         </div>
 
@@ -164,7 +164,7 @@ async function confirmarCobroDividido() {
       <div v-else class="mb-3">
         <div class="flex items-center justify-between mb-2">
           <span class="font-semibold text-xs text-gray-700 dark:text-gray-300">Asignar montos por parte:</span>
-          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" @click="agregarFila">+ Agregar Parte</button>
+          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors" @click="agregarFila">+ Agregar Parte</button>
         </div>
 
         <div class="overflow-x-auto" style="max-height: 200px; overflow-y: auto;">
@@ -179,7 +179,7 @@ async function confirmarCobroDividido() {
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="(fila, index) in filasPersonalizadas" :key="fila.id">
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                  <input type="number" step="0.01" min="0" v-model.number="fila.monto" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <input type="number" step="0.01" min="0" v-model.number="fila.monto" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   <select v-model="fila.metodo" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm">

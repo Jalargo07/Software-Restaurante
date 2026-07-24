@@ -44,7 +44,7 @@ async function exportarExcel() {
 
 <template>
   <div v-if="loading" class="text-center py-4">
-    <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+    <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
   </div>
 
   <template v-else-if="historial">
@@ -52,7 +52,7 @@ async function exportarExcel() {
       <div class="col-span-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
           <div class="text-center py-3 px-4">
-            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ historial.resumen?.totalCompras || 0 }}</div>
+            <div class="text-2xl font-bold text-[var(--color-primario)] dark:text-blue-400">{{ historial.resumen?.totalCompras || 0 }}</div>
             <div class="text-xs text-gray-500 dark:text-gray-400">Total Compras</div>
           </div>
         </div>

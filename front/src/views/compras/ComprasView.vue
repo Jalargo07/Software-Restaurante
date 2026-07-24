@@ -106,7 +106,7 @@ async function exportarExcel() {
           <span v-if="reporteStore.exportando" class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span>
           Exportar Excel
         </button>
-        <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" @click="modalFormAbierto = true">+ Nueva Compra</button>
+        <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors" @click="modalFormAbierto = true">+ Nueva Compra</button>
       </div>
     </div>
 
@@ -121,16 +121,16 @@ async function exportarExcel() {
       </div>
       <div class="col-auto">
         <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Desde</label>
-        <input type="date" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroDesde" />
+        <input type="date" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" v-model="filtroDesde" />
       </div>
       <div class="col-auto">
         <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Hasta</label>
-        <input type="date" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" v-model="filtroHasta" />
+        <input type="date" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" v-model="filtroHasta" />
       </div>
     </div>
 
     <div v-if="compraStore.loading" class="text-center mt-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <template v-else>
@@ -159,7 +159,7 @@ async function exportarExcel() {
               </td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-cyan-500 text-cyan-600 hover:bg-cyan-500 hover:text-white rounded-lg transition-colors mr-1" @click="verDetalle(c)">Ver</button>
-                <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors mr-1" @click="editarCompra(c)">Editar</button>
+                <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="editarCompra(c)">Editar</button>
                 <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mr-1" @click="recibirCompra(c.id)">Recibir</button>
                 <button v-if="c.estado === 'pendiente' && canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="cancelarCompra(c.id)">Cancelar</button>
               </td>

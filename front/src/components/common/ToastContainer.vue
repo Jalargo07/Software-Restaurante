@@ -13,7 +13,7 @@ const toastStore = useToastStore()
       :class="{
         'bg-green-600 border border-green-500': t.type === 'success',
         'bg-red-600 border border-red-500': t.type === 'error',
-        'bg-blue-600 border border-blue-500': t.type === 'info',
+        'bg-[var(--color-primario)] border border-blue-500': t.type === 'info',
         'bg-yellow-500 border border-yellow-500': t.type === 'warning',
       }"
       @click="toastStore.remove(t.id)"

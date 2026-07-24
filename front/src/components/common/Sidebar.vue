@@ -59,19 +59,19 @@ function isActive(path: string) {
 </script>
 
 <template>
-  <aside class="w-64 min-h-screen bg-gray-900 dark:bg-gray-950 text-white flex flex-col shrink-0">
+  <aside class="w-64 sticky top-0 h-screen bg-gray-900 dark:bg-gray-950 text-white flex flex-col shrink-0">
     <div class="p-4 border-b border-gray-700">
       <div class="flex rounded-lg bg-gray-800 p-1">
         <button
           class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-          :class="currentMode === 'produccion' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'"
+          :class="currentMode === 'produccion' ? 'bg-[var(--color-primario)] text-white' : 'text-gray-400 hover:text-white'"
           @click="setMode('produccion')"
         >
           Producción
         </button>
         <button
           class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-          :class="currentMode === 'administracion' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'"
+          :class="currentMode === 'administracion' ? 'bg-[var(--color-primario)] text-white' : 'text-gray-400 hover:text-white'"
           @click="setMode('administracion')"
         >
           Admin
@@ -85,7 +85,7 @@ function isActive(path: string) {
         :key="item.path"
         :to="item.path"
         class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-        :class="{ 'bg-blue-600 text-white hover:bg-blue-600': isActive(item.path) }"
+        :class="{ 'bg-[var(--color-primario)] text-white hover:brightness-90': isActive(item.path) }"
       >
         <span>{{ item.icon }}</span>
         <span class="text-sm">{{ item.label }}</span>

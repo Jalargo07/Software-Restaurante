@@ -83,7 +83,7 @@ async function cobrar() {
 <template>
   <form @submit.prevent="cobrar">
     <div class="flex items-center gap-2 mb-3">
-      <input v-model="modoRapido" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600" id="modoRapido">
+      <input v-model="modoRapido" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-[var(--color-primario)]" id="modoRapido">
       <label class="text-sm text-gray-700 dark:text-gray-300" for="modoRapido">Modo Rapido (sin mesa)</label>
     </div>
 

@@ -15,7 +15,7 @@ const stats = computed(() => {
   const r = corteStore.resumen
   if (!r) return []
   return [
-    { label: 'Ventas totales', value: `$${r.totalGeneral ?? 0}`, color: 'text-blue-600 dark:text-blue-400' },
+    { label: 'Ventas totales', value: `$${r.totalGeneral ?? 0}`, color: 'text-[var(--color-primario)]' },
     { label: 'Efectivo', value: `$${r.totalEfectivo ?? 0}`, color: 'text-green-600 dark:text-green-400' },
     { label: 'Tarjeta', value: `$${r.totalTarjeta ?? 0}`, color: 'text-cyan-600 dark:text-cyan-400' },
     { label: 'Transferencia', value: `$${r.totalTransferencia ?? 0}`, color: 'text-yellow-600 dark:text-yellow-400' },
@@ -66,7 +66,7 @@ async function cerrarCaja() {
     </div>
 
     <div v-if="corteStore.loading" class="text-center my-4">
-      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-blue-600"></span>
+      <span class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent rounded-full text-[var(--color-primario)]"></span>
     </div>
 
     <template v-else>

@@ -41,15 +41,15 @@ async function guardar() {
   <form @submit.prevent="guardar">
     <div class="mb-3">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Numero</label>
-      <input v-model.number="form.numero" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required min="1">
+      <input v-model.number="form.numero" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required min="1">
     </div>
     <div class="mb-3">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capacidad</label>
-      <input v-model.number="form.capacidad" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required min="1">
+      <input v-model.number="form.capacidad" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required min="1">
     </div>
     <div class="mb-3">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ubicacion</label>
-      <input v-model="form.ubicacion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Interior, Terraza...">
+      <input v-model="form.ubicacion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Interior, Terraza...">
     </div>
     <div class="mb-3">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
@@ -60,6 +60,6 @@ async function guardar() {
         <option value="mantenimiento">Mantenimiento</option>
       </select>
     </div>
-    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors w-full">{{ mesa ? 'Actualizar' : 'Crear' }} Mesa</button>
+    <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors w-full">{{ mesa ? 'Actualizar' : 'Crear' }} Mesa</button>
   </form>
 </template>
