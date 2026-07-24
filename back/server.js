@@ -54,7 +54,7 @@ const startServer = async () => {
     await ensureBucket();
 
     // Seed default tenant
-    const { Tenant, Usuario } = require('./models');
+    const { Tenant, Usuario, TenantConfig } = require('./models');
     const [defaultTenant] = await Tenant.findOrCreate({
       where: { id: 1 },
       defaults: {
@@ -77,6 +77,19 @@ const startServer = async () => {
       });
       console.log('Admin user created: admin@restaurant.com / admin123');
     }
+
+    // Seed default TenantConfig
+    await TenantConfig.findOrCreate({
+      where: { tenant_id: defaultTenant.id },
+      defaults: {
+        nombreCompleto: 'Restaurante Principal',
+        colorPrimario: '#0d6efd',
+        colorSecundario: '#6c757d',
+        colorAcento: '#198754',
+        fontPrincipal: 'Inter',
+      }
+    });
+    console.log('TenantConfig por defecto creada');
 
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);

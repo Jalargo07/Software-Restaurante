@@ -11,6 +11,7 @@ const Auditoria = require('./Auditoria');
 const Receta = require('./Receta');
 const DetalleReceta = require('./DetalleReceta');
 const CorteCaja = require('./CorteCaja');
+const TenantConfig = require('./TenantConfig');
 
 // Tenant -> Models
 Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
@@ -48,6 +49,10 @@ CorteCaja.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
 Tenant.hasMany(Auditoria, { foreignKey: 'tenant_id' });
 Auditoria.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+// Tenant -> TenantConfig (1:1)
+Tenant.hasOne(TenantConfig, { foreignKey: 'tenant_id', onDelete: 'CASCADE' });
+TenantConfig.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
 // Compra -> DetalleCompra
 Compra.hasMany(DetalleCompra, { foreignKey: 'CompraId' });
@@ -107,4 +112,5 @@ module.exports = {
   Receta,
   DetalleReceta,
   CorteCaja,
+  TenantConfig,
 };

@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 
 const app = require('../server');
 const sequelize = require('../config/database');
-const { Usuario, Tenant } = require('../models');
+const { Usuario, Tenant, TenantConfig } = require('../models');
 
 let adminToken;
 
@@ -17,6 +17,17 @@ async function setup() {
       nombre: 'Restaurante Principal',
       slug: 'restaurante-principal',
       activo: true
+    }
+  });
+
+  await TenantConfig.findOrCreate({
+    where: { tenant_id: 1 },
+    defaults: {
+      nombreCompleto: 'Restaurante Principal',
+      colorPrimario: '#0d6efd',
+      colorSecundario: '#6c757d',
+      colorAcento: '#198754',
+      fontPrincipal: 'Inter',
     }
   });
 
