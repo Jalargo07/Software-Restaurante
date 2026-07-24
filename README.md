@@ -118,4 +118,5 @@ npm run test:watch  # Ejecuta en modo watch
 | **Sprint 3** | ✅ Completado | Gestión frontend de usuarios y sistema de comandas/cocina en tiempo real |
 | **Sprint 4** | ✅ Completado | Exportación a Excel, historial de compras por proveedor y logs de auditoría |
 | **Sprint 5** | ✅ Completado | Recetas de productos compuestos, roles en frontend, WebSockets, caja y Docker |
-| **Sprint 6** | 🔄 En curso | PWA, Split Bill, Paginación avanzada y soporte multibase de datos |
+| **Sprint 6** | ✅ Completado | PWA, Split Bill, Paginación, PostgreSQL, S3 desacoplado |
+| **Sprint 7** | 🔄 En curso | Arquitectura Multi-tenant (Modelo Tenant, tenant_id, middleware, scoping controllers) |
