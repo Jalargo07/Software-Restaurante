@@ -3,8 +3,12 @@ const { S3Client, CreateBucketCommand, HeadBucketCommand, PutBucketPolicyCommand
 const BUCKET = process.env.S3_BUCKET_NAME || 'restaurante-bucket';
 const REGION = process.env.S3_REGION || 'us-east-1';
 const ENDPOINT = process.env.S3_ENDPOINT || 'http://localhost:9000';
-const ACCESS_KEY = process.env.S3_ACCESS_KEY || 'alejoadmin';
-const SECRET_KEY = process.env.S3_SECRET_KEY || 'alejo1234';
+const ACCESS_KEY = process.env.S3_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || 'alejoadmin';
+const SECRET_KEY = process.env.S3_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY || 'alejo1234';
+
+const forcePathStyle = process.env.S3_FORCE_PATH_STYLE !== undefined
+  ? process.env.S3_FORCE_PATH_STYLE === 'true'
+  : true;
 
 const s3Client = new S3Client({
   region: REGION,
@@ -13,7 +17,7 @@ const s3Client = new S3Client({
     accessKeyId: ACCESS_KEY,
     secretAccessKey: SECRET_KEY,
   },
-  forcePathStyle: true,
+  forcePathStyle,
 });
 
 const ensureBucket = async () => {
@@ -50,7 +54,7 @@ const ensureBucket = async () => {
       }
     }
   } catch (error) {
-    console.error('Error al verificar/crear bucket S3:', error.message);
+    console.warn(`[S3] Aviso: No se pudo verificar o crear el bucket "${BUCKET}" (en proveedores Cloud como Cloudflare R2 o Supabase Storage, el bucket debe crearse previamente desde el panel de control):`, error.message);
   }
 };
 
