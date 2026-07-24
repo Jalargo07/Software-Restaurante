@@ -1,3 +1,4 @@
+const Tenant = require('./Tenant');
 const Mesa = require('./Mesa');
 const Producto = require('./Producto');
 const Compra = require('./Compra');
@@ -56,6 +57,7 @@ Usuario.hasMany(CorteCaja, { foreignKey: 'usuarioId' });
 CorteCaja.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 
 module.exports = {
+  Tenant,
   Mesa,
   Producto,
   Compra,

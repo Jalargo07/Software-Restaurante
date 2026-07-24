@@ -50,8 +50,19 @@ const startServer = async () => {
     const { ensureBucket } = require('./config/s3');
     await ensureBucket();
 
+    // Seed default tenant
+    const { Tenant, Usuario } = require('./models');
+    const [defaultTenant] = await Tenant.findOrCreate({
+      where: { id: 1 },
+      defaults: {
+        nombre: 'Restaurante Principal',
+        slug: 'restaurante-principal',
+        activo: true
+      }
+    });
+    console.log(`Tenant por defecto activo: ${defaultTenant.nombre}`);
+
     // Seed admin user
-    const { Usuario } = require('./models');
     const adminExists = await Usuario.findOne({ where: { email: 'admin@restaurant.com' } });
     if (!adminExists) {
       await Usuario.create({
