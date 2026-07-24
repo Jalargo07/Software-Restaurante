@@ -27,13 +27,13 @@ const ventasPorDia = async (req, res) => {
   try {
     const resultados = await Venta.findAll({
       attributes: [
-        [fn('DATE', col('createdAt')), 'dia'],
+        [sequelize.literal(`DATE("Venta"."createdAt" AT TIME ZONE '-03:00')`), 'dia'],
         [fn('COUNT', col('id')), 'cantidad'],
         [fn('SUM', col('total')), 'total'],
       ],
       where: scopeTenant({ estado: 'cerrada' }, req.tenantId),
-      group: [fn('DATE', col('createdAt'))],
-      order: [[fn('DATE', col('createdAt')), 'DESC']],
+      group: [sequelize.literal(`DATE("Venta"."createdAt" AT TIME ZONE '-03:00')`)],
+      order: [[sequelize.literal(`DATE("Venta"."createdAt" AT TIME ZONE '-03:00')`), 'DESC']],
       limit: 7,
       raw: true,
     });

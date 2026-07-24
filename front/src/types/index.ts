@@ -12,7 +12,7 @@ export type MesaEstado = 'disponible' | 'ocupada' | 'reservada' | 'mantenimiento
 
 export type VentaEstado = 'abierta' | 'cerrada' | 'cancelada'
 
-export type MetodoPago = 'efectivo' | 'tarjeta' | 'transferencia'
+export type MetodoPago = 'efectivo' | 'tarjeta' | 'transferencia' | 'mixto'
 
 export type CompraEstado = 'pendiente' | 'recibida' | 'cancelada'
 

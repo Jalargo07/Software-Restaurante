@@ -103,7 +103,7 @@ async function cerrarCaja() {
             <td>${{ c.totalEfectivo ?? 0 }}</td>
             <td>${{ c.totalTarjeta ?? 0 }}</td>
             <td>${{ c.totalTransferencia ?? 0 }}</td>
-            <td>${{ c.ventasCanceladas ?? 0 }}</td>
+            <td>${{ c.montoCanceladas ?? 0 }}</td>
             <td>{{ c.cantidadVentas ?? 0 }}</td>
           </tr>
         </tbody>

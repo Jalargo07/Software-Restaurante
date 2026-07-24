@@ -128,7 +128,7 @@ async function exportarVentasHoy() {
         <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-              <div class="fs-4 fw-bold text-success">{{ reporteStore.ventasPorDia[0]?.cantidad || 0 }}</div>
+              <div class="fs-4 fw-bold text-success">${{ reporteStore.ventasPorDia[0]?.total || 0 }}</div>
               <div class="text-muted small">Ventas Último Día</div>
             </div>
           </div>

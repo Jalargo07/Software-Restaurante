@@ -22,6 +22,11 @@ if (process.env.NODE_ENV === 'test') {
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
       logging: false,
+      timezone: '-03:00',
+      dialectOptions: {
+        useUTC: false,
+        typeCast: true,
+      },
     }
   );
 } else {

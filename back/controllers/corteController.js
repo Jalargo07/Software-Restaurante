@@ -7,7 +7,7 @@ const { invalidarCache } = require('../utils/cacheInvalidation');
 
 const obtenerResumen = async (req, res) => {
   try {
-    const hoy = req.query.fecha || new Date().toISOString().split('T')[0];
+    const hoy = req.query.fecha || (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
 
     const ventas = await Venta.findAll({
       where: scopeTenant({
@@ -63,7 +63,7 @@ const obtenerResumen = async (req, res) => {
 const cerrarCaja = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const hoy = req.query.fecha || new Date().toISOString().split('T')[0];
+    const hoy = req.query.fecha || (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
 
     const corteExistente = await CorteCaja.findOne({
       where: scopeTenant({ fecha: hoy }, req.tenantId),

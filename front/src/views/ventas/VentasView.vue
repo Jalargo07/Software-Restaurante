@@ -89,6 +89,7 @@ async function exportarExcel() {
           <option value="">Todas</option>
           <option value="abierta">Abiertas</option>
           <option value="cerrada">Cerradas</option>
+          <option value="cancelada">Canceladas</option>
         </select>
       </div>
       <div class="col-auto">
@@ -126,7 +127,7 @@ async function exportarExcel() {
             <td>${{ v.total }}</td>
             <td>{{ v.metodoPago || '-' }}</td>
             <td>
-              <span :class="`badge bg-${v.estado === 'cerrada' ? 'success' : 'warning'}`">
+              <span :class="`badge bg-${v.estado === 'cerrada' ? 'success' : v.estado === 'cancelada' ? 'danger' : 'warning'}`">
                 {{ v.estado }}
               </span>
             </td>
