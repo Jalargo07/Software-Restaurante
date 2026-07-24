@@ -42,8 +42,8 @@ const chartOptions = {
 </script>
 
 <template>
-  <div style="height: 220px;">
+  <div class="h-[220px]">
     <Bar v-if="data.length" :data="chartData" :options="chartOptions" />
-    <p v-else class="text-muted text-center mt-4">Sin datos de ventas</p>
+    <p v-else class="text-gray-400 text-sm text-center mt-4">Sin datos de ventas</p>
   </div>
 </template>

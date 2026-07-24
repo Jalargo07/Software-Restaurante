@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { X } from '@lucide/vue'
 defineProps<{
   id: string
   titulo: string
@@ -9,18 +10,17 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="modal fade show d-block" :id="id" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ titulo }}</h5>
-          <button type="button" class="btn-close" @click="emit('cerrar')"></button>
-        </div>
-        <div class="modal-body">
-          <slot />
-        </div>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" :id="id" @click="emit('cerrar')">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg mx-4" @click.stop>
+      <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <h5 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ titulo }}</h5>
+        <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" @click="emit('cerrar')">
+          <X class="w-5 h-5" />
+        </button>
+      </div>
+      <div class="p-6 text-gray-700 dark:text-gray-300">
+        <slot />
       </div>
     </div>
   </div>
-  <div class="modal-backdrop fade show" @click="emit('cerrar')"></div>
 </template>

@@ -25,16 +25,16 @@ const filtrados = computed(() => {
 
 <template>
   <div>
-    <input v-model="busqueda" class="form-control mb-2" placeholder="Buscar proveedor...">
-    <div style="max-height: 200px; overflow-y: auto;">
+    <input v-model="busqueda" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800" placeholder="Buscar proveedor...">
+    <div class="max-h-[200px] overflow-y-auto">
       <button
         v-for="p in filtrados" :key="p.id"
-        class="btn btn-outline-secondary btn-sm d-block w-100 mb-1 text-start"
+        class="w-full text-left px-3 py-2 mb-1 text-sm rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
         @click="emit('seleccionar', p)"
       >
         {{ p.nombre }} - {{ p.telefono || 'Sin teléfono' }}
       </button>
-      <p v-if="!filtrados.length" class="text-muted small">Sin resultados</p>
+      <p v-if="!filtrados.length" class="text-gray-400 text-xs">Sin resultados</p>
     </div>
   </div>
 </template>

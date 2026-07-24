@@ -1,49 +1,27 @@
 <script setup lang="ts">
 import { useToastStore } from '../../stores/toast'
+import { X } from '@lucide/vue'
 const toastStore = useToastStore()
 </script>
 
 <template>
-  <div class="toast-container">
+  <div class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-[380px]">
     <div
       v-for="t in toastStore.toasts"
       :key="t.id"
-      class="toast-item"
-      :class="`toast-${t.type}`"
+      class="rounded-lg shadow-lg p-4 text-white text-sm font-medium cursor-pointer backdrop-blur-sm"
+      :class="{
+        'bg-green-600 border border-green-500': t.type === 'success',
+        'bg-red-600 border border-red-500': t.type === 'error',
+        'bg-blue-600 border border-blue-500': t.type === 'info',
+        'bg-yellow-500 border border-yellow-500': t.type === 'warning',
+      }"
       @click="toastStore.remove(t.id)"
     >
-      {{ t.message }}
+      <div class="flex items-center justify-between gap-2">
+        <span>{{ t.message }}</span>
+        <X class="w-4 h-4 shrink-0 opacity-70 hover:opacity-100" />
+      </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 380px;
-}
-.toast-item {
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  animation: slideIn 0.3s ease;
-  backdrop-filter: blur(8px);
-}
-.toast-success { background: #065f46; color: #d1fae5; border: 1px solid #059669; }
-.toast-error { background: #7f1d1d; color: #fee2e2; border: 1px solid #dc2626; }
-.toast-info { background: #1e3a5f; color: #dbeafe; border: 1px solid #2563eb; }
-.toast-warning { background: #713f12; color: #fef9c3; border: 1px solid #d97706; }
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-</style>

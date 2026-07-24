@@ -27,7 +27,7 @@ const chartOptions = {
 </script>
 
 <template>
-  <div style="height: 220px;">
+  <div class="h-[220px]">
     <Doughnut :data="chartData" :options="chartOptions" />
   </div>
 </template>

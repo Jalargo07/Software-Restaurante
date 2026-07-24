@@ -190,18 +190,27 @@ function formatValue(value: any, format?: string): string {
 
 function badgeClass(value: any): string {
   const v = String(value).toLowerCase()
-  if (['creado', 'create', 'crear'].some(x => v.includes(x))) return 'bg-success'
-  if (['editar', 'update', 'modificar'].some(x => v.includes(x))) return 'bg-primary'
-  if (['eliminar', 'delete', 'borrar'].some(x => v.includes(x))) return 'bg-danger'
-  if (v === 'activo' || v === 'listo' || v === 'recibida' || v === 'cerrada') return 'bg-success'
-  if (v === 'pendiente' || v === 'en_preparacion') return 'bg-warning text-dark'
-  if (v === 'cancelado' || v === 'cancelada' || v === 'inactivo') return 'bg-secondary'
-  if (v === 'abierto' || v === 'abierta') return 'bg-info'
-  if (v === 'efectivo') return 'bg-success'
-  if (v === 'tarjeta') return 'bg-primary'
-  if (v === 'transferencia') return 'bg-info'
-  if (v === 'mixto') return 'bg-warning text-dark'
-  return 'bg-secondary'
+  if (['creado', 'create', 'crear'].some(x => v.includes(x))) return 'green'
+  if (['editar', 'update', 'modificar'].some(x => v.includes(x))) return 'blue'
+  if (['eliminar', 'delete', 'borrar'].some(x => v.includes(x))) return 'red'
+  if (v === 'activo' || v === 'listo' || v === 'recibida' || v === 'cerrada') return 'green'
+  if (v === 'pendiente' || v === 'en_preparacion') return 'yellow'
+  if (v === 'cancelado' || v === 'cancelada' || v === 'inactivo') return 'gray'
+  if (v === 'abierto' || v === 'abierta') return 'cyan'
+  if (v === 'efectivo') return 'green'
+  if (v === 'tarjeta') return 'blue'
+  if (v === 'transferencia') return 'cyan'
+  if (v === 'mixto') return 'yellow'
+  return 'gray'
+}
+
+const badgeTailwind: Record<string, string> = {
+  green: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  gray: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
+  cyan: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
 }
 
 function toggle() {
@@ -210,40 +219,39 @@ function toggle() {
 </script>
 
 <template>
-  <div v-if="data" class="audit-detail-viewer">
-    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" @click="toggle">
-      <span class="me-1">{{ expandido ? '▼' : '▶' }}</span>
-      <span class="small text-muted">Ver detalles</span>
+  <div v-if="data" class="text-sm">
+    <button type="button" class="bg-transparent border-0 p-0 text-decoration-none cursor-pointer inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors" @click="toggle">
+      <span class="text-xs">{{ expandido ? '▼' : '▶' }}</span>
+      <span class="text-xs text-gray-400 dark:text-gray-500">Ver detalles</span>
     </button>
 
-    <div v-if="expandido && parsed" class="audit-card card mt-2 border-0 shadow-sm">
-      <!-- Structured card for known entities -->
+    <div v-if="expandido && parsed" class="mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm max-w-[340px] text-sm">
       <template v-if="config">
-        <div class="card-header bg-transparent border-bottom-0 pb-0 pt-2">
-          <span class="me-1">{{ config.icon }}</span>
-          <span class="fw-semibold small">{{ config.title }}</span>
+        <div class="px-3 pt-2 pb-0">
+          <span class="mr-1">{{ config.icon }}</span>
+          <span class="font-semibold text-xs">{{ config.title }}</span>
         </div>
-        <div class="card-body pt-1 pb-2 px-3">
+        <div class="px-3 pt-1 pb-2">
           <template v-if="mappedFields.length">
             <div
               v-for="field in mappedFields"
               :key="field.key"
-              class="d-flex justify-content-between align-items-start py-1 border-bottom border-light"
+              class="flex justify-between items-start py-1 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
             >
-              <span class="text-muted small">{{ field.label }}</span>
-              <span class="text-end small fw-medium">
+              <span class="text-gray-500 dark:text-gray-400 text-xs">{{ field.label }}</span>
+              <span class="text-right text-xs font-medium">
                 <template v-if="field.format === 'badge'">
-                  <span :class="`badge badge-sm ${badgeClass(field.value)}`">
+                  <span :class="`inline-block px-2 py-0.5 rounded text-xs font-medium ${badgeTailwind[badgeClass(field.value)] || badgeTailwind.gray}`">
                     {{ String(field.value) }}
                   </span>
                 </template>
                 <template v-else-if="field.format === 'boolean'">
-                  <span class="badge" :class="field.value ? 'bg-success' : 'bg-secondary'">
+                  <span class="inline-block px-2 py-0.5 rounded text-xs font-medium" :class="field.value ? badgeTailwind.green : badgeTailwind.gray">
                     {{ field.value ? 'Sí' : 'No' }}
                   </span>
                 </template>
                 <template v-else-if="field.format === 'precio'">
-                  <span class="text-success fw-bold">{{ formatValue(field.value, field.format) }}</span>
+                  <span class="text-green-600 dark:text-green-400 font-bold">{{ formatValue(field.value, field.format) }}</span>
                 </template>
                 <template v-else>
                   {{ formatValue(field.value, field.format) }}
@@ -251,48 +259,27 @@ function toggle() {
               </span>
             </div>
           </template>
-          <div v-else class="text-muted small fst-italic py-1">Sin datos disponibles</div>
+          <div v-else class="text-gray-400 dark:text-gray-500 italic text-xs py-1">Sin datos disponibles</div>
         </div>
       </template>
 
-      <!-- Fallback: key-value list for unknown entities -->
       <template v-else>
-        <div class="card-header bg-transparent border-bottom-0 pb-0 pt-2">
-          <span class="me-1">📄</span>
-          <span class="fw-semibold small">Detalles</span>
+        <div class="px-3 pt-2 pb-0">
+          <span class="mr-1">📄</span>
+          <span class="font-semibold text-xs">Detalles</span>
         </div>
-        <div class="card-body pt-1 pb-2 px-3">
+        <div class="px-3 pt-1 pb-2">
           <div
             v-for="field in unknownFields"
             :key="field.key"
-            class="d-flex justify-content-between align-items-start py-1 border-bottom border-light"
+            class="flex justify-between items-start py-1 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
           >
-            <span class="text-muted small">{{ field.label }}</span>
-            <span class="text-end small fw-medium">{{ formatValue(field.value) }}</span>
+            <span class="text-gray-500 dark:text-gray-400 text-xs">{{ field.label }}</span>
+            <span class="text-right text-xs font-medium">{{ formatValue(field.value) }}</span>
           </div>
         </div>
       </template>
     </div>
   </div>
-  <span v-else class="text-muted">-</span>
+  <span v-else class="text-gray-400 dark:text-gray-500">-</span>
 </template>
-
-<style scoped>
-.audit-card {
-  font-size: 13px;
-  max-width: 340px;
-}
-
-.audit-card .card-header {
-  font-size: 12px;
-}
-
-.audit-card .border-bottom:last-child {
-  border-bottom: none !important;
-}
-
-.badge-sm {
-  font-size: 11px;
-  font-weight: 500;
-}
-</style>
