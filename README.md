@@ -42,6 +42,13 @@ Sistema de gestión integral para restaurantes con control de inventario, compra
 
 ## 🛠️ Instalación y Ejecución Local
 
+### Requisito: pnpm
+Este proyecto usa **pnpm** como gestor de paquetes. Para instalarlo:
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
 ### 1. Clonar el repositorio y configurar variables de entorno
 ```bash
 git clone https://github.com/Jalargo07/Software-Restaurante.git
@@ -51,17 +58,17 @@ cd Software-Restaurante
 ### 2. Backend
 ```bash
 cd back
-npm install
+pnpm install
 # Configurar .env basado en .env.example
-npm run seed  # Carga datos de prueba (productos, mesas, recetas, proveedores)
-npm run dev   # Inicia servidor en http://localhost:3000
+pnpm run seed  # Carga datos de prueba (productos, mesas, recetas, proveedores)
+pnpm run dev   # Inicia servidor en http://localhost:3000
 ```
 
 ### 3. Frontend
 ```bash
 cd front
-npm install
-npm run dev   # Inicia Vite en http://localhost:5173
+pnpm install
+pnpm run dev   # Inicia Vite en http://localhost:5173
 ```
 
 ---
@@ -90,12 +97,12 @@ docker compose up --build -d
 
 ## 🧪 Pruebas Automatizadas
 
-El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (47 tests distribuidos en 7 suites: auth, productos, ventas, compras, recetas, tenant y tenantScope).
+El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (62 tests distribuidos en 9 suites: auth, productos, ventas, compras, recetas, tenant, tenantScope, tenantConfig y branding).
 
 ```bash
 cd back
-npm test          # Ejecuta todos los tests una vez
-npm run test:watch  # Ejecuta en modo watch
+pnpm test          # Ejecuta todos los tests una vez
+pnpm run test:watch  # Ejecuta en modo watch
 ```
 
 ---

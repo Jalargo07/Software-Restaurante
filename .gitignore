@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+node_modules/.ignored/
+package-lock.json
 
 # Environment variables
 .env
