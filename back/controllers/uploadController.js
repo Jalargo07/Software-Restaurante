@@ -25,8 +25,8 @@ const subirImagen = async (req, res) => {
 
     await s3Client.send(new PutObjectCommand(uploadParams));
 
-    const endpoint = process.env.S3_ENDPOINT || 'http://localhost:9000';
-    const url = `${endpoint.replace(/\/$/, '')}/${BUCKET}/${key}`;
+    const publicUrl = process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || 'http://localhost:9000';
+    const url = `${publicUrl.replace(/\/$/, '')}/${BUCKET}/${key}`;
 
     res.status(201).json({ filename, key, url });
   } catch (error) {

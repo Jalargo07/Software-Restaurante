@@ -132,7 +132,7 @@ async function exportarLogs() {
             <td><span :class="`badge ${badgeClass(log.accion)}`">{{ log.accion }}</span></td>
             <td>{{ log.entidad || '-' }}</td>
             <td>{{ log.entidadId || log.registroId || '-' }}</td>
-            <td><JsonViewer :data="log.detalles || log.descripcion" /></td>
+            <td><JsonViewer :data="log.detalles || log.descripcion" :entidad="log.entidad" /></td>
           </tr>
         </tbody>
       </table>

@@ -140,7 +140,11 @@ async function guardar() {
         })
       const nombreReceta = `Receta ${form.value.nombre}`
       if (recetaExistenteId.value) {
-        await recetaStore.updateReceta(recetaExistenteId.value, { ...recetaForm.value, nombre: nombreReceta })
+        await recetaStore.updateReceta(recetaExistenteId.value, {
+          porciones: recetaForm.value.porciones,
+          nombre: nombreReceta,
+          detalles,
+        })
       } else {
         await recetaStore.createReceta({
           nombre: nombreReceta,
