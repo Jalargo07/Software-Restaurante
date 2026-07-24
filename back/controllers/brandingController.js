@@ -1,4 +1,4 @@
-const { TenantConfig } = require('../models');
+const { Tenant, TenantConfig } = require('../models');
 const { registrarAuditoria } = require('../utils/auditoria');
 
 const getBranding = async (req, res) => {
@@ -47,4 +47,19 @@ const updateBranding = async (req, res) => {
   }
 };
 
-module.exports = { getBranding, updateBranding };
+const getPublicBranding = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const tenant = await Tenant.findOne({ where: { slug, activo: true } });
+    if (!tenant) return res.status(404).json({ error: 'Restaurante no encontrado' });
+
+    const config = await TenantConfig.findOne({ where: { tenant_id: tenant.id } });
+    if (!config) return res.status(404).json({ error: 'Configuración de branding no encontrada' });
+
+    res.json({ tenant: tenant.nombre, slug: tenant.slug, branding: config });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener branding público' });
+  }
+};
+
+module.exports = { getBranding, updateBranding, getPublicBranding };

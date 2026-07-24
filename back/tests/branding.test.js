@@ -102,3 +102,45 @@ describe('Branding - PUT /api/branding', () => {
     expect(res.body.nombreCompleto).toBe('Persistencia Test');
   });
 });
+
+describe('Branding Público - GET /api/public/branding/:slug', () => {
+  test('GET slug válido → 200 con branding', async () => {
+    const res = await request(app).get('/api/public/branding/restaurante-principal');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('tenant', 'Restaurante Principal');
+    expect(res.body).toHaveProperty('slug', 'restaurante-principal');
+    expect(res.body).toHaveProperty('branding');
+    expect(res.body.branding).toHaveProperty('colorPrimario');
+  });
+
+  test('GET slug inexistente → 404', async () => {
+    const res = await request(app).get('/api/public/branding/no-existe');
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  test('GET sin token → 200 (es público)', async () => {
+    const res = await request(app).get('/api/public/branding/restaurante-principal');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('tenant');
+  });
+
+  test('GET con tenant inactivo → 404', async () => {
+    const { Tenant } = require('../models');
+    const tenant = await Tenant.create({
+      nombre: 'Inactivo Test',
+      slug: 'inactivo-test',
+      activo: false,
+    });
+
+    const res = await request(app).get('/api/public/branding/inactivo-test');
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+
+    await tenant.destroy();
+  });
+});
