@@ -1,17 +1,35 @@
 <script setup lang="ts">
 import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
+import { useBrandingStore } from './stores/branding'
 import { ref, onMounted, computed } from 'vue'
 import ToastContainer from './components/common/ToastContainer.vue'
 
 const authStore = useAuthStore()
+const brandingStore = useBrandingStore()
 const router = useRouter()
 const route = useRoute()
 
 const theme = ref(localStorage.getItem('theme') || 'light')
 
-onMounted(() => {
+onMounted(async () => {
   document.documentElement.setAttribute('data-theme', theme.value)
+
+  try {
+    await brandingStore.fetchBranding()
+    const b = brandingStore.branding
+    if (b) {
+      document.documentElement.style.setProperty('--color-primario', b.colorPrimario)
+      document.documentElement.style.setProperty('--color-secundario', b.colorSecundario)
+      document.documentElement.style.setProperty('--color-acento', b.colorAcento)
+      document.documentElement.style.setProperty('--font-principal', b.fontPrincipal)
+      if (b.nombreCompleto) {
+        document.title = b.nombreCompleto
+      }
+    }
+  } catch {
+    // fallback: se mantienen los valores por defecto de :root
+  }
 })
 
 function toggleTheme() {
@@ -51,6 +69,18 @@ function isActive(path: string) {
 
 <template>
   <div class="app-layout">
+    <header v-if="authStore.isAuthenticated && brandingStore.branding" class="app-header">
+      <img
+        v-if="brandingStore.branding.logo"
+        :src="brandingStore.branding.logo"
+        :alt="brandingStore.branding.nombreCompleto || 'Logo'"
+        class="header-logo"
+      />
+      <span v-if="brandingStore.branding.nombreCompleto" class="header-name">
+        {{ brandingStore.branding.nombreCompleto }}
+      </span>
+    </header>
+
     <main class="main-content">
       <div class="content-container">
         <RouterView />
