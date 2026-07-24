@@ -85,7 +85,10 @@ function isActive(path: string) {
 </script>
 
 <template>
-  <div class="app-layout" :class="{ 'with-sidebar': authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) }">
+  <div
+    class="flex flex-col min-h-screen"
+    :class="{ 'grid grid-cols-[260px_1fr] max-md:grid-cols-1 min-h-screen': authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) }"
+  >
     <Sidebar
       v-if="authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute)"
       v-model:currentMode="currentMode"
@@ -94,45 +97,44 @@ function isActive(path: string) {
       @logout="salir"
     />
 
-    <div class="app-main-wrapper">
-      <header v-if="authStore.isAuthenticated && brandingStore.branding" class="app-header">
+    <div class="flex flex-col flex-1 min-w-0">
+      <header v-if="authStore.isAuthenticated && brandingStore.branding" class="flex items-center gap-3 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <img
           v-if="brandingStore.branding.logo"
           :src="brandingStore.branding.logo"
           :alt="brandingStore.branding.nombreCompleto || 'Logo'"
-          class="header-logo"
+          class="h-8 w-auto object-contain"
         />
-        <span v-if="brandingStore.branding.nombreCompleto" class="header-name">
+        <span v-if="brandingStore.branding.nombreCompleto" class="text-lg font-semibold text-gray-900 dark:text-white">
           {{ brandingStore.branding.nombreCompleto }}
         </span>
       </header>
 
-      <main class="main-content">
-        <div class="content-container">
-          <RouterView />
-        </div>
+      <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
+        <RouterView />
       </main>
     </div>
 
-    <nav v-if="authStore.isAuthenticated && !(currentMode === 'administracion' || isAdministrationRoute)" class="bottom-nav">
+    <nav v-if="authStore.isAuthenticated && !(currentMode === 'administracion' || isAdministrationRoute)" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-800 rounded-2xl px-2 py-1.5 flex items-center gap-1 shadow-lg z-50">
       <RouterLink
         v-for="item in navItems"
         :key="item.path"
         :to="item.path"
-        class="nav-item"
-        :class="{ active: isActive(item.path) }"
+        class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors min-w-[64px]"
+        :class="{ '!text-white !bg-blue-600': isActive(item.path) }"
       >
-        <span class="nav-icon">{{ item.icon }}</span>
-        <span class="nav-label">{{ item.label }}</span>
+        <span class="text-lg leading-none">{{ item.icon }}</span>
+        <span class="text-[10px] leading-tight">{{ item.label }}</span>
       </RouterLink>
 
-      <button class="theme-btn" @click="toggleTheme" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
-        {{ theme === 'light' ? '🌙' : '☀️' }}
+      <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors min-w-[64px]" @click="toggleTheme" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
+        <span class="text-lg leading-none">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
+        <span class="text-[10px] leading-tight">Tema</span>
       </button>
 
-      <div class="user-section">
+      <div class="flex items-center gap-2 pl-2 ml-1 border-l border-gray-700 text-xs text-gray-400">
         <span>{{ authStore.user?.nombre }}</span>
-        <button class="logout-btn" @click="salir">Salir</button>
+        <button class="px-2 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs transition-colors" @click="salir">Salir</button>
       </div>
     </nav>
     <ToastContainer />

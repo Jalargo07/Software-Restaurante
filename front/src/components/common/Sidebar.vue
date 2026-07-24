@@ -59,19 +59,19 @@ function isActive(path: string) {
 </script>
 
 <template>
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-mode-selector">
+  <aside class="w-64 min-h-screen bg-gray-900 dark:bg-gray-950 text-white flex flex-col shrink-0">
+    <div class="p-4 border-b border-gray-700">
+      <div class="flex rounded-lg bg-gray-800 p-1">
         <button
-          class="mode-btn"
-          :class="{ active: currentMode === 'produccion' }"
+          class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          :class="currentMode === 'produccion' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'"
           @click="setMode('produccion')"
         >
           Producción
         </button>
         <button
-          class="mode-btn"
-          :class="{ active: currentMode === 'administracion' }"
+          class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          :class="currentMode === 'administracion' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'"
           @click="setMode('administracion')"
         >
           Admin
@@ -79,29 +79,31 @@ function isActive(path: string) {
       </div>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1">
       <router-link
         v-for="item in visibleItems"
         :key="item.path"
         :to="item.path"
-        class="sidebar-nav-item"
-        :class="{ active: isActive(item.path) }"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+        :class="{ 'bg-blue-600 text-white hover:bg-blue-600': isActive(item.path) }"
       >
-        <span class="sidebar-icon">{{ item.icon }}</span>
-        <span class="sidebar-label">{{ item.label }}</span>
+        <span>{{ item.icon }}</span>
+        <span class="text-sm">{{ item.label }}</span>
       </router-link>
     </nav>
 
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <span class="user-name">{{ authStore.user?.nombre }}</span>
-        <span class="user-role badge bg-secondary">{{ authStore.user?.rol }}</span>
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">{{ authStore.user?.nombre }}</p>
+          <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{{ authStore.user?.rol }}</span>
+        </div>
       </div>
-      <div class="sidebar-actions">
-        <button class="sidebar-action-btn" @click="$emit('toggle-theme')" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
-          {{ theme === 'light' ? '🌙 <span>Tema</span>' : '☀️ <span>Tema</span>' }}
+      <div class="space-y-1">
+        <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-700 hover:text-white transition-colors" @click="$emit('toggle-theme')" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
+          {{ theme === 'light' ? '🌙' : '☀️' }} <span>Tema</span>
         </button>
-        <button class="sidebar-action-btn logout" @click="$emit('logout')" title="Cerrar sesión">
+        <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-400 hover:bg-red-600 hover:text-white transition-colors" @click="$emit('logout')" title="Cerrar sesión">
           🚪 <span>Salir</span>
         </button>
       </div>

@@ -57,64 +57,46 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="login-page d-flex align-items-center justify-content-center min-vh-100">
-    <div class="login-card card shadow-sm">
-      <div class="card-body p-4">
-        <div v-if="branding?.branding" class="text-center mb-3">
-          <img
-            v-if="branding.branding.logo"
-            :src="branding.branding.logo"
-            :alt="branding.branding.nombreCompleto || 'Logo'"
-            class="login-logo mb-3"
-          >
-          <h3 class="login-title" :style="{ color: branding.branding.colorPrimario, fontFamily: branding.branding.fontPrincipal }">
-            {{ branding.branding.nombreCompleto || 'Iniciar Sesion' }}
-          </h3>
-        </div>
-        <h3 v-else class="card-title text-center mb-4">Iniciar Sesion</h3>
-
-        <form @submit.prevent="handleLogin">
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input v-model="email" type="email" class="form-control" required autocomplete="email">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input v-model="password" type="password" class="form-control" required autocomplete="current-password">
-          </div>
-          <p v-if="errorMsg" class="text-danger text-center">{{ errorMsg }}</p>
-          <button
-            type="submit"
-            class="btn w-100"
-            :style="branding?.branding ? { backgroundColor: branding.branding.colorPrimario, borderColor: branding.branding.colorPrimario, color: '#fff' } : {}"
-          >
-            Ingresar
-          </button>
-        </form>
+  <div
+    class="min-h-screen flex items-center justify-center px-4"
+    :style="{ backgroundColor: branding?.branding?.colorSecundario || '' }"
+    :class="{ 'dark:bg-gray-900': !branding?.branding?.colorSecundario }"
+  >
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+      <div v-if="branding?.branding" class="text-center mb-6">
+        <img
+          v-if="branding.branding.logo"
+          :src="branding.branding.logo"
+          :alt="branding.branding.nombreCompleto || 'Logo'"
+          class="max-w-[160px] max-h-20 object-contain mx-auto mb-4"
+        >
+        <h3
+          class="text-2xl font-semibold mb-4"
+          :style="{ color: branding.branding.colorPrimario, fontFamily: branding.branding.fontPrincipal }"
+        >
+          {{ branding.branding.nombreCompleto || 'Iniciar Sesion' }}
+        </h3>
       </div>
+      <h3 v-else class="text-xl font-bold text-center text-gray-900 dark:text-white mb-6">Iniciar Sesion</h3>
+
+      <form @submit.prevent="handleLogin" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+          <input v-model="email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" required autocomplete="email">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+          <input v-model="password" type="password" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" required autocomplete="current-password">
+        </div>
+        <p v-if="errorMsg" class="text-red-500 text-sm text-center">{{ errorMsg }}</p>
+        <button
+          type="submit"
+          class="w-full py-2.5 px-4 rounded-xl font-medium text-white transition-opacity hover:opacity-90"
+          :style="branding?.branding ? { backgroundColor: branding.branding.colorPrimario, borderColor: branding.branding.colorPrimario } : { backgroundColor: '#2563eb' }"
+        >
+          Ingresar
+        </button>
+      </form>
     </div>
   </div>
 </template>
-
-<style scoped>
-.login-page {
-  background-color: var(--color-branding-secundario, #f5f5f5);
-}
-
-.login-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.login-logo {
-  max-width: 160px;
-  max-height: 80px;
-  object-fit: contain;
-}
-
-.login-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-</style>

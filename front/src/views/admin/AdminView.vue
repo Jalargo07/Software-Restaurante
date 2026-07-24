@@ -23,31 +23,23 @@ const itemsVisibles = computed(() => {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <h2 class="mb-4">Panel de Administración y Supervisión</h2>
-    <div class="row g-3">
-      <div v-for="item in itemsVisibles" :key="item.path" class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100 cursor-pointer admin-card" @click="router.push(item.path)">
-          <div class="card-body d-flex align-items-center">
-            <div class="fs-1 me-3">{{ item.icon }}</div>
-            <div>
-              <h5 class="card-title mb-1">{{ item.title }}</h5>
-              <p class="card-text text-muted small mb-0">{{ item.desc }}</p>
-            </div>
+  <div class="px-4 py-6 max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Panel de Administración y Supervisión</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        v-for="item in itemsVisibles"
+        :key="item.path"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all"
+        @click="router.push(item.path)"
+      >
+        <div class="flex items-center gap-4">
+          <div class="text-4xl shrink-0">{{ item.icon }}</div>
+          <div class="min-w-0">
+            <h5 class="text-base font-semibold text-gray-900 dark:text-white mb-0.5">{{ item.title }}</h5>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-0">{{ item.desc }}</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.admin-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-}
-.admin-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
-}
-</style>
