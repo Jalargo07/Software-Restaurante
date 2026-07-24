@@ -1,6 +1,6 @@
-# 🍽️ Restaurant Manager
+# 🍽️ Restaurant Manager — BiteOps
 
-Sistema de gestión integral para restaurantes con control de inventario, compras, ventas, administración de mesas, comandas de cocina, recetas para productos compuestos (con merma e insumos), caja, auditoría, subida de imágenes con MinIO y autenticación JWT con roles. Soporta **dos modos de venta**: venta directa (mostrador) y venta por mesa.
+Sistema de gestión integral para restaurantes con control de inventario, compras, ventas, administración de mesas, comandas de cocina, recetas para productos compuestos (con merma e insumos), caja, auditoría, subida de imágenes con S3/MinIO, autenticación JWT con roles y **arquitectura multi-tenant** para SaaS. Soporta **dos modos de venta**: venta directa (mostrador) y venta por mesa.
 
 ---
 
@@ -17,16 +17,19 @@ Sistema de gestión integral para restaurantes con control de inventario, compra
   <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.io" />
+  <img src="https://img.shields.io/badge/AWS%20SDK-FF9900?style=for-the-badge&logo=amazonwebservices&logoColor=white" alt="AWS SDK" />
   <img src="https://img.shields.io/badge/MinIO-C72C30?style=for-the-badge&logo=minio&logoColor=white" alt="MinIO" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
   <img src="https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest" />
+  <img src="https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
 </p>
 
 | Capa | Tecnologías |
 |------|-------------|
-| **Frontend** | Vue 3.5 (Composition API) + TypeScript + Vite + Pinia + Bootstrap 5.3 + Vue Router + Axios + Chart.js + Socket.IO Client |
-| **Backend** | Node.js 18+ + Express 5 + Sequelize 6 + SQLite / PostgreSQL + JWT + bcryptjs + Socket.IO + Multer + AWS SDK v3 / MinIO |
-| **Testing & DevOps** | Vitest + Supertest + Docker & Docker Compose + Nginx |
+| **Frontend** | Vue 3.5 (Composition API) + TypeScript + Vite + Pinia + Bootstrap 5.3 + Vue Router + Axios + Chart.js + Socket.IO Client + PWA (Workbox) |
+| **Backend** | Node.js 18+ + Express 5 + Sequelize 6 + SQLite / PostgreSQL + JWT + bcryptjs + Socket.IO + Multer + AWS SDK v3 (S3/MinIO) |
+| **Multi-tenant** | Modelo Tenant + tenant_id en 12 tablas + middleware tenantContext + scoping automático en controllers |
+| **Testing & DevOps** | Vitest + Supertest (47 tests, 7 suites) + Docker & Docker Compose + Nginx |
 
 ---
 
@@ -65,7 +68,7 @@ npm run dev   # Inicia Vite en http://localhost:5173
 
 ## 🐳 Ejecución con Docker
 
-Para levantar todo el ecosistema (Backend, Frontend con Nginx y MinIO) con un solo comando:
+Para levantar todo el ecosistema (Backend, Frontend con Nginx y PostgreSQL) con un solo comando:
 
 ```bash
 docker compose up --build -d
@@ -73,7 +76,7 @@ docker compose up --build -d
 
 - **Frontend:** `http://localhost`
 - **Backend API:** `http://localhost:3000/api`
-- **MinIO Console:** `http://localhost:9001`
+- **MinIO Console:** `http://localhost:9001` (requiere MinIO externo o docker-compose con MinIO)
 
 ---
 
@@ -87,7 +90,7 @@ docker compose up --build -d
 
 ## 🧪 Pruebas Automatizadas
 
-El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (30 tests distribuidos en 5 suites: auth, productos, ventas, compras y recetas).
+El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (47 tests distribuidos en 7 suites: auth, productos, ventas, compras, recetas, tenant y tenantScope).
 
 ```bash
 cd back
@@ -99,17 +102,22 @@ npm run test:watch  # Ejecuta en modo watch
 
 ## 🌟 Características Principales
 
+- **Multi-tenant (SaaS):** Arquitectura completa con Modelo Tenant, tenant_id en 12 tablas, middleware de contexto y scoping automático en todos los controllers.
 - **Gestión de Roles & Permisos:** Admin, Mesero, Cajero, Cocinero con control estricto en rutas y vistas.
-- **Inventario Avanzado:** Tipos de producto (`insumo`, `compuesto`, `directo`), gestión de stock mínimo y fotos con MinIO.
+- **Inventario Avanzado:** Tipos de producto (`insumo`, `compuesto`, `directo`), gestión de stock mínimo y fotos con S3/MinIO.
 - **Recetas e Ingredientes:** Productos compuestos con descuento automático de insumos en inventario y cálculo de merma.
 - **Comandas en Tiempo Real:** Notificaciones instantáneas a cocina mediante WebSockets (Socket.IO).
 - **Caja / Corte de Caja:** Resumen por método de pago (efectivo, tarjeta, transferencia), cierre de caja e historial.
-- **Auditoría y Reportes:** Registro automático de acciones (crear, editar, eliminar, cobrar, recibir) con filtros, paginación y exportación a Excel (`.xlsx`).
+- **Split Bill:** División de cuentas en partes iguales o montos personalizados con pagos mixtos.
+- **Auditoría y Reportes:** Registro automático de acciones con filtros, paginación y exportación a Excel (`.xlsx`).
 - **Dashboard Estadístico:** 8 tarjetas de estadísticas y gráficos interactivos con Chart.js.
+- **PWA:** Progressive Web App con service worker (Workbox) y manifest para instalación offline.
+- **Paginación:** Server-side en Ventas, Compras y Proveedores con UI de navegación.
+- **Imágenes S3:** Upload/eliminar imágenes de productos con namespacing por tenant (Soporta MinIO, Cloudflare R2, Supabase Storage).
 
 ---
 
-## 📊 Sprints Completados
+## 📊 Sprints
 
 | Sprint | Estado | Descripción |
 |--------|--------|-------------|
@@ -117,6 +125,7 @@ npm run test:watch  # Ejecuta en modo watch
 | **Sprint 2** | ✅ Completado | Recepción/edición de compras, Dashboard con reportes y gráficos |
 | **Sprint 3** | ✅ Completado | Gestión frontend de usuarios y sistema de comandas/cocina en tiempo real |
 | **Sprint 4** | ✅ Completado | Exportación a Excel, historial de compras por proveedor y logs de auditoría |
-| **Sprint 5** | ✅ Completado | Recetas de productos compuestos, roles en frontend, WebSockets, caja y Docker |
-| **Sprint 6** | ✅ Completado | PWA, Split Bill, Paginación, PostgreSQL, S3 desacoplado |
-| **Sprint 7** | 🔄 En curso | Arquitectura Multi-tenant (Modelo Tenant, tenant_id, middleware, scoping controllers) |
+| **Sprint 5** | ✅ Completado | Recetas, roles frontend, WebSockets, caja, Docker, S3, TypeScript, tests |
+| **Sprint 6** | ✅ Completado | PWA, Split Bill, Paginación, PostgreSQL, S3 desacoplado para Cloud |
+| **Sprint 7** | ✅ Completado | Arquitectura Multi-tenant (Modelo Tenant, middleware, scoping controllers) |
+| **Sprint 8** | 🔄 En curso | Identidad y Branding Dinámico (White-label, logo, colores, slug) |
