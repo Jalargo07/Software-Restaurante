@@ -1,10 +1,10 @@
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
-const { Tenant, TenantConfig, Producto, Proveedor, Mesa, Receta, DetalleReceta, Usuario } = require('../models');
+const { Tenant, TenantConfig, Producto, Proveedor, Mesa, DetalleReceta, Usuario } = require('../models');
 
 async function seed() {
   console.log('🔄 Sincronizando modelos...');
-  await sequelize.sync();
+  await sequelize.sync({ alter: true });
 
   console.log('🏢 Creando tenant por defecto...');
   const [tenant] = await Tenant.findOrCreate({
@@ -81,35 +81,25 @@ async function seed() {
     const queso = insumos.find(p => p.nombre === 'Queso cheddar');
     const papas = insumos.find(p => p.nombre === 'Papas fritas congeladas');
 
-    console.log('📖 Creando recetas...');
-    const receta1 = await Receta.create({ nombre: 'Receta Hamburguesa Clásica', porciones: 1, productoId: compuestos[0].id, tenant_id: tenant.id });
+    console.log('📖 Creando detalles de recetas (productos compuestos)...');
     await DetalleReceta.bulkCreate([
-      { cantidad: 1, unidad: 'unidad', merma: 2, recetaId: receta1.id, insumoId: pan.id, tenant_id: tenant.id },
-      { cantidad: 0.2, unidad: 'kg', merma: 10, recetaId: receta1.id, insumoId: carne.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta1.id, insumoId: lechuga.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta1.id, insumoId: tomate.id, tenant_id: tenant.id },
-      { cantidad: 0.03, unidad: 'kg', merma: 3, recetaId: receta1.id, insumoId: queso.id, tenant_id: tenant.id }
-    ]);
+      { cantidad: 1, unidad: 'unidad', merma: 2, productoId: compuestos[0].id, insumoId: pan.id, tenant_id: tenant.id },
+      { cantidad: 0.2, unidad: 'kg', merma: 10, productoId: compuestos[0].id, insumoId: carne.id, tenant_id: tenant.id },
+      { cantidad: 0.05, unidad: 'kg', merma: 5, productoId: compuestos[0].id, insumoId: lechuga.id, tenant_id: tenant.id },
+      { cantidad: 0.05, unidad: 'kg', merma: 5, productoId: compuestos[0].id, insumoId: tomate.id, tenant_id: tenant.id },
+      { cantidad: 0.03, unidad: 'kg', merma: 3, productoId: compuestos[0].id, insumoId: queso.id, tenant_id: tenant.id },
 
-    const receta2 = await Receta.create({ nombre: 'Receta Hamburguesa Especial', porciones: 1, productoId: compuestos[1].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 1, unidad: 'unidad', merma: 2, recetaId: receta2.id, insumoId: pan.id, tenant_id: tenant.id },
-      { cantidad: 0.3, unidad: 'kg', merma: 10, recetaId: receta2.id, insumoId: carne.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta2.id, insumoId: lechuga.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta2.id, insumoId: tomate.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 3, recetaId: receta2.id, insumoId: queso.id, tenant_id: tenant.id }
-    ]);
+      { cantidad: 1, unidad: 'unidad', merma: 2, productoId: compuestos[1].id, insumoId: pan.id, tenant_id: tenant.id },
+      { cantidad: 0.3, unidad: 'kg', merma: 10, productoId: compuestos[1].id, insumoId: carne.id, tenant_id: tenant.id },
+      { cantidad: 0.05, unidad: 'kg', merma: 5, productoId: compuestos[1].id, insumoId: lechuga.id, tenant_id: tenant.id },
+      { cantidad: 0.05, unidad: 'kg', merma: 5, productoId: compuestos[1].id, insumoId: tomate.id, tenant_id: tenant.id },
+      { cantidad: 0.05, unidad: 'kg', merma: 3, productoId: compuestos[1].id, insumoId: queso.id, tenant_id: tenant.id },
 
-    const receta3 = await Receta.create({ nombre: 'Receta Papas con Cheddar', porciones: 1, productoId: compuestos[2].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 0.3, unidad: 'kg', merma: 5, recetaId: receta3.id, insumoId: papas.id, tenant_id: tenant.id },
-      { cantidad: 0.1, unidad: 'kg', merma: 3, recetaId: receta3.id, insumoId: queso.id, tenant_id: tenant.id }
-    ]);
+      { cantidad: 0.3, unidad: 'kg', merma: 5, productoId: compuestos[2].id, insumoId: papas.id, tenant_id: tenant.id },
+      { cantidad: 0.1, unidad: 'kg', merma: 3, productoId: compuestos[2].id, insumoId: queso.id, tenant_id: tenant.id },
 
-    const receta4 = await Receta.create({ nombre: 'Receta Ensalada Mixta', porciones: 1, productoId: compuestos[3].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 0.15, unidad: 'kg', merma: 5, recetaId: receta4.id, insumoId: lechuga.id, tenant_id: tenant.id },
-      { cantidad: 0.1, unidad: 'kg', merma: 5, recetaId: receta4.id, insumoId: tomate.id, tenant_id: tenant.id }
+      { cantidad: 0.15, unidad: 'kg', merma: 5, productoId: compuestos[3].id, insumoId: lechuga.id, tenant_id: tenant.id },
+      { cantidad: 0.1, unidad: 'kg', merma: 5, productoId: compuestos[3].id, insumoId: tomate.id, tenant_id: tenant.id }
     ]);
   }
 
@@ -134,49 +124,6 @@ async function seed() {
       { numero: 4, capacidad: 4, estado: 'disponible', tenant_id: tenant.id },
       { numero: 5, capacidad: 6, estado: 'disponible', tenant_id: tenant.id },
       { numero: 6, capacidad: 8, estado: 'disponible', tenant_id: tenant.id }
-    ]);
-  }
-
-  const recetaCount = await Receta.count();
-  if (recetaCount === 0) {
-    console.log('📖 Creando recetas...');
-    const compuestos = await Producto.findAll({ where: { tipo: 'compuesto', tenant_id: tenant.id } });
-    const insumos = await Producto.findAll({ where: { tipo: 'insumo', tenant_id: tenant.id } });
-    const pan = insumos.find(p => p.nombre === 'Pan de hamburguesa');
-    const carne = insumos.find(p => p.nombre === 'Carne molida');
-    const lechuga = insumos.find(p => p.nombre === 'Lechuga');
-    const tomate = insumos.find(p => p.nombre === 'Tomate');
-    const queso = insumos.find(p => p.nombre === 'Queso cheddar');
-    const papas = insumos.find(p => p.nombre === 'Papas fritas congeladas');
-
-    const receta1 = await Receta.create({ nombre: 'Receta Hamburguesa Clásica', porciones: 1, productoId: compuestos[0].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 1, unidad: 'unidad', merma: 2, recetaId: receta1.id, insumoId: pan.id, tenant_id: tenant.id },
-      { cantidad: 0.2, unidad: 'kg', merma: 10, recetaId: receta1.id, insumoId: carne.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta1.id, insumoId: lechuga.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta1.id, insumoId: tomate.id, tenant_id: tenant.id },
-      { cantidad: 0.03, unidad: 'kg', merma: 3, recetaId: receta1.id, insumoId: queso.id, tenant_id: tenant.id }
-    ]);
-
-    const receta2 = await Receta.create({ nombre: 'Receta Hamburguesa Especial', porciones: 1, productoId: compuestos[1].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 1, unidad: 'unidad', merma: 2, recetaId: receta2.id, insumoId: pan.id, tenant_id: tenant.id },
-      { cantidad: 0.3, unidad: 'kg', merma: 10, recetaId: receta2.id, insumoId: carne.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta2.id, insumoId: lechuga.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 5, recetaId: receta2.id, insumoId: tomate.id, tenant_id: tenant.id },
-      { cantidad: 0.05, unidad: 'kg', merma: 3, recetaId: receta2.id, insumoId: queso.id, tenant_id: tenant.id }
-    ]);
-
-    const receta3 = await Receta.create({ nombre: 'Receta Papas con Cheddar', porciones: 1, productoId: compuestos[2].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 0.3, unidad: 'kg', merma: 5, recetaId: receta3.id, insumoId: papas.id, tenant_id: tenant.id },
-      { cantidad: 0.1, unidad: 'kg', merma: 3, recetaId: receta3.id, insumoId: queso.id, tenant_id: tenant.id }
-    ]);
-
-    const receta4 = await Receta.create({ nombre: 'Receta Ensalada Mixta', porciones: 1, productoId: compuestos[3].id, tenant_id: tenant.id });
-    await DetalleReceta.bulkCreate([
-      { cantidad: 0.15, unidad: 'kg', merma: 5, recetaId: receta4.id, insumoId: lechuga.id, tenant_id: tenant.id },
-      { cantidad: 0.1, unidad: 'kg', merma: 5, recetaId: receta4.id, insumoId: tomate.id, tenant_id: tenant.id }
     ]);
   }
 

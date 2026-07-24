@@ -98,4 +98,40 @@ describe('Productos - CRUD', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('message');
   });
+
+  test('Crear producto compuesto con detallesReceta → 201', async () => {
+    const insumoRes = await request(app)
+      .post('/api/productos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        nombre: 'Queso test',
+        categoria: 'insumo',
+        precioCompra: 10,
+        precioVenta: 0,
+        stock: 100,
+        tipo: 'insumo',
+      });
+    const insumoId = insumoRes.body.id;
+
+    const res = await request(app)
+      .post('/api/productos')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        nombre: 'Pizza Test',
+        categoria: 'comida',
+        precioCompra: 0,
+        precioVenta: 500,
+        stock: 0,
+        tipo: 'compuesto',
+        detallesReceta: [
+          { insumoId, cantidad: 0.2, unidad: 'kg', merma: 5 }
+        ]
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.tipo).toBe('compuesto');
+    expect(res.body.detallesReceta).toBeDefined();
+    expect(res.body.detallesReceta.length).toBe(1);
+    expect(res.body.detallesReceta[0].insumoId).toBe(insumoId);
+  });
 });

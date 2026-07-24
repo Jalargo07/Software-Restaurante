@@ -22,12 +22,12 @@ const DetalleReceta = sequelize.define('DetalleReceta', {
       max: { args: [100], msg: 'La merma no puede superar 100' },
     },
   },
-  recetaId: { type: DataTypes.INTEGER, allowNull: false },
+  productoId: { type: DataTypes.INTEGER, allowNull: false },
   insumoId: { type: DataTypes.INTEGER, allowNull: false },
 }, {
   indexes: [
     { fields: ['tenant_id', 'id'] },
-    { fields: ['tenant_id', 'recetaId'] },
+    { fields: ['tenant_id', 'productoId'] },
     { fields: ['tenant_id', 'insumoId'] }
   ]
 });

@@ -46,6 +46,7 @@ export interface Producto {
   activo: boolean
   imagen: string | null
   merma: number
+  detallesReceta?: DetalleReceta[]
 }
 
 export interface Proveedor {
@@ -111,18 +112,9 @@ export interface DetalleCompra {
   Producto?: Producto
 }
 
-export interface Receta {
-  id: number
-  nombre: string
-  porciones: number
-  productoId: number
-  Producto?: Producto
-  DetalleRecetas?: DetalleReceta[]
-}
-
 export interface DetalleReceta {
   id: number
-  recetaId: number
+  productoId: number
   insumoId: number
   cantidad: number
   unidad: DetalleRecetaUnidad
@@ -209,6 +201,7 @@ export interface ProductoCreatePayload {
   unidad?: ProductoUnidad
   tipo?: ProductoTipo
   imagen?: string
+  detallesReceta?: DetalleRecetaPayload[]
 }
 
 export interface ProductoUpdatePayload {
@@ -223,6 +216,7 @@ export interface ProductoUpdatePayload {
   tipo?: ProductoTipo
   imagen?: string
   activo?: boolean
+  detallesReceta?: DetalleRecetaPayload[]
 }
 
 export interface ProveedorCreatePayload {
@@ -292,19 +286,6 @@ export interface DetalleRecetaPayload {
   cantidad: number
   unidad?: DetalleRecetaUnidad
   merma?: number
-}
-
-export interface RecetaCreatePayload {
-  nombre: string
-  porciones?: number
-  productoId: number
-  detalles: DetalleRecetaPayload[]
-}
-
-export interface RecetaUpdatePayload {
-  nombre?: string
-  porciones?: number
-  detalles?: DetalleRecetaPayload[]
 }
 
 export interface UsuarioCreatePayload {

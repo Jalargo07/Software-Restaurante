@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useProductoStore } from '../../stores/productos'
-import { useRecetaStore } from '../../stores/recetas'
 import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
 
@@ -16,7 +15,6 @@ const emit = defineEmits<{
 }>()
 
 const store = useProductoStore()
-const recetaStore = useRecetaStore()
 const toast = useToastStore()
 const guardando = ref(false)
 
@@ -36,7 +34,6 @@ const recetaForm = ref({
 })
 
 const insumos = ref<any[]>([])
-const recetaExistenteId = ref<number | null>(null)
 const esNuevo = computed(() => !props.producto)
 
 const archivo = ref<File | null>(null)
@@ -51,23 +48,14 @@ watch(() => props.abierto, async (val) => {
       form.value = { ...props.producto }
       previewUrl.value = props.producto.imagen || ''
       if (props.producto.tipo === 'compuesto') {
-        await recetaStore.fetchRecetas()
-        const receta = recetaStore.recetas.find((r: any) => r.productoId === props.producto!.id)
-        if (receta) {
-          recetaExistenteId.value = receta.id
-          recetaForm.value = {
-            porciones: receta.porciones,
-            detalles: (receta.DetalleRecetas || []).map((d: any) => ({
-              insumoId: d.insumoId,
-              cantidad: d.cantidad,
-            })),
-          }
-        } else {
-          recetaExistenteId.value = null
-          recetaForm.value = { porciones: 1, detalles: [] }
+        recetaForm.value = {
+          porciones: 1,
+          detalles: (props.producto.detallesReceta || []).map((d: any) => ({
+            insumoId: d.insumoId,
+            cantidad: Number(d.cantidad),
+          })),
         }
       } else {
-        recetaExistenteId.value = null
         recetaForm.value = { porciones: 1, detalles: [] }
       }
     } else {
@@ -76,7 +64,6 @@ watch(() => props.abierto, async (val) => {
         precioCompra: 0, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'unidad', merma: 0,
       }
       previewUrl.value = ''
-      recetaExistenteId.value = null
       recetaForm.value = { porciones: 1, detalles: [] }
     }
     archivo.value = null
@@ -133,14 +120,8 @@ async function guardar() {
     const payload: any = { ...form.value }
     if (imagenUrl) payload.imagen = imagenUrl
 
-    let productoGuardado: any
-    if (props.producto) {
-      productoGuardado = await store.updateProducto(props.producto.id, payload)
-    } else {
-      productoGuardado = await store.createProducto({ ...payload, stock: 0 })
-    }
-    if (form.value.tipo === 'compuesto' && recetaForm.value.detalles.length > 0) {
-      const detalles = recetaForm.value.detalles
+    if (form.value.tipo === 'compuesto') {
+      payload.detallesReceta = recetaForm.value.detalles
         .filter((d) => d.insumoId !== null)
         .map((d) => {
           const insumo = insumos.value.find((i) => i.id === d.insumoId)
@@ -150,22 +131,16 @@ async function guardar() {
             unidad: insumo?.unidad || 'unidad',
           }
         })
-      const nombreReceta = `Receta ${form.value.nombre}`
-      if (recetaExistenteId.value) {
-        await recetaStore.updateReceta(recetaExistenteId.value, {
-          porciones: recetaForm.value.porciones,
-          nombre: nombreReceta,
-          detalles,
-        })
-      } else {
-        await recetaStore.createReceta({
-          nombre: nombreReceta,
-          porciones: recetaForm.value.porciones,
-          productoId: productoGuardado.id,
-          detalles,
-        })
-      }
+    } else {
+      payload.detallesReceta = []
     }
+
+    if (props.producto) {
+      await store.updateProducto(props.producto.id, payload)
+    } else {
+      await store.createProducto({ ...payload, stock: 0 })
+    }
+
     toast.success(props.producto ? 'Producto actualizado' : 'Producto creado')
     emit('guardado')
     emit('cerrar')

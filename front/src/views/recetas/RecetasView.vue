@@ -1,38 +1,45 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRecetaStore } from '../../stores/recetas'
+import { computed, onMounted, ref } from 'vue'
+import { useProductoStore } from '../../stores/productos'
 import { useToastStore } from '../../stores/toast'
 import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
-import RecetaFormModal from '../../components/recetas/RecetaFormModal.vue'
+import ProductoFormModal from '../../components/productos/ProductoFormModal.vue'
+import type { Producto } from '../../types'
 
-const recetaStore = useRecetaStore()
+const productoStore = useProductoStore()
 const toast = useToastStore()
 const { canCreate, canEdit, canDelete } = useRoles()
+
 const modalAbierto = ref(false)
-const editando = ref<any>(null)
+const productoEditando = ref<Producto | undefined>(undefined)
 
 onMounted(() => {
-  recetaStore.fetchRecetas()
+  productoStore.fetchProductos()
 })
 
-function abrirModal(receta?: any) {
-  editando.value = receta ?? null
+const productosCompuestos = computed(() =>
+  productoStore.productos.filter((p) => p.tipo === 'compuesto')
+)
+
+function abrirModal(producto?: Producto) {
+  productoEditando.value = producto
   modalAbierto.value = true
 }
 
 function cerrarModal() {
   modalAbierto.value = false
-  editando.value = null
+  productoEditando.value = undefined
 }
 
 async function eliminar(id: number) {
-  if (confirm('Eliminar esta receta?')) {
+  if (confirm('¿Desactivar este producto compuesto?')) {
     try {
-      await recetaStore.deleteReceta(id)
-      toast.success('Receta eliminada')
+      await productoStore.desactivarProducto(id)
+      toast.success('Producto compuesto desactivado')
+      await productoStore.fetchProductos()
     } catch {
-      toast.error('Error al eliminar receta')
+      toast.error('Error al desactivar producto')
     }
   }
 }
@@ -40,53 +47,59 @@ async function eliminar(id: number) {
 
 <template>
   <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2>Recetas</h2>
-      <button v-if="canCreate" class="btn btn-primary" @click="abrirModal()">+ Nueva Receta</button>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Recetas (Productos Compuestos)</h2>
+      <button v-if="canCreate" class="btn btn-primary" @click="abrirModal()">+ Nuevo Producto Compuesto</button>
     </div>
 
-    <div v-if="recetaStore.loading" class="text-center mt-4">
+    <div v-if="productoStore.loading" class="text-center mt-4">
       <span class="spinner-border text-primary"></span>
     </div>
 
-    <table v-else class="table table-striped mt-3">
+    <table v-else-if="productosCompuestos.length > 0" class="table table-striped align-middle">
       <thead>
         <tr>
+          <th>Imagen</th>
           <th>Producto Compuesto</th>
-          <th>Nombre Receta</th>
-          <th>Porciones</th>
-          <th>Ingredientes</th>
-          <th></th>
+          <th>Categoría</th>
+          <th>Precio Venta</th>
+          <th>Ingredientes (Receta)</th>
+          <th class="text-end">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="r in recetaStore.recetas" :key="r.id">
-          <td>{{ r.Producto?.nombre ?? '-' }}</td>
-          <td>{{ r.nombre }}</td>
-          <td>{{ r.porciones }}</td>
+        <tr v-for="p in productosCompuestos" :key="p.id">
           <td>
-            <ul class="mb-0 ps-3">
-              <li v-for="d in r.DetalleRecetas" :key="d.id">
-                {{ d.insumo?.nombre ?? 'Insumo #' + d.insumoId }}
+            <img v-if="p.imagen" :src="p.imagen" alt="" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
+            <span v-else class="text-muted">—</span>
+          </td>
+          <td class="fw-bold">{{ p.nombre }}</td>
+          <td class="text-capitalize">{{ p.categoria }}</td>
+          <td>${{ Number(p.precioVenta).toFixed(2) }}</td>
+          <td>
+            <ul v-if="p.detallesReceta && p.detallesReceta.length > 0" class="mb-0 ps-3 small">
+              <li v-for="d in p.detallesReceta" :key="d.id">
+                {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
                 — {{ d.cantidad }} {{ d.unidad }}
-                <span v-if="d.insumo?.merma > 0" class="text-muted">(merma {{ d.insumo.merma }}%)</span>
+                <span v-if="d.merma > 0" class="text-muted">(merma {{ d.merma }}%)</span>
               </li>
             </ul>
+            <span v-else class="text-muted small">Sin ingredientes</span>
           </td>
-          <td>
-            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(r)">Editar</button>
-            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="eliminar(r.id)">X</button>
+          <td class="text-end">
+            <button v-if="canEdit" class="btn btn-sm btn-outline-primary me-1" @click="abrirModal(p)">Editar</button>
+            <button v-if="canDelete" class="btn btn-sm btn-outline-danger" @click="eliminar(p.id)">X</button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div v-if="!recetaStore.loading && recetaStore.recetas.length === 0" class="text-center text-muted mt-4">
-      No hay recetas registradas
+    <div v-if="!productoStore.loading && productosCompuestos.length === 0" class="text-center text-muted mt-4">
+      No hay productos compuestos (recetas) registrados
     </div>
 
-    <ModalBase v-if="modalAbierto" id="recetaModal" :titulo="editando ? 'Editar Receta' : 'Nueva Receta'" @cerrar="cerrarModal">
-      <RecetaFormModal :receta="editando" :abierto="modalAbierto" @cerrar="cerrarModal" @guardado="recetaStore.fetchRecetas()" />
+    <ModalBase v-if="modalAbierto" id="productoModal" :titulo="productoEditando ? 'Editar Producto Compuesto' : 'Nuevo Producto Compuesto'" @cerrar="cerrarModal">
+      <ProductoFormModal :producto="productoEditando" :abierto="modalAbierto" @cerrar="cerrarModal" @guardado="productoStore.fetchProductos()" />
     </ModalBase>
   </div>
 </template>

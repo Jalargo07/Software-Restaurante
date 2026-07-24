@@ -25,7 +25,6 @@ app.use('/api/proveedores', require('./routes/proveedores'));
 app.use('/api/reportes', require('./routes/reportes'));
 app.use('/api/comandas', require('./routes/comandas'));
 app.use('/api/auditoria', require('./routes/auditoria'));
-app.use('/api/recetas', require('./routes/recetas'));
 app.use('/api/cortes', require('./routes/corteCaja'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/branding', require('./routes/branding'));

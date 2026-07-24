@@ -2,8 +2,9 @@
 import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 import { useBrandingStore } from './stores/branding'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import ToastContainer from './components/common/ToastContainer.vue'
+import Sidebar from './components/common/Sidebar.vue'
 
 const authStore = useAuthStore()
 const brandingStore = useBrandingStore()
@@ -11,6 +12,25 @@ const router = useRouter()
 const route = useRoute()
 
 const theme = ref(localStorage.getItem('theme') || 'light')
+const currentMode = ref<'produccion' | 'administracion'>('produccion')
+
+const adminRoutes = ['/', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding']
+
+const isAdministrationRoute = computed(() => {
+  return adminRoutes.includes(route.path) || adminRoutes.some(r => r !== '/' && route.path.startsWith(r))
+})
+
+watch(
+  () => route.path,
+  (path) => {
+    if (adminRoutes.includes(path) || adminRoutes.some(r => r !== '/' && path.startsWith(r))) {
+      currentMode.value = 'administracion'
+    } else {
+      currentMode.value = 'produccion'
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(async () => {
   document.documentElement.setAttribute('data-theme', theme.value)
@@ -30,7 +50,7 @@ onMounted(async () => {
       }
     }
   } catch {
-    // fallback: se mantienen los valores por defecto de :root
+    // fallback
   }
 })
 
@@ -65,26 +85,36 @@ function isActive(path: string) {
 </script>
 
 <template>
-  <div class="app-layout">
-    <header v-if="authStore.isAuthenticated && brandingStore.branding" class="app-header">
-      <img
-        v-if="brandingStore.branding.logo"
-        :src="brandingStore.branding.logo"
-        :alt="brandingStore.branding.nombreCompleto || 'Logo'"
-        class="header-logo"
-      />
-      <span v-if="brandingStore.branding.nombreCompleto" class="header-name">
-        {{ brandingStore.branding.nombreCompleto }}
-      </span>
-    </header>
+  <div class="app-layout" :class="{ 'with-sidebar': authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) }">
+    <Sidebar
+      v-if="authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute)"
+      v-model:currentMode="currentMode"
+      :theme="theme"
+      @toggle-theme="toggleTheme"
+      @logout="salir"
+    />
 
-    <main class="main-content">
-      <div class="content-container">
-        <RouterView />
-      </div>
-    </main>
+    <div class="app-main-wrapper">
+      <header v-if="authStore.isAuthenticated && brandingStore.branding" class="app-header">
+        <img
+          v-if="brandingStore.branding.logo"
+          :src="brandingStore.branding.logo"
+          :alt="brandingStore.branding.nombreCompleto || 'Logo'"
+          class="header-logo"
+        />
+        <span v-if="brandingStore.branding.nombreCompleto" class="header-name">
+          {{ brandingStore.branding.nombreCompleto }}
+        </span>
+      </header>
 
-    <nav v-if="authStore.isAuthenticated" class="bottom-nav">
+      <main class="main-content">
+        <div class="content-container">
+          <RouterView />
+        </div>
+      </main>
+    </div>
+
+    <nav v-if="authStore.isAuthenticated && !(currentMode === 'administracion' || isAdministrationRoute)" class="bottom-nav">
       <RouterLink
         v-for="item in navItems"
         :key="item.path"

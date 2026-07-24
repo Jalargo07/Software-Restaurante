@@ -1,4 +1,5 @@
-const { Producto, Receta, DetalleReceta } = require('../models');
+const { Producto, DetalleReceta } = require('../models');
+const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
 const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
@@ -18,13 +19,11 @@ const obtenerTodos = async (req, res) => {
     const productos = await Producto.findAll({
       where: scopedWhere,
       include: [{
-        model: Receta,
+        model: DetalleReceta,
+        as: 'detallesReceta',
         include: [{
-          model: DetalleReceta,
-          include: [{
-            model: Producto,
-            as: 'insumo',
-          }],
+          model: Producto,
+          as: 'insumo',
         }],
       }],
     });
@@ -38,13 +37,11 @@ const obtenerPorId = async (req, res) => {
   try {
     const producto = await Producto.findByPk(req.params.id, {
       include: [{
-        model: Receta,
+        model: DetalleReceta,
+        as: 'detallesReceta',
         include: [{
-          model: DetalleReceta,
-          include: [{
-            model: Producto,
-            as: 'insumo',
-          }],
+          model: Producto,
+          as: 'insumo',
         }],
       }],
     });
@@ -56,10 +53,25 @@ const obtenerPorId = async (req, res) => {
 };
 
 const crear = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const datos = withTenant(req.body, req.tenantId);
+    const { detallesReceta, ...productoDatos } = req.body;
+    const datos = withTenant(productoDatos, req.tenantId);
 
-    const producto = await Producto.create(datos);
+    const producto = await Producto.create(datos, { transaction: t });
+
+    if (producto.tipo === 'compuesto' && detallesReceta && Array.isArray(detallesReceta)) {
+      const detallesData = detallesReceta.map(d => withTenant({
+        productoId: producto.id,
+        insumoId: d.insumoId,
+        cantidad: d.cantidad,
+        unidad: d.unidad || 'unidad',
+        merma: d.merma || 0,
+      }, req.tenantId));
+      await DetalleReceta.bulkCreate(detallesData, { transaction: t });
+    }
+
+    await t.commit();
 
     await registrarAuditoria({
       req,
@@ -69,31 +81,58 @@ const crear = async (req, res) => {
       detalles: { nombre: producto.nombre, categoria: producto.categoria },
     });
 
-    res.status(201).json(producto);
+    const productoCompleto = await Producto.findByPk(producto.id, {
+      include: [{
+        model: DetalleReceta,
+        as: 'detallesReceta',
+        include: [{ model: Producto, as: 'insumo' }],
+      }],
+    });
+
+    res.status(201).json(productoCompleto);
 
     invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
+    await t.rollback();
     res.status(500).json({ error: 'Error al crear producto' });
   }
 };
 
 const actualizar = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const producto = await Producto.findByPk(req.params.id);
-    if (!producto || !belongsToTenant(producto, req.tenantId)) return res.status(404).json({ error: 'Producto no encontrado' });
-
-    const datos = { ...req.body };
-
-    if (datos.tipo && datos.tipo !== producto.tipo) {
-      const receta = await require('../models').Receta.findOne({ where: { productoId: producto.id } });
-      if (receta) {
-        return res.status(400).json({
-          error: `No se puede cambiar el tipo de "${producto.nombre}" porque tiene una receta asociada. Eliminá la receta primero.`,
-        });
-      }
+    const producto = await Producto.findByPk(req.params.id, { transaction: t });
+    if (!producto || !belongsToTenant(producto, req.tenantId)) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Producto no encontrado' });
     }
 
-    await producto.update(datos);
+    const { detallesReceta, ...productoDatos } = req.body;
+    const datos = { ...productoDatos };
+
+    await producto.update(datos, { transaction: t });
+
+    if (producto.tipo === 'compuesto' && detallesReceta && Array.isArray(detallesReceta)) {
+      await DetalleReceta.destroy({
+        where: scopeTenant({ productoId: producto.id }, req.tenantId),
+        transaction: t,
+      });
+      const detallesData = detallesReceta.map(d => withTenant({
+        productoId: producto.id,
+        insumoId: d.insumoId,
+        cantidad: d.cantidad,
+        unidad: d.unidad || 'unidad',
+        merma: d.merma || 0,
+      }, req.tenantId));
+      await DetalleReceta.bulkCreate(detallesData, { transaction: t });
+    } else if (producto.tipo !== 'compuesto') {
+      await DetalleReceta.destroy({
+        where: scopeTenant({ productoId: producto.id }, req.tenantId),
+        transaction: t,
+      });
+    }
+
+    await t.commit();
 
     await registrarAuditoria({
       req,
@@ -103,10 +142,19 @@ const actualizar = async (req, res) => {
       detalles: { nombre: producto.nombre, cambios: Object.keys(datos) },
     });
 
-    res.json(producto);
+    const productoCompleto = await Producto.findByPk(producto.id, {
+      include: [{
+        model: DetalleReceta,
+        as: 'detallesReceta',
+        include: [{ model: Producto, as: 'insumo' }],
+      }],
+    });
+
+    res.json(productoCompleto);
 
     invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
+    await t.rollback();
     res.status(500).json({ error: 'Error al actualizar producto' });
   }
 };

@@ -1,4 +1,4 @@
-const { Venta, DetalleVenta, Producto, Mesa, Receta, DetalleReceta } = require('../models');
+const { Venta, DetalleVenta, Producto, Mesa, DetalleReceta } = require('../models');
 const sequelize = require('../config/database');
 const { Op } = require('sequelize');
 const { registrarAuditoria } = require('../utils/auditoria');
@@ -203,20 +203,15 @@ const cobrar = async (req, res) => {
         const producto = detalle.Producto;
 
         if (producto.tipo === 'compuesto') {
-          const receta = await Receta.findOne({
+          const ingredientes = await DetalleReceta.findAll({
             where: scopeTenant({ productoId: producto.id }, req.tenantId),
             transaction: t,
           });
 
-          if (!receta) {
+          if (!ingredientes || ingredientes.length === 0) {
             await t.rollback();
             return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
           }
-
-          const ingredientes = await DetalleReceta.findAll({
-            where: { recetaId: receta.id },
-            transaction: t,
-          });
 
           for (const ingrediente of ingredientes) {
             const insumo = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
@@ -333,20 +328,15 @@ const crearRapida = async (req, res) => {
       }, req.tenantId), { transaction: t });
 
       if (producto.tipo === 'compuesto') {
-        const receta = await Receta.findOne({
+        const ingredientes = await DetalleReceta.findAll({
           where: scopeTenant({ productoId: producto.id }, req.tenantId),
           transaction: t,
         });
 
-        if (!receta) {
+        if (!ingredientes || ingredientes.length === 0) {
           await t.rollback();
           return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
         }
-
-        const ingredientes = await DetalleReceta.findAll({
-          where: { recetaId: receta.id },
-          transaction: t,
-        });
 
         for (const ingrediente of ingredientes) {
           const insumo = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
