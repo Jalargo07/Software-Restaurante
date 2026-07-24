@@ -6,6 +6,10 @@ import { useToastStore } from '../stores/toast'
 import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
 import MesasChart from '../components/common/chart-Mesas.vue'
 import TopProductosChart from '../components/common/chart-TopProductos.vue'
+import PeriodoFilterButton from '../components/dashboard/PeriodoFilterButton.vue'
+import StatCard from '../components/dashboard/StatCard.vue'
+import MiniStatCard from '../components/dashboard/MiniStatCard.vue'
+import ChartHeader from '../components/dashboard/ChartHeader.vue'
 import {
   Coins,
   ShoppingBag,
@@ -140,41 +144,11 @@ async function exportarReporteExcel() {
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-4 p-3">
       <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-3">
         <div class="flex flex-wrap gap-2">
-          <button
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-            :class="reporteStore.filtroPeriodo === 'hoy' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
-            @click="cambiarPeriodo('hoy')"
-          >
-            <Calendar :size="14" /> Hoy
-          </button>
-          <button
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-            :class="reporteStore.filtroPeriodo === '7dias' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
-            @click="cambiarPeriodo('7dias')"
-          >
-            <Calendar :size="14" /> Últimos 7 días
-          </button>
-          <button
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-            :class="reporteStore.filtroPeriodo === '30dias' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
-            @click="cambiarPeriodo('30dias')"
-          >
-            <CalendarRange :size="14" /> Últimos 30 días
-          </button>
-          <button
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-            :class="reporteStore.filtroPeriodo === 'mes' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
-            @click="cambiarPeriodo('mes')"
-          >
-            <Calendar :size="14" /> Este Mes
-          </button>
-          <button
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-            :class="reporteStore.filtroPeriodo === 'personalizado' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
-            @click="reporteStore.filtroPeriodo = 'personalizado'"
-          >
-            <SlidersHorizontal :size="14" /> Personalizado
-          </button>
+          <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'hoy'" :icono="Calendar" texto="Hoy" @click="cambiarPeriodo('hoy')" />
+          <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === '7dias'" :icono="Calendar" texto="Últimos 7 días" @click="cambiarPeriodo('7dias')" />
+          <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === '30dias'" :icono="CalendarRange" texto="Últimos 30 días" @click="cambiarPeriodo('30dias')" />
+          <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'mes'" :icono="Calendar" texto="Este Mes" @click="cambiarPeriodo('mes')" />
+          <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'personalizado'" :icono="SlidersHorizontal" texto="Personalizado" @click="reporteStore.filtroPeriodo = 'personalizado'" />
         </div>
 
         <div v-if="reporteStore.filtroPeriodo === 'personalizado'" class="flex items-center gap-2 transition-all">
@@ -200,128 +174,47 @@ async function exportarReporteExcel() {
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-        <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <div class="p-4">
-            <div class="flex justify-between items-start mb-3">
-              <div class="p-3 bg-white/25 rounded-lg">
-                <Coins :size="24" class="text-white" />
-              </div>
-              <span class="bg-white/25 text-white text-xs px-2 py-1 rounded-full inline-flex items-center gap-1">
-                <ArrowUp :size="12" /> {{ reporteStore.ventasHoy.cantidad }} transacciones
-              </span>
-            </div>
-            <div class="text-white/70 text-xs font-semibold uppercase tracking-wider">Ventas Totales</div>
-            <div class="text-2xl font-extrabold text-white">${{ Number(reporteStore.ventasHoy.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}</div>
-          </div>
-          <div class="pt-0 pb-3 px-4 text-white/70 text-xs">
-            Período seleccionado
-          </div>
-        </div>
+        <StatCard variante="gradient" :badge="`${reporteStore.ventasHoy.cantidad} transacciones`" titulo="Ventas Totales" :valor="`$${Number(reporteStore.ventasHoy.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`" footer="Período seleccionado">
+          <template #icon><Coins :size="24" class="text-white" /></template>
+          <template #badge-icon><ArrowUp :size="12" /></template>
+        </StatCard>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <div class="p-4">
-            <div class="flex justify-between items-start mb-3">
-              <div class="p-3 rounded-lg" style="background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">
-                <ShoppingBag :size="24" />
-              </div>
-              <span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
-                {{ reporteStore.comprasMes.cantidad }} compras
-              </span>
-            </div>
-            <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Compras Insumos</div>
-            <div class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">${{ Number(reporteStore.comprasMes.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}</div>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs">
-            Gastos en inventario
-          </div>
-        </div>
+        <StatCard icon-color="purple" :badge="`${reporteStore.comprasMes.cantidad} compras`" titulo="Compras Insumos" :valor="`$${Number(reporteStore.comprasMes.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`" footer="Gastos en inventario">
+          <template #icon><ShoppingBag :size="24" /></template>
+        </StatCard>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <div class="p-4">
-            <div class="flex justify-between items-start mb-3">
-              <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400">
-                <Store :size="24" />
-              </div>
-              <span class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs px-2 py-1 rounded-full font-semibold">
-                {{ stats.mesasDisponibles }} libres
-              </span>
-            </div>
-            <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Mesas Ocupadas</div>
-            <div class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">{{ stats.mesasOcupadas }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">/ {{ stats.mesasDisponibles + stats.mesasOcupadas }}</span></div>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs">
-            Salón activo
-          </div>
-        </div>
+        <StatCard icon-color="blue" :badge="`${stats.mesasDisponibles} libres`" titulo="Mesas Ocupadas" footer="Salón activo">
+          <template #icon><Store :size="24" /></template>
+          <template #valor>{{ stats.mesasOcupadas }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">/ {{ stats.mesasDisponibles + stats.mesasOcupadas }}</span></template>
+        </StatCard>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <div class="p-4">
-            <div class="flex justify-between items-start mb-3">
-              <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400">
-                <FileText :size="24" />
-              </div>
-              <span class="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-xs px-2 py-1 rounded-full font-semibold">
-                En proceso
-              </span>
-            </div>
-            <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Pedidos Abiertos</div>
-            <div class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">{{ stats.pedidosActivos }}</div>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs">
-            Ventas en curso
-          </div>
-        </div>
+        <StatCard icon-color="amber" badge="En proceso" titulo="Pedidos Abiertos" :valor="String(stats.pedidosActivos)" footer="Ventas en curso">
+          <template #icon><FileText :size="24" /></template>
+        </StatCard>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <div class="flex items-center p-3">
-            <div class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 me-3">
-              <AlertTriangle :size="20" />
-            </div>
-            <div>
-              <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">Productos con Stock Bajo</div>
-              <div class="text-xl font-bold text-red-500 dark:text-red-400">{{ stats.productosBajoStock }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">items</span></div>
-            </div>
-          </div>
-        </div>
+        <MiniStatCard icon-color="red" titulo="Productos con Stock Bajo">
+          <template #icon><AlertTriangle :size="20" /></template>
+          <template #valor>{{ stats.productosBajoStock }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">items</span></template>
+        </MiniStatCard>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:col-span-1 md:col-span-1">
-          <div class="flex items-center p-3">
-            <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 me-3">
-              <Star :size="20" />
-            </div>
-            <div class="truncate">
-              <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">Producto Estrella</div>
-              <div class="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{{ reporteStore.productosMasVendidos[0]?.nombre || 'Sin datos' }}</div>
-            </div>
-          </div>
-        </div>
+        <MiniStatCard icon-color="blue" titulo="Producto Estrella" :valor="reporteStore.productosMasVendidos[0]?.nombre || 'Sin datos'" class="sm:col-span-1 md:col-span-1">
+          <template #icon><Star :size="20" /></template>
+        </MiniStatCard>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:col-span-2 md:col-span-2">
-          <div class="flex items-center p-3">
-            <div class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-500 dark:text-green-400 me-3">
-              <TrendingUp :size="20" />
-            </div>
-            <div>
-              <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">Ticket Promedio Estimado</div>
-              <div class="text-lg font-bold text-green-600 dark:text-green-400">
-                ${{ reporteStore.ventasHoy.cantidad > 0 ? (reporteStore.ventasHoy.total / reporteStore.ventasHoy.cantidad).toFixed(0) : 0 }}
-              </div>
-            </div>
-          </div>
-        </div>
+        <MiniStatCard icon-color="green" titulo="Ticket Promedio Estimado" class="sm:col-span-2 md:col-span-2">
+          <template #icon><TrendingUp :size="20" /></template>
+          <template #valor>${{ reporteStore.ventasHoy.cantidad > 0 ? (reporteStore.ventasHoy.total / reporteStore.ventasHoy.cantidad).toFixed(0) : 0 }}</template>
+        </MiniStatCard>
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full xl:col-span-2">
           <div class="pt-4 px-4 flex justify-between items-center">
-            <div>
-              <h5 class="font-bold mb-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <BarChart3 :size="18" class="text-blue-600 dark:text-blue-400" /> Evolución de Ventas
-              </h5>
-              <p class="text-gray-500 dark:text-gray-400 text-sm">Comportamiento financiero en el rango seleccionado</p>
-            </div>
+            <ChartHeader icon-color="blue" titulo="Evolución de Ventas" descripcion="Comportamiento financiero en el rango seleccionado">
+              <template #icon><BarChart3 :size="18" /></template>
+            </ChartHeader>
           </div>
           <div class="px-4 pb-4">
             <div class="h-[320px]">
@@ -332,10 +225,9 @@ async function exportarReporteExcel() {
 
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full">
           <div class="pt-4 px-4">
-            <h5 class="font-bold mb-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <PieChart :size="18" class="text-cyan-500 dark:text-cyan-400" /> Ocupación de Mesas
-            </h5>
-            <p class="text-gray-500 dark:text-gray-400 text-sm">Distribución actual del salón</p>
+            <ChartHeader icon-color="cyan" titulo="Ocupación de Mesas" descripcion="Distribución actual del salón">
+              <template #icon><PieChart :size="18" /></template>
+            </ChartHeader>
           </div>
           <div class="px-4 pb-4 flex flex-col justify-center items-center">
             <div class="h-[260px] w-full">
@@ -346,10 +238,9 @@ async function exportarReporteExcel() {
 
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm xl:col-span-3">
           <div class="pt-4 px-4">
-            <h5 class="font-bold mb-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <Trophy :size="18" class="text-amber-500 dark:text-amber-400" /> Productos Más Vendidos
-            </h5>
-            <p class="text-gray-500 dark:text-gray-400 text-sm">Ranking de platos y bebidas con mayor demanda</p>
+            <ChartHeader icon-color="amber" titulo="Productos Más Vendidos" descripcion="Ranking de platos y bebidas con mayor demanda">
+              <template #icon><Trophy :size="18" /></template>
+            </ChartHeader>
           </div>
           <div class="px-4 pb-4">
             <div class="h-[300px]">
