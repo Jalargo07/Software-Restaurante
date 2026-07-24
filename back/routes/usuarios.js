@@ -15,12 +15,12 @@ router.post('/login', async (req, res) => {
   if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' });
 
   const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+    { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id },
     process.env.JWT_SECRET,
     { expiresIn: '24h' }
   );
 
-  res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol } });
+  res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id } });
 });
 
 router.get('/', authenticateToken, authorizeRole('admin'), async (req, res) => {

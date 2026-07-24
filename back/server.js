@@ -11,6 +11,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+const tenantContext = require('./middleware/tenantContext');
+app.use('/api', tenantContext);
+
 // Routes
 app.use('/api/mesas', require('./routes/mesas'));
 app.use('/api/productos', require('./routes/productos'));
