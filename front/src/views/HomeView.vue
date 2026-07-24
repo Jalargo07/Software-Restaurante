@@ -6,6 +6,24 @@ import { useToastStore } from '../stores/toast'
 import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
 import MesasChart from '../components/common/chart-Mesas.vue'
 import TopProductosChart from '../components/common/chart-TopProductos.vue'
+import {
+  Coins,
+  ShoppingBag,
+  Store,
+  FileText,
+  AlertTriangle,
+  Star,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  Trophy,
+  Calendar,
+  CalendarRange,
+  SlidersHorizontal,
+  FileSpreadsheet,
+  Check,
+  ArrowUp,
+} from '@lucide/vue'
 
 const reporteStore = useReporteStore()
 const toast = useToastStore()
@@ -101,271 +119,241 @@ async function exportarReporteExcel() {
 </script>
 
 <template>
-  <div class="container py-4">
-    <!-- Header principal -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-3">
       <div>
-        <h1 class="h3 fw-bold mb-1 text-dark">Dashboard General</h1>
-        <p class="text-muted small mb-0">Resumen operativo y métricas financieras en tiempo real</p>
+        <h1 class="text-lg font-bold mb-1 text-gray-900 dark:text-gray-100">Dashboard General</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Resumen operativo y métricas financieras en tiempo real</p>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-success btn-sm px-3 shadow-sm" @click="exportarReporteExcel" :disabled="reporteStore.exportando">
-          <span v-if="reporteStore.exportando" class="spinner-border spinner-border-sm me-1"></span>
-          <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
+      <div class="flex items-center gap-2">
+        <button
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium border border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors shadow-sm disabled:opacity-50"
+          @click="exportarReporteExcel"
+          :disabled="reporteStore.exportando"
+        >
+          <svg v-if="reporteStore.exportando" class="animate-spin w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          <FileSpreadsheet :size="16" /> Exportar Excel
         </button>
       </div>
     </div>
 
-    <!-- Barra de Filtros Superior (Píldoras / Pestañas) -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
-      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-        <div class="d-flex flex-wrap gap-2">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-4 p-3">
+      <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-3">
+        <div class="flex flex-wrap gap-2">
           <button
-            class="btn btn-sm px-3 rounded-pill fw-medium transition-all"
-            :class="reporteStore.filtroPeriodo === 'hoy' ? 'btn-primary shadow-sm' : 'btn-light text-secondary'"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+            :class="reporteStore.filtroPeriodo === 'hoy' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             @click="cambiarPeriodo('hoy')"
           >
-            <i class="bi bi-calendar-day me-1"></i> Hoy
+            <Calendar :size="14" /> Hoy
           </button>
           <button
-            class="btn btn-sm px-3 rounded-pill fw-medium transition-all"
-            :class="reporteStore.filtroPeriodo === '7dias' ? 'btn-primary shadow-sm' : 'btn-light text-secondary'"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+            :class="reporteStore.filtroPeriodo === '7dias' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             @click="cambiarPeriodo('7dias')"
           >
-            <i class="bi bi-calendar-week me-1"></i> Últimos 7 días
+            <Calendar :size="14" /> Últimos 7 días
           </button>
           <button
-            class="btn btn-sm px-3 rounded-pill fw-medium transition-all"
-            :class="reporteStore.filtroPeriodo === '30dias' ? 'btn-primary shadow-sm' : 'btn-light text-secondary'"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+            :class="reporteStore.filtroPeriodo === '30dias' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             @click="cambiarPeriodo('30dias')"
           >
-            <i class="bi bi-calendar-range me-1"></i> Últimos 30 días
+            <CalendarRange :size="14" /> Últimos 30 días
           </button>
           <button
-            class="btn btn-sm px-3 rounded-pill fw-medium transition-all"
-            :class="reporteStore.filtroPeriodo === 'mes' ? 'btn-primary shadow-sm' : 'btn-light text-secondary'"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+            :class="reporteStore.filtroPeriodo === 'mes' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             @click="cambiarPeriodo('mes')"
           >
-            <i class="bi bi-calendar-month me-1"></i> Este Mes
+            <Calendar :size="14" /> Este Mes
           </button>
           <button
-            class="btn btn-sm px-3 rounded-pill fw-medium transition-all"
-            :class="reporteStore.filtroPeriodo === 'personalizado' ? 'btn-primary shadow-sm' : 'btn-light text-secondary'"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+            :class="reporteStore.filtroPeriodo === 'personalizado' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             @click="reporteStore.filtroPeriodo = 'personalizado'"
           >
-            <i class="bi bi-sliders me-1"></i> Personalizado
+            <SlidersHorizontal :size="14" /> Personalizado
           </button>
         </div>
 
-        <!-- Inputs de fecha para filtro personalizado -->
-        <div v-if="reporteStore.filtroPeriodo === 'personalizado'" class="d-flex align-items-center gap-2 animate-fade-in">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text bg-light text-muted">Desde</span>
-            <input type="date" class="form-control" v-model="reporteStore.fechaDesde" />
+        <div v-if="reporteStore.filtroPeriodo === 'personalizado'" class="flex items-center gap-2 transition-all">
+          <div class="flex">
+            <span class="inline-flex items-center px-2 py-1.5 text-sm rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-r-0 border-gray-300 dark:border-gray-600">Desde</span>
+            <input type="date" class="rounded-none rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="reporteStore.fechaDesde" />
           </div>
-          <div class="input-group input-group-sm">
-            <span class="input-group-text bg-light text-muted">Hasta</span>
-            <input type="date" class="form-control" v-model="reporteStore.fechaHasta" />
+          <div class="flex">
+            <span class="inline-flex items-center px-2 py-1.5 text-sm rounded-l-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-r-0 border-gray-300 dark:border-gray-600">Hasta</span>
+            <input type="date" class="rounded-none rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="reporteStore.fechaHasta" />
           </div>
-          <button class="btn btn-primary btn-sm px-3 text-nowrap shadow-sm" @click="aplicarFiltroPersonalizado">
-            <i class="bi bi-check2 me-1"></i> Aplicar
+          <button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap" @click="aplicarFiltroPersonalizado">
+            <Check :size="14" /> Aplicar
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Loading state -->
     <div v-if="reporteStore.loading && stats.pedidosActivos === 0" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Cargando...</span>
-      </div>
-      <p class="text-muted mt-3 fw-medium">Actualizando métricas...</p>
+      <div class="animate-spin w-12 h-12 border-2 border-current border-t-transparent rounded-full text-blue-600 mx-auto"></div>
+      <p class="text-gray-500 dark:text-gray-400 mt-3 font-medium">Actualizando métricas...</p>
     </div>
 
-    <!-- Contenido Principal -->
     <template v-else>
-      <!-- Tarjetas de KPIs (Metrics Cards) - Fila 1 -->
-      <div class="row g-4 mb-4">
-        <!-- Ventas del Período -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-gradient-success text-white overflow-hidden position-relative">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="p-3 bg-white bg-opacity-25 rounded-3">
-                  <i class="bi bi-cash-coin fs-3"></i>
-                </div>
-                <span class="badge bg-white bg-opacity-25 text-white fw-normal px-2 py-1">
-                  <i class="bi bi-arrow-up-short"></i> {{ reporteStore.ventasHoy.cantidad }} transacciones
-                </span>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+        <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div class="p-4">
+            <div class="flex justify-between items-start mb-3">
+              <div class="p-3 bg-white/25 rounded-lg">
+                <Coins :size="24" class="text-white" />
               </div>
-              <div class="text-white-50 small fw-semibold text-uppercase tracking-wider">Ventas Totales</div>
-              <div class="fs-2 fw-extrabold mb-0">${{ Number(reporteStore.ventasHoy.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}</div>
+              <span class="bg-white/25 text-white text-xs px-2 py-1 rounded-full inline-flex items-center gap-1">
+                <ArrowUp :size="12" /> {{ reporteStore.ventasHoy.cantidad }} transacciones
+              </span>
             </div>
-            <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4 text-white-50 small">
-              Período seleccionado
-            </div>
+            <div class="text-white/70 text-xs font-semibold uppercase tracking-wider">Ventas Totales</div>
+            <div class="text-2xl font-extrabold text-white">${{ Number(reporteStore.ventasHoy.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}</div>
+          </div>
+          <div class="pt-0 pb-3 px-4 text-white/70 text-xs">
+            Período seleccionado
           </div>
         </div>
 
-        <!-- Compras del Período -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-white overflow-hidden position-relative">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="p-3 bg-purple bg-opacity-10 text-purple rounded-3" style="background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">
-                  <i class="bi bi-bag-check fs-3"></i>
-                </div>
-                <span class="badge bg-light text-secondary fw-normal px-2 py-1">
-                  {{ reporteStore.comprasMes.cantidad }} compras
-                </span>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div class="p-4">
+            <div class="flex justify-between items-start mb-3">
+              <div class="p-3 rounded-lg" style="background-color: rgba(111, 66, 193, 0.1); color: #6f42c1;">
+                <ShoppingBag :size="24" />
               </div>
-              <div class="text-muted small fw-semibold text-uppercase tracking-wider">Compras Insumos</div>
-              <div class="fs-2 fw-extrabold text-dark mb-0">${{ Number(reporteStore.comprasMes.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}</div>
+              <span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
+                {{ reporteStore.comprasMes.cantidad }} compras
+              </span>
             </div>
-            <div class="card-footer bg-light bg-opacity-50 border-0 py-2 px-4 text-muted small">
-              Gastos en inventario
-            </div>
+            <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Compras Insumos</div>
+            <div class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">${{ Number(reporteStore.comprasMes.total).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) }}</div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs">
+            Gastos en inventario
           </div>
         </div>
 
-        <!-- Estado de Mesas -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-white overflow-hidden position-relative">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="p-3 bg-info bg-opacity-10 text-info rounded-3">
-                  <i class="bi bi-shop fs-3"></i>
-                </div>
-                <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2 py-1">
-                  {{ stats.mesasDisponibles }} libres
-                </span>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div class="p-4">
+            <div class="flex justify-between items-start mb-3">
+              <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400">
+                <Store :size="24" />
               </div>
-              <div class="text-muted small fw-semibold text-uppercase tracking-wider">Mesas Ocupadas</div>
-              <div class="fs-2 fw-extrabold text-dark mb-0">{{ stats.mesasOcupadas }} <span class="fs-6 text-muted fw-normal">/ {{ stats.mesasDisponibles + stats.mesasOcupadas }}</span></div>
+              <span class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs px-2 py-1 rounded-full font-semibold">
+                {{ stats.mesasDisponibles }} libres
+              </span>
             </div>
-            <div class="card-footer bg-light bg-opacity-50 border-0 py-2 px-4 text-muted small">
-              Salón activo
-            </div>
+            <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Mesas Ocupadas</div>
+            <div class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">{{ stats.mesasOcupadas }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">/ {{ stats.mesasDisponibles + stats.mesasOcupadas }}</span></div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs">
+            Salón activo
           </div>
         </div>
 
-        <!-- Pedidos Activos -->
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-white overflow-hidden position-relative">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3">
-                  <i class="bi bi-receipt fs-3"></i>
-                </div>
-                <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-2 py-1">
-                  En proceso
-                </span>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div class="p-4">
+            <div class="flex justify-between items-start mb-3">
+              <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400">
+                <FileText :size="24" />
               </div>
-              <div class="text-muted small fw-semibold text-uppercase tracking-wider">Pedidos Abiertos</div>
-              <div class="fs-2 fw-extrabold text-dark mb-0">{{ stats.pedidosActivos }}</div>
+              <span class="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-xs px-2 py-1 rounded-full font-semibold">
+                En proceso
+              </span>
             </div>
-            <div class="card-footer bg-light bg-opacity-50 border-0 py-2 px-4 text-muted small">
-              Ventas en curso
-            </div>
+            <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Pedidos Abiertos</div>
+            <div class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">{{ stats.pedidosActivos }}</div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs">
+            Ventas en curso
           </div>
         </div>
       </div>
 
-      <!-- Tarjetas de KPIs Secundarios - Fila 2 -->
-      <div class="row g-4 mb-4">
-        <!-- Stock Bajo -->
-        <div class="col-12 col-sm-6 col-md-4">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-white">
-            <div class="card-body d-flex align-items-center p-3">
-              <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 me-3">
-                <i class="bi bi-exclamation-triangle fs-4"></i>
-              </div>
-              <div>
-                <div class="text-muted small fw-semibold">Productos con Stock Bajo</div>
-                <div class="fs-4 fw-bold text-danger mb-0">{{ stats.productosBajoStock }} <span class="fs-6 text-muted fw-normal">items</span></div>
-              </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div class="flex items-center p-3">
+            <div class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 me-3">
+              <AlertTriangle :size="20" />
+            </div>
+            <div>
+              <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">Productos con Stock Bajo</div>
+              <div class="text-xl font-bold text-red-500 dark:text-red-400">{{ stats.productosBajoStock }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">items</span></div>
             </div>
           </div>
         </div>
 
-        <!-- Top Producto -->
-        <div class="col-12 col-sm-6 col-md-4">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-white">
-            <div class="card-body d-flex align-items-center p-3">
-              <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
-                <i class="bi bi-star fs-4"></i>
-              </div>
-              <div class="text-truncate">
-                <div class="text-muted small fw-semibold">Producto Estrella</div>
-                <div class="fs-5 fw-bold text-dark text-truncate mb-0">{{ reporteStore.productosMasVendidos[0]?.nombre || 'Sin datos' }}</div>
-              </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:col-span-1 md:col-span-1">
+          <div class="flex items-center p-3">
+            <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400 me-3">
+              <Star :size="20" />
+            </div>
+            <div class="truncate">
+              <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">Producto Estrella</div>
+              <div class="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{{ reporteStore.productosMasVendidos[0]?.nombre || 'Sin datos' }}</div>
             </div>
           </div>
         </div>
 
-        <!-- Promedio / Tendencia -->
-        <div class="col-12 col-sm-12 col-md-4">
-          <div class="card metric-card border-0 rounded-4 shadow-sm h-100 bg-white">
-            <div class="card-body d-flex align-items-center p-3">
-              <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 me-3">
-                <i class="bi bi-graph-up-arrow fs-4"></i>
-              </div>
-              <div>
-                <div class="text-muted small fw-semibold">Ticket Promedio Estimado</div>
-                <div class="fs-5 fw-bold text-success mb-0">
-                  ${{ reporteStore.ventasHoy.cantidad > 0 ? (reporteStore.ventasHoy.total / reporteStore.ventasHoy.cantidad).toFixed(0) : 0 }}
-                </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:col-span-2 md:col-span-2">
+          <div class="flex items-center p-3">
+            <div class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-500 dark:text-green-400 me-3">
+              <TrendingUp :size="20" />
+            </div>
+            <div>
+              <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">Ticket Promedio Estimado</div>
+              <div class="text-lg font-bold text-green-600 dark:text-green-400">
+                ${{ reporteStore.ventasHoy.cantidad > 0 ? (reporteStore.ventasHoy.total / reporteStore.ventasHoy.cantidad).toFixed(0) : 0 }}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Gráficos Interactivos -->
-      <div class="row g-4">
-        <!-- Ventas por Día -->
-        <div class="col-12 col-xl-8">
-          <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
-            <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-bar-chart-line text-primary me-2"></i> Evolución de Ventas</h5>
-                <p class="text-muted small mb-0">Comportamiento financiero en el rango seleccionado</p>
-              </div>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full xl:col-span-2">
+          <div class="pt-4 px-4 flex justify-between items-center">
+            <div>
+              <h5 class="font-bold mb-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <BarChart3 :size="18" class="text-blue-600 dark:text-blue-400" /> Evolución de Ventas
+              </h5>
+              <p class="text-gray-500 dark:text-gray-400 text-sm">Comportamiento financiero en el rango seleccionado</p>
             </div>
-            <div class="card-body px-4 pb-4">
-              <div style="height: 320px;">
-                <VentasPorDiaChart :data="reporteStore.ventasPorDia" />
-              </div>
+          </div>
+          <div class="px-4 pb-4">
+            <div class="h-[320px]">
+              <VentasPorDiaChart :data="reporteStore.ventasPorDia" />
             </div>
           </div>
         </div>
 
-        <!-- Estado de Mesas (Donut) -->
-        <div class="col-12 col-xl-4">
-          <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
-            <div class="card-header bg-transparent border-0 pt-4 px-4">
-              <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-pie-chart text-info me-2"></i> Ocupación de Mesas</h5>
-              <p class="text-muted small mb-0">Distribución actual del salón</p>
-            </div>
-            <div class="card-body px-4 pb-4 d-flex flex-column justify-content-center align-items-center">
-              <div style="height: 260px; width: 100%;">
-                <MesasChart :disponibles="stats.mesasDisponibles" :ocupadas="stats.mesasOcupadas" />
-              </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full">
+          <div class="pt-4 px-4">
+            <h5 class="font-bold mb-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <PieChart :size="18" class="text-cyan-500 dark:text-cyan-400" /> Ocupación de Mesas
+            </h5>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Distribución actual del salón</p>
+          </div>
+          <div class="px-4 pb-4 flex flex-col justify-center items-center">
+            <div class="h-[260px] w-full">
+              <MesasChart :disponibles="stats.mesasDisponibles" :ocupadas="stats.mesasOcupadas" />
             </div>
           </div>
         </div>
 
-        <!-- Top Productos -->
-        <div class="col-12">
-          <div class="card border-0 shadow-sm rounded-4 bg-white">
-            <div class="card-header bg-transparent border-0 pt-4 px-4">
-              <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-trophy text-warning me-2"></i> Productos Más Vendidos</h5>
-              <p class="text-muted small mb-0">Ranking de platos y bebidas con mayor demanda</p>
-            </div>
-            <div class="card-body px-4 pb-4">
-              <div style="height: 300px;">
-                <TopProductosChart :data="reporteStore.productosMasVendidos" />
-              </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm xl:col-span-3">
+          <div class="pt-4 px-4">
+            <h5 class="font-bold mb-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Trophy :size="18" class="text-amber-500 dark:text-amber-400" /> Productos Más Vendidos
+            </h5>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Ranking de platos y bebidas con mayor demanda</p>
+          </div>
+          <div class="px-4 pb-4">
+            <div class="h-[300px]">
+              <TopProductosChart :data="reporteStore.productosMasVendidos" />
             </div>
           </div>
         </div>
@@ -373,42 +361,3 @@ async function exportarReporteExcel() {
     </template>
   </div>
 </template>
-
-<style scoped>
-.metric-card {
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.metric-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.08) !important;
-}
-
-.bg-gradient-success {
-  background: linear-gradient(135deg, #198754 0%, #157347 100%);
-}
-
-.fw-extrabold {
-  font-weight: 800;
-}
-
-.tracking-wider {
-  letter-spacing: 0.05em;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

@@ -21,8 +21,6 @@ watch(() => brandingStore.publicBranding, (val) => {
 
 function applyBranding(config: { colorPrimario: string; colorSecundario: string; colorAcento: string; fontPrincipal: string }) {
   const root = document.documentElement
-  root.style.setProperty('--bs-primary', config.colorPrimario)
-  root.style.setProperty('--bs-primary-rgb', hexToRgb(config.colorPrimario))
   root.style.setProperty('--color-branding-primario', config.colorPrimario)
   root.style.setProperty('--color-branding-secundario', config.colorSecundario)
   root.style.setProperty('--color-branding-acento', config.colorAcento)
@@ -30,14 +28,6 @@ function applyBranding(config: { colorPrimario: string; colorSecundario: string;
     root.style.setProperty('--font-branding', config.fontPrincipal)
     document.body.style.fontFamily = config.fontPrincipal
   }
-}
-
-function hexToRgb(hex: string): string {
-  const h = hex.replace('#', '')
-  const r = parseInt(h.substring(0, 2), 16)
-  const g = parseInt(h.substring(2, 4), 16)
-  const b = parseInt(h.substring(4, 6), 16)
-  return `${r}, ${g}, ${b}`
 }
 
 onMounted(() => {
