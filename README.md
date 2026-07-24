@@ -135,4 +135,5 @@ pnpm run test:watch  # Ejecuta en modo watch
 | **Sprint 5** | ✅ Completado | Recetas, roles frontend, WebSockets, caja, Docker, S3, TypeScript, tests |
 | **Sprint 6** | ✅ Completado | PWA, Split Bill, Paginación, PostgreSQL, S3 desacoplado para Cloud |
 | **Sprint 7** | ✅ Completado | Arquitectura Multi-tenant (Modelo Tenant, middleware, scoping controllers) |
-| **Sprint 8** | 🔄 En curso | Identidad y Branding Dinámico (White-label, logo, colores, slug) |
+| **Sprint 8** | ✅ Completado | Branding dinámico (White-label, logo, colores CSS Variables, login personalizado) |
+| **Sprint 9** | 🔄 En curso | Caché de Alto Rendimiento e Invalidación en Tiempo Real |
