@@ -157,7 +157,7 @@ function estadoColor(estado: string) {
       <MesaFormModal :mesa="editando" :abierto="modalAbierto" @cerrar="cerrarModal" @guardado="mesaStore.fetchMesas()" />
     </ModalBase>
 
-    <ModalBase v-if="ocupandoMesa" id="pedidoModal" titulo="Pedido - Mesa #{{ ocupandoMesa.numero }}" @cerrar="cerrarPedido">
+    <ModalBase v-if="ocupandoMesa" id="pedidoModal" :titulo="`Pedido - Mesa #${ocupandoMesa.numero}`" @cerrar="cerrarPedido">
       <div>
         <button type="button" class="btn btn-sm btn-outline-success mb-2" @click="mostrarSelector = !mostrarSelector">
           + Agregar Producto

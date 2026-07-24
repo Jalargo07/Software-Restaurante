@@ -98,7 +98,7 @@ async function subirImagen(): Promise<string | null> {
   const fd = new FormData()
   fd.append('imagen', archivo.value)
   const { data } = await api.post('/upload', fd, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': undefined },
   })
   return data.url
 }
@@ -114,17 +114,18 @@ function quitarIngrediente(index: number) {
 async function guardar() {
   guardando.value = true
   try {
+    let imagenUrl: string | null = null
+    if (archivo.value) {
+      imagenUrl = await subirImagen()
+    }
+    const payload: any = { ...form.value }
+    if (imagenUrl) payload.imagen = imagenUrl
+
     let productoGuardado: any
     if (props.producto) {
-      productoGuardado = await store.updateProducto(props.producto.id, form.value)
+      productoGuardado = await store.updateProducto(props.producto.id, payload)
     } else {
-      productoGuardado = await store.createProducto({ ...form.value, stock: 0 })
-    }
-    if (archivo.value) {
-      const url = await subirImagen()
-      if (url) {
-        await store.updateProducto(productoGuardado.id, { imagen: url })
-      }
+      productoGuardado = await store.createProducto({ ...payload, stock: 0 })
     }
     if (form.value.tipo === 'compuesto' && recetaForm.value.detalles.length > 0) {
       const detalles = recetaForm.value.detalles
@@ -208,11 +209,11 @@ async function guardar() {
     <div class="row mb-2">
       <div class="col">
         <label class="form-label">Precio Compra</label>
-        <input v-model.number="form.precioCompra" type="number" step="0.01" class="form-control" required min="0">
+        <input v-model.number="form.precioCompra" type="number" step="0.001" class="form-control" required min="0">
       </div>
       <div class="col">
         <label class="form-label">Precio Venta</label>
-        <input v-model.number="form.precioVenta" type="number" step="0.01" class="form-control" required min="0">
+        <input v-model.number="form.precioVenta" type="number" step="0.001" class="form-control" required min="0">
       </div>
     </div>
     <div class="row mb-2">
@@ -221,8 +222,8 @@ async function guardar() {
         <input v-model.number="form.stockMinimo" type="number" class="form-control" min="0">
       </div>
       <div v-if="!esNuevo" class="col">
-        <label class="form-label">Stock</label>
-        <input v-model.number="form.stock" type="number" class="form-control" min="0">
+        <label class="form-label">Stock (se gestiona con compras)</label>
+        <input :value="form.stock" type="number" class="form-control bg-light" readonly>
       </div>
       <div v-else class="col d-flex align-items-end">
         <span class="text-muted small">Stock: 0 (se actualiza con compras)</span>
@@ -231,7 +232,7 @@ async function guardar() {
 
     <div v-if="form.tipo === 'insumo'" class="mb-2">
       <label class="form-label">Merma %</label>
-      <input v-model.number="form.merma" type="number" step="0.01" min="0" max="100" class="form-control">
+      <input v-model.number="form.merma" type="number" step="0.001" min="0" max="100" class="form-control">
     </div>
 
     <div v-if="form.tipo === 'compuesto'" class="border rounded p-3 mt-2 mb-2">
@@ -256,7 +257,7 @@ async function guardar() {
           </select>
         </div>
         <div class="col-2">
-          <input v-model.number="d.cantidad" type="number" step="0.01" min="0.01" class="form-control form-control-sm" placeholder="Cant." required>
+          <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="form-control form-control-sm" placeholder="Cant." required>
         </div>
         <div class="col-2">
           <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>

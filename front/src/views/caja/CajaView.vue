@@ -15,12 +15,12 @@ const stats = computed(() => {
   const r = corteStore.resumen
   if (!r) return []
   return [
-    { label: 'Ventas totales', value: `$${r.ventasTotales ?? 0}`, color: 'primary' },
-    { label: 'Efectivo', value: `$${r.efectivo ?? 0}`, color: 'success' },
-    { label: 'Tarjeta', value: `$${r.tarjeta ?? 0}`, color: 'info' },
-    { label: 'Transferencia', value: `$${r.transferencia ?? 0}`, color: 'warning' },
-    { label: 'Canceladas', value: `$${r.canceladas ?? 0}`, color: 'danger' },
-    { label: '# Ventas', value: r.numeroVentas ?? 0, color: 'secondary' },
+    { label: 'Ventas totales', value: `$${r.totalGeneral ?? 0}`, color: 'primary' },
+    { label: 'Efectivo', value: `$${r.totalEfectivo ?? 0}`, color: 'success' },
+    { label: 'Tarjeta', value: `$${r.totalTarjeta ?? 0}`, color: 'info' },
+    { label: 'Transferencia', value: `$${r.totalTransferencia ?? 0}`, color: 'warning' },
+    { label: 'Canceladas', value: `$${r.montoCanceladas ?? 0}`, color: 'danger' },
+    { label: '# Ventas', value: r.cantidadVentas ?? 0, color: 'secondary' },
   ]
 })
 
@@ -99,12 +99,12 @@ async function cerrarCaja() {
           <tr v-for="c in corteStore.cortes" :key="c.id">
             <td>{{ c.id }}</td>
             <td>{{ c.fecha }}</td>
-            <td>${{ c.ventasTotales ?? 0 }}</td>
-            <td>${{ c.efectivo ?? 0 }}</td>
-            <td>${{ c.tarjeta ?? 0 }}</td>
-            <td>${{ c.transferencia ?? 0 }}</td>
-            <td>${{ c.canceladas ?? 0 }}</td>
-            <td>{{ c.numeroVentas ?? 0 }}</td>
+            <td>${{ c.totalGeneral ?? 0 }}</td>
+            <td>${{ c.totalEfectivo ?? 0 }}</td>
+            <td>${{ c.totalTarjeta ?? 0 }}</td>
+            <td>${{ c.totalTransferencia ?? 0 }}</td>
+            <td>${{ c.ventasCanceladas ?? 0 }}</td>
+            <td>{{ c.cantidadVentas ?? 0 }}</td>
           </tr>
         </tbody>
       </table>

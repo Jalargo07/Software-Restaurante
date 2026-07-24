@@ -25,12 +25,15 @@ onMounted(async () => {
     api.get('/ventas?estado=abierta'),
   ])
 
+  const mesasArr = mesas.data.data || mesas.data
+  const prodsArr = productos.data.data || productos.data
+
   stats.value = {
-    mesasDisponibles: mesas.data.filter((m: any) => m.estado === 'disponible').length,
-    mesasOcupadas: mesas.data.filter((m: any) => m.estado === 'ocupada').length,
-    productosBajoStock: productos.data.filter((p: any) => p.stock <= p.stockMinimo).length,
-    totalProductos: productos.data.length,
-    pedidosActivos: pedidos.data.length,
+    mesasDisponibles: mesasArr.filter((m: any) => m.estado === 'disponible').length,
+    mesasOcupadas: mesasArr.filter((m: any) => m.estado === 'ocupada').length,
+    productosBajoStock: prodsArr.filter((p: any) => p.stock <= p.stockMinimo).length,
+    totalProductos: prodsArr.length,
+    pedidosActivos: Number(pedidos.data.total) || 0,
   }
 
   reporteStore.fetchAll()

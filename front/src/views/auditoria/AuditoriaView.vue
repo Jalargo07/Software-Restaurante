@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useAuditoriaStore } from '../../stores/auditoria'
 import { useToastStore } from '../../stores/toast'
 import { useExcelExport } from '../../composables/useExcelExport'
+import JsonViewer from '../../components/common/JsonViewer.vue'
 
 const auditoriaStore = useAuditoriaStore()
 const toast = useToastStore()
@@ -131,7 +132,7 @@ async function exportarLogs() {
             <td><span :class="`badge ${badgeClass(log.accion)}`">{{ log.accion }}</span></td>
             <td>{{ log.entidad || '-' }}</td>
             <td>{{ log.entidadId || log.registroId || '-' }}</td>
-            <td class="small text-muted">{{ log.detalles || log.descripcion || '-' }}</td>
+            <td><JsonViewer :data="log.detalles || log.descripcion" /></td>
           </tr>
         </tbody>
       </table>

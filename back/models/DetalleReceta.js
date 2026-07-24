@@ -12,8 +12,8 @@ const DetalleReceta = sequelize.define('DetalleReceta', {
     }
   },
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  cantidad: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-  unidad: { type: DataTypes.ENUM('kg', 'g', 'litro', 'ml', 'unidad'), defaultValue: 'unidad' },
+  cantidad: { type: DataTypes.DECIMAL(8, 3), allowNull: false },
+  unidad: { type: DataTypes.ENUM('kg', 'g', 'litro', 'ml', 'unidad', 'docena'), defaultValue: 'unidad' },
   merma: {
     type: DataTypes.DECIMAL(5, 2),
     defaultValue: 0,

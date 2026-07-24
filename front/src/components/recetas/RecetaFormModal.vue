@@ -37,13 +37,14 @@ watch(() => props.abierto, async (val) => {
   if (val) {
     await cargarProductos()
     if (props.receta) {
+      const detalles = (props.receta.DetalleRecetas || props.receta.detalleRecetas || []).map((d: any) => ({
+        insumoId: d.insumoId,
+        cantidad: Number(d.cantidad),
+      }))
       form.value = {
-        porciones: props.receta.porciones,
+        porciones: props.receta.porciones || 1,
         productoId: props.receta.productoId,
-        detalles: (props.receta.DetalleRecetas || []).map((d: any) => ({
-          insumoId: d.insumoId,
-          cantidad: d.cantidad,
-        })),
+        detalles,
       }
     } else {
       form.value = {
@@ -53,7 +54,7 @@ watch(() => props.abierto, async (val) => {
       }
     }
   }
-})
+}, { immediate: true })
 
 async function cargarProductos() {
   try {
@@ -107,8 +108,9 @@ async function guardar() {
     }
     emit('guardado')
     emit('cerrar')
-  } catch {
-    toast.error('Error al guardar receta')
+  } catch (e: any) {
+    const msg = e?.response?.data?.error || 'Error al guardar receta'
+    toast.error(msg)
   } finally {
     guardando.value = false
   }
@@ -149,7 +151,7 @@ async function guardar() {
         </select>
       </div>
       <div class="col-2">
-        <input v-model.number="d.cantidad" type="number" step="0.01" min="0.01" class="form-control form-control-sm" placeholder="Cant." required>
+        <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="form-control form-control-sm" placeholder="Cant." required>
       </div>
       <div class="col-2">
         <span class="form-control form-control-sm text-muted bg-light">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>

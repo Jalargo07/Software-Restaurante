@@ -2,7 +2,7 @@
   --color-primario: #0d6efd;
   --color-secundario: #6c757d;
   --color-acento: #198754;
-  --font-principal: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-principal: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --primary: var(--color-primario);
   --primary-hover: color-mix(in srgb, var(--color-primario) 85%, black);
   --primary-light: color-mix(in srgb, var(--color-primario) 12%, transparent);
@@ -404,4 +404,17 @@ h5, h4, h3 {
   .app-header .header-name {
     font-size: 14px;
   }
+}
+
+[data-theme="dark"] .card-header {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .card-header.bg-transparent {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .text-dark {
+  color: var(--text) !important;
 }

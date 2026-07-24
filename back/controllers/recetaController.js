@@ -95,6 +95,7 @@ const crear = async (req, res) => {
 
     invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error al crear receta' });
   }
 };
@@ -112,6 +113,8 @@ const actualizar = async (req, res) => {
     if (productoId && productoId !== receta.productoId) {
       return res.status(400).json({ error: 'No se puede cambiar el producto asociado a la receta' });
     }
+
+    await receta.update({ nombre, porciones });
 
     if (detalles !== undefined) {
       if (!Array.isArray(detalles) || detalles.length === 0) {
@@ -137,11 +140,7 @@ const actualizar = async (req, res) => {
         if (insumo.tipo !== 'insumo') return res.status(400).json({ error: `El producto id ${d.insumoId} debe ser tipo insumo` });
         insumosMap.set(d.insumoId, insumo);
       }
-    }
 
-    await receta.update({ nombre, porciones });
-
-    if (detalles !== undefined) {
       await DetalleReceta.destroy({ where: scopeTenant({ recetaId: receta.id }, req.tenantId) });
 
       const detallesData = detalles.map((d) => ({
@@ -152,7 +151,7 @@ const actualizar = async (req, res) => {
         merma: insumosMap.get(d.insumoId).merma || 0,
         tenant_id: req.tenantId,
       }));
-    await DetalleReceta.bulkCreate(detallesData);
+      await DetalleReceta.bulkCreate(detallesData);
     }
 
     const recetaCompleta = await Receta.findByPk(receta.id, {
@@ -166,6 +165,7 @@ const actualizar = async (req, res) => {
 
     invalidarCache(req.tenantId, ['productos', 'reportes']);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error al actualizar receta' });
   }
 };

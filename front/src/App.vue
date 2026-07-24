@@ -16,7 +16,9 @@ onMounted(async () => {
   document.documentElement.setAttribute('data-theme', theme.value)
 
   try {
-    await brandingStore.fetchBranding()
+    if (authStore.isAuthenticated) {
+      await brandingStore.fetchBranding()
+    }
     const b = brandingStore.branding
     if (b) {
       document.documentElement.style.setProperty('--color-primario', b.colorPrimario)

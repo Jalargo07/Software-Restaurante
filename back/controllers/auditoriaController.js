@@ -5,7 +5,7 @@ const { scopeTenant } = require('../utils/tenantScope');
 const obtenerLogs = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 6;
     const offset = (page - 1) * limit;
 
     const where = {};

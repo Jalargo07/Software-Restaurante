@@ -21,7 +21,7 @@ export const useCorteStore = defineStore('cortes', {
     },
     async cerrarCaja(fecha?: string) {
       const params = fecha ? { fecha } : {}
-      const { data } = await api.post('/cortes/cerrar', null, { params })
+      const { data } = await api.post('/cortes/cerrar', {}, { params })
       this.resumen = data
       return data
     },

@@ -13,7 +13,7 @@ export const useRecetaStore = defineStore('recetas', {
       try {
         const { data } = await api.get('/recetas')
         this.recetas = data
-      } finally {
+      } catch {} finally {
         this.loading = false
       }
     },

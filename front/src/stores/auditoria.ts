@@ -17,7 +17,7 @@ export const useAuditoriaStore = defineStore('auditoria', {
       if (filtros) this.filtros = filtros
       this.loading = true
       try {
-        const params: Record<string, string | number> = { page: this.page, limit: 20 }
+        const params: Record<string, string | number> = { page: this.page, limit: 6 }
         if (this.filtros.usuario) params.usuario = this.filtros.usuario
         if (this.filtros.entidad) params.entidad = this.filtros.entidad
         if (this.filtros.desde) params.desde = this.filtros.desde

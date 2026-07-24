@@ -1,4 +1,5 @@
 const { PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+const sharp = require('sharp');
 const { s3Client, BUCKET } = require('../config/s3');
 const { withTenant } = require('../utils/tenantScope');
 
@@ -8,16 +9,18 @@ const subirImagen = async (req, res) => {
       return res.status(400).json({ error: 'No se proporcionó ningún archivo' });
     }
 
-    const ext = req.file.originalname.split('.').pop();
-    const filename = `${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
+    const webpBuffer = await sharp(req.file.buffer)
+      .webp({ quality: 85 })
+      .toBuffer();
 
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e6)}.webp`;
     const key = `${req.tenantId}/${filename}`;
 
     const uploadParams = {
       Bucket: BUCKET,
       Key: key,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
+      Body: webpBuffer,
+      ContentType: 'image/webp',
     };
 
     await s3Client.send(new PutObjectCommand(uploadParams));

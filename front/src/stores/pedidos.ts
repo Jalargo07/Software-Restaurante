@@ -13,7 +13,7 @@ export const usePedidoStore = defineStore('pedidos', {
       try {
         const params = estado ? { estado } : {}
         const { data } = await api.get('/ventas', { params })
-        this.pedidos = data
+        this.pedidos = data.data
       } finally {
         this.loading = false
       }
