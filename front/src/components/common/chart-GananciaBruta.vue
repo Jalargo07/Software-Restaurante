@@ -24,13 +24,19 @@ const   chartData = computed(() => ({
     {
       label: 'Costo ($)',
       data: props.data.map((item) => item.costo),
-      backgroundColor: '#ef4444', // Rojo (Abajo)
+      backgroundColor: '#ef4444',
+      stack: 'combined',
+    },
+    {
+      label: 'Ganancia ($)',
+      data: props.data.map((item) => item.ganancia),
+      backgroundColor: '#eab308',
       stack: 'combined',
     },
     {
       label: 'Ventas ($)',
       data: props.data.map((item) => item.ventas),
-      backgroundColor: '#22c55e', // Verde (Encima)
+      backgroundColor: '#22c55e',
       stack: 'combined',
     },
   ],

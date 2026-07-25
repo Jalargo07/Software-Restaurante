@@ -1,9 +1,9 @@
 import rateLimit from 'express-rate-limit';
 
-// Rate limit general: 100 requests por 15 minutos por IP
+// Rate limit general: 500 requests por 15 minutos por IP
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 500,
   message: { error: 'Demasiadas peticiones, intenta de nuevo en 15 minutos' },
   standardHeaders: true,
   legacyHeaders: false,

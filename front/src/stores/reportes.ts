@@ -47,11 +47,14 @@ export const useReporteStore = defineStore('reportes', {
         this.loading = false
       }
     },
-    async fetchGananciaBruta(params?: { fechaDesde?: string; fechaHasta?: string; dias?: number }) {
+    async fetchGananciaBruta(params?: { fechaDesde?: string; fechaHasta?: string; dias?: number; productoIds?: (string | number)[] }) {
       try {
         const queryParams = new URLSearchParams()
         if (params?.fechaDesde) queryParams.append('fechaDesde', params.fechaDesde)
         if (params?.fechaHasta) queryParams.append('fechaHasta', params.fechaHasta)
+        if (params?.productoIds && params.productoIds.length > 0) {
+          queryParams.append('productoIds', params.productoIds.join(','))
+        }
         const qs = queryParams.toString() ? `?${queryParams.toString()}` : ''
         const { data } = await api.get(`/reportes/ganancia-bruta${qs}`)
         this.gananciaBruta = data

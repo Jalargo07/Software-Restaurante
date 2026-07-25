@@ -145,10 +145,10 @@ onMounted(async () => {
   })
 })
 
-// Polling como fallback (cada 30 segundos)
+// Polling como fallback (cada 2 minutos)
 const intervalo = setInterval(() => {
   cargarDatos()
-}, 30000)
+}, 120000)
 
 onUnmounted(() => {
   socket.off('venta-cerrada')
