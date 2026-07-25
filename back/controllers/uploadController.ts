@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
-import { s3Client, BUCKET } from '../config/s3';
+import { s3Client, BUCKET, forcePathStyle } from '../config/s3';
 import path from 'path';
 
 // Tipos MIME permitidos
@@ -92,7 +92,9 @@ export const subirImagen = async (req: Request, res: Response) => {
     await s3Client.send(new PutObjectCommand(uploadParams));
 
     const publicUrl = process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || 'http://localhost:9000';
-    const url = `${publicUrl.replace(/\/$/, '')}/${BUCKET}/${key}`;
+    const url = forcePathStyle
+      ? `${publicUrl.replace(/\/$/, '')}/${BUCKET}/${key}`
+      : `${publicUrl.replace(/\/$/, '')}/${key}`;
 
     return res.status(201).json({ filename, key, url });
   } catch (error: any) {

@@ -127,14 +127,16 @@ async function guardar() {
         + Agregar Producto
       </button>
       <ProductoSelector v-if="mostrarSelector" @seleccionar="agregarProducto" />
-      <div v-for="(d, i) in detalles" :key="i" class="flex items-center gap-2 mb-1">
-        <span class="flex-1 text-sm text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
-        <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
-          @input="d.subtotal = d.cantidad * d.precioUnitario">
-        <input v-model.number="d.precioUnitario" type="number" step="0.01" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
-          @input="d.subtotal = d.cantidad * d.precioUnitario">
-        <span class="text-sm text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
-        <button type="button" class="inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarDetalle(i)">X</button>
+      <div class="max-h-[250px] overflow-y-auto">
+        <div v-for="(d, i) in detalles" :key="i" class="flex items-center gap-2 mb-1">
+          <span class="flex-1 text-sm text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
+          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
+            @input="d.subtotal = d.cantidad * d.precioUnitario">
+          <input v-model.number="d.precioUnitario" type="number" step="0.01" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
+            @input="d.subtotal = d.cantidad * d.precioUnitario">
+          <span class="text-sm text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
+          <button type="button" class="inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarDetalle(i)">X</button>
+        </div>
       </div>
     </div>
 

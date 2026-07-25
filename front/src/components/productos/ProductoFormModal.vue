@@ -237,24 +237,26 @@ async function guardar() {
           <input v-model.number="recetaForm.porciones" type="number" min="1" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
         </div>
       </div>
-      <div v-if="recetaForm.detalles.length === 0" class="text-gray-500 dark:text-gray-400 text-center mb-2 text-sm">
-        Sin ingredientes
-      </div>
-      <div v-for="(d, i) in recetaForm.detalles" :key="i" class="grid grid-cols-12 gap-1 mb-1 items-end">
-        <div class="col-span-4">
-          <select v-model="d.insumoId" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm" required>
-            <option :value="null" disabled>Insumo</option>
-            <option v-for="ins in insumos" :key="ins.id" :value="ins.id">{{ ins.nombre }}</option>
-          </select>
+      <div class="max-h-[300px] overflow-y-auto">
+        <div v-if="recetaForm.detalles.length === 0" class="text-gray-500 dark:text-gray-400 text-center mb-2 text-sm">
+          Sin ingredientes
         </div>
-        <div class="col-span-2">
-          <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Cant." required>
-        </div>
-        <div class="col-span-2">
-          <span class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 block">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
-        </div>
-        <div class="col-span-2 text-right">
-          <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="quitarIngrediente(i)">X</button>
+        <div v-for="(d, i) in recetaForm.detalles" :key="i" class="grid grid-cols-12 gap-1 mb-1 items-end">
+          <div class="col-span-4">
+            <select v-model="d.insumoId" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm" required>
+              <option :value="null" disabled>Insumo</option>
+              <option v-for="ins in insumos" :key="ins.id" :value="ins.id">{{ ins.nombre }}</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Cant." required>
+          </div>
+          <div class="col-span-2">
+            <span class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 block">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
+          </div>
+          <div class="col-span-2 text-right">
+            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="quitarIngrediente(i)">X</button>
+          </div>
         </div>
       </div>
     </div>
