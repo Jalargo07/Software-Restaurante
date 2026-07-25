@@ -149,7 +149,7 @@ async function handleLogin() {
               : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'"
           >
             <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-              <img v-if="tenant.logo" :src="tenant.logo" :alt="tenant.nombre" class="w-full h-full object-cover">
+              <img v-if="tenant.logo" :src="tenant.logo" :alt="tenant.nombre + ' logo'" loading="lazy" class="w-full h-full object-cover">
               <span v-else class="text-lg font-bold text-gray-400">{{ tenant.nombre.charAt(0) }}</span>
             </div>
             <div class="flex-1 min-w-0">

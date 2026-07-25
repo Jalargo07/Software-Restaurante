@@ -211,7 +211,8 @@ async function guardar() {
             <div v-if="logoPreview" class="mt-2 text-center">
               <img
                 :src="logoPreview"
-                alt="Logo preview"
+                alt="Vista previa del logo del restaurante"
+                loading="lazy"
                 class="rounded-lg max-w-[140px] max-h-[140px] object-contain mx-auto"
               >
             </div>
@@ -228,7 +229,8 @@ async function guardar() {
             <div v-if="bannerPreview" class="mt-2 text-center">
               <img
                 :src="bannerPreview"
-                alt="Banner preview"
+                alt="Vista previa del banner del restaurante"
+                loading="lazy"
                 class="rounded-lg w-full max-h-[120px] object-cover"
               >
             </div>

@@ -31,7 +31,7 @@ const legalLinks = [
         </div>
 
         <div>
-          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Producto</h4>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Producto</h3>
           <ul class="space-y-2">
             <li v-for="link in productLinks" :key="link.label">
               <a :href="link.href" class="text-sm hover:text-white transition-colors">{{ link.label }}</a>
@@ -40,7 +40,7 @@ const legalLinks = [
         </div>
 
         <div>
-          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Empresa</h4>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Empresa</h3>
           <ul class="space-y-2">
             <li v-for="link in companyLinks" :key="link.label">
               <a :href="link.href" class="text-sm hover:text-white transition-colors">{{ link.label }}</a>
@@ -49,7 +49,7 @@ const legalLinks = [
         </div>
 
         <div>
-          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Legal</h4>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Legal</h3>
           <ul class="space-y-2">
             <li v-for="link in legalLinks" :key="link.label">
               <a :href="link.href" class="text-sm hover:text-white transition-colors">{{ link.label }}</a>

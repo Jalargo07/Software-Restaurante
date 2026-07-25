@@ -158,7 +158,7 @@ async function guardar() {
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imagen</label>
       <input type="file" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" accept="image/*" @change="onFileChange">
       <div v-if="previewUrl" class="mt-2 text-center">
-        <img :src="previewUrl" alt="Preview" class="rounded-lg" style="max-width:120px;max-height:120px;object-fit:cover">
+        <img :src="previewUrl" alt="Vista previa del Producto" loading="lazy" class="rounded-lg" style="max-width:120px;max-height:120px;object-fit:cover">
       </div>
     </div>
     <div class="mb-2">

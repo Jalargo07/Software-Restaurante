@@ -79,7 +79,7 @@ async function eliminar(id: number) {
           <template v-for="p in productosCompuestos" :key="p.id">
             <tr class="cursor-pointer" @click="toggleExpand(p.id)">
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                <img v-if="p.imagen" :src="p.imagen" alt="" class="rounded-lg" style="width: 40px; height: 40px; object-fit: cover;">
+                <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" loading="lazy" class="rounded-lg" style="width: 40px; height: 40px; object-fit: cover;">
                 <span v-else class="text-gray-500 dark:text-gray-400">—</span>
               </td>
               <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">{{ p.nombre }}</td>

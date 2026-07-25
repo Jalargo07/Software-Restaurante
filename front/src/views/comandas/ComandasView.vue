@@ -136,7 +136,7 @@ async function avanzarEstado(detalle: DetalleVenta) {
                 class="flex items-center justify-between px-4 py-3">
                 <div class="flex-1">
                   <div class="flex items-center gap-2">
-                    <img v-if="detalle.Producto?.imagen" :src="detalle.Producto.imagen" class="rounded"
+                    <img v-if="detalle.Producto?.imagen" :src="detalle.Producto.imagen" :alt="detalle.Producto?.nombre || 'Producto'" loading="lazy" class="rounded"
                       style="width:28px;height:28px;object-fit:cover">
                     <span class="font-semibold text-sm text-gray-900 dark:text-gray-100">{{ detalle.Producto?.nombre || 'Producto' }}</span>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" :class="estadoBg[detalle.estadoComanda]">

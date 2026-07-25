@@ -44,7 +44,7 @@ const testimonios = [
               {{ t.iniciales }}
             </div>
             <div>
-              <h4 class="font-semibold text-gray-900 dark:text-white">{{ t.nombre }}</h4>
+              <h3 class="font-semibold text-gray-900 dark:text-white">{{ t.nombre }}</h3>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ t.cargo }}</p>
             </div>
           </div>

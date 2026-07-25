@@ -233,7 +233,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
           <button v-for="p in filtrados" :key="p.id" type="button"
             class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
             @click="agregarProducto(p)">
-            <img v-if="p.imagen" :src="p.imagen" class="rounded-lg mr-1 inline-block"
+            <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" loading="lazy" class="rounded-lg mr-1 inline-block"
               style="width:24px;height:24px;object-fit:cover">
             {{ p.nombre }} - ${{ p.precioVenta }}
           </button>

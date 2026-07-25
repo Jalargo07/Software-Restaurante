@@ -51,7 +51,7 @@ onMounted(fetchMenu)
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow-sm" v-if="tenant">
       <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-        <img v-if="tenant.logo" :src="tenant.logo" class="w-10 h-10 rounded-full object-cover" />
+        <img v-if="tenant.logo" :src="tenant.logo" :alt="tenant.nombre || 'Logo'" loading="lazy" class="w-10 h-10 rounded-full object-cover" />
         <div>
           <h1 class="text-lg font-bold text-gray-900 dark:text-white">{{ tenant.nombre }}</h1>
           <p class="text-xs text-gray-500 dark:text-gray-400">Menú digital</p>
@@ -82,7 +82,7 @@ onMounted(fetchMenu)
           <div v-if="estiloMenu === 'elegante'" v-for="p in items" :key="p.id"
             class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div class="relative">
-              <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" class="w-full h-40 object-cover" />
+              <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" loading="lazy" class="w-full h-40 object-cover" />
               <div v-else class="w-full h-40 bg-gradient-to-br from-[var(--color-primario)]/20 to-[var(--color-secundario)]/20 flex items-center justify-center">
                 <span class="text-4xl opacity-30">🍽️</span>
               </div>
@@ -103,7 +103,7 @@ onMounted(fetchMenu)
           <!-- NOVEDOSO -->
           <div v-if="estiloMenu === 'novedoso'" v-for="p in items" :key="p.id"
             class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden">
-            <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" class="w-full h-48 object-cover" />
+            <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" loading="lazy" class="w-full h-48 object-cover" />
             <div v-else class="w-full h-48 bg-gradient-to-br from-[var(--color-primario)] to-[var(--color-secundario)]/50 flex items-center justify-center">
               <span class="text-5xl opacity-40">🌟</span>
             </div>
