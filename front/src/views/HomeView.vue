@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import api from '../services/api'
 import { useReporteStore } from '../stores/reportes'
 import { useToastStore } from '../stores/toast'
+import { connectSocket, disconnectSocket, socket } from '../services/socket'
 import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
 import MesasChart from '../components/common/chart-Mesas.vue'
 import TopProductosChart from '../components/common/chart-TopProductos.vue'
@@ -85,7 +86,7 @@ const aplicarFiltroPersonalizado = () => {
   })
 }
 
-onMounted(async () => {
+async function cargarDatos() {
   const [mesas, productos, pedidos] = await Promise.all([
     api.get('/mesas'),
     api.get('/productos'),
@@ -110,6 +111,31 @@ onMounted(async () => {
   } else {
     cambiarPeriodo('hoy')
   }
+}
+
+onMounted(async () => {
+  await cargarDatos()
+
+  // Socket.IO: refrescar datos cuando se cierra/cancela una venta
+  connectSocket()
+  socket.on('venta-cerrada', () => {
+    cargarDatos()
+  })
+  socket.on('venta-cancelada', () => {
+    cargarDatos()
+  })
+})
+
+// Polling como fallback (cada 30 segundos)
+const intervalo = setInterval(() => {
+  cargarDatos()
+}, 30000)
+
+onUnmounted(() => {
+  socket.off('venta-cerrada')
+  socket.off('venta-cancelada')
+  disconnectSocket()
+  clearInterval(intervalo)
 })
 
 async function exportarReporteExcel() {

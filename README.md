@@ -2,6 +2,22 @@
 
 Sistema de gestión integral para restaurantes con control de inventario, compras, ventas, administración de mesas, comandas de cocina, recetas para productos compuestos (con merma e insumos), caja, auditoría, subida de imágenes con S3/MinIO, autenticación JWT con roles y **arquitectura multi-tenant** para SaaS. Soporta **dos modos de venta**: venta directa (mostrador) y venta por mesa.
 
+## 🌐 Demo en Vivo
+
+El sistema ya está desplegado y funcionando en producción:
+
+**🔗 [https://biteops-blush.vercel.app/](https://biteops-blush.vercel.app/)**
+
+| Servicio | Función |
+|----------|---------|
+| **Vercel** | Frontend (Vue 3 + Vite) |
+| **Render** | Backend (Node.js + Express) |
+| **Supabase** | Base de datos PostgreSQL |
+| **Upstash** | Redis (caché) |
+| **Cloudflare R2** | Almacenamiento de imágenes |
+
+Credenciales de prueba: `admin@restaurant.com` / `admin123`
+
 ---
 
 ## 🚀 Tecnologías y Stack
@@ -12,7 +28,7 @@ Sistema de gestión integral para restaurantes con control de inventario, compra
   <img src="https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D" alt="Vue.js" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Pinia-F5DEB3?style=for-the-badge&logo=pinia&logoColor=black" alt="Pinia" />
-  <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white" alt="Sequelize" />
   <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
@@ -20,14 +36,18 @@ Sistema de gestión integral para restaurantes con control de inventario, compra
   <img src="https://img.shields.io/badge/AWS%20SDK-FF9900?style=for-the-badge&logo=amazonwebservices&logoColor=white" alt="AWS SDK" />
   <img src="https://img.shields.io/badge/MinIO-C72C30?style=for-the-badge&logo=minio&logoColor=white" alt="MinIO" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare" />
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
   <img src="https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest" />
   <img src="https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
 </p>
 
 | Capa | Tecnologías |
 |------|-------------|
-| **Frontend** | Vue 3.5 (Composition API) + TypeScript + Vite + Pinia + Bootstrap 5.3 + Vue Router + Axios + Chart.js + Socket.IO Client + PWA (Workbox) |
-| **Backend** | Node.js 18+ + Express 5 + Sequelize 6 + SQLite / PostgreSQL + JWT + bcryptjs + Socket.IO + Multer + AWS SDK v3 (S3/MinIO) |
+| **Frontend** | Vue 3.5 (Composition API) + TypeScript + Vite + Pinia + Tailwind CSS 4 + Lucide Icons + Vue Router + Axios + Chart.js + Socket.IO Client + PWA (Workbox) |
+| **Backend** | Node.js 22+ + Express 5 + Sequelize 6 + SQLite / PostgreSQL + JWT + bcryptjs + Socket.IO + Multer + AWS SDK v3 (S3/MinIO) |
 | **Multi-tenant** | Modelo Tenant + tenant_id en 12 tablas + middleware tenantContext + scoping automático en controllers |
 | **Testing & DevOps** | Vitest + Supertest (47 tests, 7 suites) + Docker & Docker Compose + Nginx |
 
@@ -97,7 +117,7 @@ docker compose up --build -d
 
 ## 🧪 Pruebas Automatizadas
 
-El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (72 tests distribuidos en 10 suites: auth, productos, ventas, compras, recetas, tenant, tenantScope, tenantConfig, branding y cache).
+El backend incluye una suite completa de pruebas de integración con **Vitest** y **Supertest** (72+ tests distribuidos en 10+ suites: auth, productos, ventas, compras, recetas, tenant, tenantScope, tenantConfig, branding y cache).
 
 ```bash
 cd back
@@ -110,6 +130,8 @@ pnpm run test:watch  # Ejecuta en modo watch
 ## 🌟 Características Principales
 
 - **Multi-tenant (SaaS):** Arquitectura completa con Modelo Tenant, tenant_id en 12 tablas, middleware de contexto y scoping automático en todos los controllers.
+- **Landing Page Pública:** Página de aterrizaje completa con secciones de problemas, soluciones, diferentes, precios y testimonios.
+- **Branding Dinámico:** Colores personalizados por tenant con CSS Variables, dark mode automático en toda la app.
 - **Gestión de Roles & Permisos:** Admin, Mesero, Cajero, Cocinero con control estricto en rutas y vistas.
 - **Inventario Avanzado:** Tipos de producto (`insumo`, `compuesto`, `directo`), gestión de stock mínimo y fotos con S3/MinIO.
 - **Recetas e Ingredientes:** Productos compuestos con descuento automático de insumos en inventario y cálculo de merma.
@@ -137,4 +159,6 @@ pnpm run test:watch  # Ejecuta en modo watch
 | **Sprint 7** | ✅ Completado | Arquitectura Multi-tenant (Modelo Tenant, middleware, scoping controllers) |
 | **Sprint 8** | ✅ Completado | Branding dinámico (White-label, logo, colores CSS Variables, login personalizado) |
 | **Sprint 9** | ✅ Completado | Caché con Redis, invalidación por WebSockets, middleware genérico |
-| **Sprint 10** | 🔄 En curso | Super Admin, Planes de Suscripción, Límites por Tenant |
+| **Sprint 10** | ✅ Completado | Super Admin, Planes de Suscripción, Límites por Tenant |
+| **Sprint 11** | ✅ Completado | TypeScript Backend completo + Dashboard UX + Refactor Recetas |
+| **Sprint 12-18** | ✅ Completado | Migración completa a Tailwind CSS (0 clases Bootstrap, dark mode total) |

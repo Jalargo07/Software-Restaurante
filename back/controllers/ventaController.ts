@@ -390,6 +390,9 @@ export const crearRapida = async (req: Request, res: Response) => {
     res.status(201).json(ventaCompleta);
 
     invalidarCache(req.tenantId!, ['reportes', 'corte']);
+
+    const io = req.app.get('io');
+    if (io) io.emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
   } catch (error: any) {
     await t.rollback();
     return res.status(500).json({ error: 'Error al crear venta rapida' });

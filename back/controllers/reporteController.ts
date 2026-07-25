@@ -96,7 +96,7 @@ export const productosMasVendidos = async (req: Request, res: Response) => {
         [fn('SUM', col('DetalleVenta.subtotal')), 'totalIngresos'],
       ],
       group: ['ProductoId', 'Producto.id'],
-      order: [[literal('totalVendido'), 'DESC']],
+      order: [[fn('SUM', col('DetalleVenta.cantidad')), 'DESC']],
       limit: 10,
     });
 

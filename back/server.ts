@@ -31,12 +31,14 @@ import { Tenant, Usuario, TenantConfig } from './models';
 import { ensureBucket } from './config/s3';
 
 dotenv.config();
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const settings = require('./config/settings').default;
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = settings.server.port;
 
 // Trust proxy (necesario para rate limiting detrás de reverse proxy en Koyeb/Vercel)
-app.set('trust proxy', 1);
+app.set('trust proxy', settings.server.trustProxy);
 
 // Seguridad: Helmet (headers HTTP seguros)
 app.use(helmet({
@@ -45,8 +47,7 @@ app.use(helmet({
 }));
 
 // CORS configurado según entorno (soporta múltiples orígenes separados por coma)
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
-const corsOrigins = corsOrigin.split(',').map(o => o.trim());
+const corsOrigins = settings.cors.origins;
 app.use(cors({
   origin: corsOrigins,
   credentials: true,
@@ -81,7 +82,7 @@ app.get('/api/health', (_req, res) => {
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: process.env.CORS_ORIGIN || 'http://localhost:5173', methods: ['GET', 'POST'] },
+  cors: { origin: corsOrigins, methods: ['GET', 'POST'] },
 });
 app.set('io', io);
 
@@ -97,8 +98,7 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connected');
 
-    // Solo sincronizar schema en desarrollo, no en producción
-    if (process.env.NODE_ENV !== 'production') {
+    if (settings.db.synchronize) {
       await sequelize.sync({ alter: true });
       console.log('Models synced');
     } else {
@@ -107,8 +107,7 @@ const startServer = async () => {
 
     await ensureBucket();
 
-    // Solo crear datos por defecto en desarrollo
-    if (process.env.NODE_ENV !== 'production' || process.env.RUN_SEED === 'true') {
+    if (settings.seed.enabled) {
       const [defaultTenant] = await Tenant.findOrCreate({
         where: { id: 1 },
         defaults: {
