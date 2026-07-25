@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import sequelize from '../config/database';
 import '../models/index';
-import { Tenant, TenantConfig, Producto, Proveedor, Mesa, DetalleReceta, Compra, DetalleCompra, Kardex } from '../models';
+import { Tenant, TenantConfig, Producto, Proveedor, Mesa, DetalleReceta, Compra, DetalleCompra, Kardex, Venta, DetalleVenta } from '../models';
 import Usuario from '../models/Usuario';
 
 function fechaHace(dias: number): Date {
@@ -227,6 +227,66 @@ async function seed() {
       });
     }
   }
+
+  // === VENTAS DE PRUEBA ===
+  console.log('Creando ventas de prueba...');
+
+  const adminUser = (await Usuario.findOne({ where: { tenant_id: tenant.id, rol: 'admin' } })) as any;
+
+  const productosArray = await Producto.findAll({ where: { tenant_id: tenant.id } });
+  const prodMap: Record<string, any> = {};
+  for (const p of productosArray) prodMap[(p as any).nombre] = p;
+
+  const ventasData = [
+    { dias: 0, metodo: 'efectivo', items: [{ nombre: 'Pizza Muzzarella', cant: 2 }, { nombre: 'Coca-Cola 500ml', cant: 2 }] },
+    { dias: 0, metodo: 'tarjeta', items: [{ nombre: 'Hamburguesa Clásica', cant: 1 }, { nombre: 'Cerveza Artesanal', cant: 1 }, { nombre: 'Papas Fritas (porción)', cant: 1 }] },
+    { dias: 0, metodo: 'transferencia', items: [{ nombre: 'Milanesa con Papas', cant: 1 }, { nombre: 'Vino Tinto', cant: 1 }] },
+    { dias: 1, metodo: 'efectivo', items: [{ nombre: 'Sándwich de Milanesa', cant: 1 }, { nombre: 'Agua Mineral 500ml', cant: 1 }, { nombre: 'Brownie', cant: 1 }] },
+    { dias: 1, metodo: 'tarjeta', items: [{ nombre: 'Pizza Muzzarella', cant: 1 }, { nombre: 'Empanada de Carne', cant: 4 }, { nombre: 'Cerveza Artesanal', cant: 2 }] },
+    { dias: 2, metodo: 'efectivo', items: [{ nombre: 'Hamburguesa Clásica', cant: 2 }, { nombre: 'Papas Fritas (porción)', cant: 2 }, { nombre: 'Coca-Cola 500ml', cant: 2 }] },
+    { dias: 3, metodo: 'transferencia', items: [{ nombre: 'Milanesa con Papas', cant: 2 }, { nombre: 'Jugo de Naranja', cant: 2 }, { nombre: 'Flan', cant: 2 }] },
+    { dias: 4, metodo: 'tarjeta', items: [{ nombre: 'Pizza Muzzarella', cant: 3 }, { nombre: 'Vino Tinto', cant: 2 }, { nombre: 'Tiramisú', cant: 1 }] },
+    { dias: 5, metodo: 'efectivo', items: [{ nombre: 'Hamburguesa Clásica', cant: 1 }, { nombre: 'Sándwich de Milanesa', cant: 1 }, { nombre: 'Helado de Chocolate', cant: 2 }] },
+    { dias: 6, metodo: 'efectivo', items: [{ nombre: 'Empanada de Carne', cant: 6 }, { nombre: 'Cerveza Artesanal', cant: 3 }, { nombre: 'Brownie', cant: 3 }] },
+  ];
+
+  for (const v of ventasData) {
+    let total = 0;
+    const detalles = [];
+    for (const item of v.items) {
+      const prod = prodMap[item.nombre];
+      if (!prod) continue;
+      const sub = Number(prod.precioVenta) * item.cant;
+      total += sub;
+      detalles.push({ ProductoId: prod.id, cantidad: item.cant, precioUnitario: prod.precioVenta, subtotal: sub });
+    }
+    if (detalles.length === 0) continue;
+
+    const venta = (await Venta.create({
+      tenant_id: tenant.id,
+      estado: 'cerrada',
+      metodoPago: v.metodo,
+      total,
+      usuarioId: adminUser.id,
+      createdAt: fechaHace(v.dias),
+      updatedAt: fechaHace(v.dias),
+    })) as any;
+
+    for (const d of detalles) {
+      await DetalleVenta.create({
+        tenant_id: tenant.id,
+        VentaId: venta.id,
+        ProductoId: d.ProductoId,
+        cantidad: d.cantidad,
+        precioUnitario: d.precioUnitario,
+        subtotal: d.subtotal,
+        estadoComanda: 'listo',
+        createdAt: fechaHace(v.dias),
+        updatedAt: fechaHace(v.dias),
+      });
+    }
+  }
+  console.log(`${ventasData.length} ventas de prueba creadas`);
 
   console.log('Seed completado exitosamente.');
 }
