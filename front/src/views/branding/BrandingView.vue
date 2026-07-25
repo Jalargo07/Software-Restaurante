@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useBrandingStore } from '../../stores/branding'
+import { useAuthStore } from '../../stores/auth'
 import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
 
@@ -15,6 +17,8 @@ const estilosMenu = [
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
 const qrUrl = computed(() => `${origin}/menu/${slug.value}`)
 
+const router = useRouter()
+const authStore = useAuthStore()
 const brandingStore = useBrandingStore()
 const toast = useToastStore()
 
@@ -346,6 +350,23 @@ async function guardar() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="mb-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Plan Actual</h3>
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+            :class="authStore.user?.plan === 'enterprise' ? 'bg-amber-100 text-amber-700' : authStore.user?.plan === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'">
+            {{ { basico: 'Básico', pro: 'Pro', enterprise: 'Enterprise' }[authStore.user?.plan || 'basico'] }}
+          </span>
+          <p class="text-xs text-gray-500 mt-1">Todo incluido en tu plan</p>
+        </div>
+        <button @click="router.push('/checkout/pro')"
+          class="text-xs px-3 py-1.5 bg-[var(--color-primario)] text-white rounded-lg hover:brightness-90 transition-colors">
+          Mejorar Plan
+        </button>
       </div>
     </div>
 

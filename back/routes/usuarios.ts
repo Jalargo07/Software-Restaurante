@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import Usuario from '../models/Usuario';
+import Tenant from '../models/Tenant';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
@@ -16,13 +17,16 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   const valid = await bcrypt.compare(password, usuario.password);
   if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' });
 
+  const tenant: any = await Tenant.findByPk(usuario.tenant_id, { attributes: ['plan'] });
+  const plan = tenant?.plan || 'basico';
+
   const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id },
+    { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan },
     process.env.JWT_SECRET!,
     { expiresIn: '24h' }
   );
 
-  res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id } });
+  res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan } });
 });
 
 router.get('/', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {

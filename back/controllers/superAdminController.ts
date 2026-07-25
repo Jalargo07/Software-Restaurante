@@ -1,11 +1,52 @@
 import { Request, Response } from 'express';
-import { Tenant, Producto, Usuario, Venta, TenantConfig } from '../models';
+import { Tenant, Producto, Usuario, Venta, TenantConfig, Auditoria } from '../models';
 import { Op } from 'sequelize';
 import registrarAuditoria from '../utils/auditoria';
 
+export const getStats = async (req: Request, res: Response) => {
+  try {
+    const total = await Tenant.count();
+    const activos = await Tenant.count({ where: { estado: 'activo' } });
+    const suspendidos = await Tenant.count({ where: { estado: 'suspendido' } });
+    const pendientes = await Tenant.count({ where: { estado: 'pendiente_aprobacion' } });
+    
+    const tenants = await Tenant.findAll({ attributes: ['plan', 'estado'] }) as any[];
+    const ingresosEstimados = tenants.reduce((sum: number, t: any) => {
+      if (t.estado !== 'activo') return sum;
+      const precios: Record<string, number> = { basico: 39900, pro: 69900, enterprise: 179900 };
+      return sum + (precios[t.plan] || 0);
+    }, 0);
+
+    res.json({ total, activos, suspendidos, pendientes, ingresosEstimados });
+  } catch (error: any) {
+    console.error('Error en getStats:', error);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+};
+
+export const getHistorialCambios = async (req: Request, res: Response) => {
+  try {
+    const historial = await Auditoria.findAll({
+      where: { accion: { [Op.in]: ['UPDATE_TENANT_PLAN', 'UPDATE_TENANT_ESTADO'] } },
+      order: [['createdAt', 'DESC']],
+      limit: 100,
+    });
+    res.json(historial);
+  } catch (error: any) {
+    console.error('Error en getHistorialCambios:', error);
+    res.status(500).json({ error: 'Error al obtener historial' });
+  }
+};
+
 export const getTenants = async (req: Request, res: Response) => {
   try {
+    const { plan, estado } = req.query;
+    const where: any = {};
+    if (plan) where.plan = plan;
+    if (estado) where.estado = estado;
+
     const tenants: any = await Tenant.findAll({
+      where,
       include: [{ model: TenantConfig, required: false }],
       order: [['id', 'ASC']],
     });

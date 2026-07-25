@@ -3,6 +3,11 @@ import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 
+function labelPlan(plan: string) {
+  const map: Record<string, string> = { basico: 'Básico', pro: 'Pro', enterprise: 'Enterprise' }
+  return map[plan] || plan
+}
+
 const props = defineProps<{
   currentMode: 'produccion' | 'administracion'
   theme: string
@@ -99,6 +104,7 @@ function isActive(path: string) {
       <div class="flex items-center gap-2 mb-3">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium truncate">{{ authStore.user?.nombre }}</p>
+          <p v-if="authStore.user?.plan" class="text-xs text-gray-400 mt-0.5">{{ labelPlan(authStore.user.plan) }}</p>
           <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{{ authStore.user?.rol }}</span>
         </div>
       </div>

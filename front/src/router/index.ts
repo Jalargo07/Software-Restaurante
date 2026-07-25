@@ -26,6 +26,12 @@ const router = createRouter({
       meta: { publico: true },
     },
     {
+      path: '/checkout/:plan',
+      name: 'checkout',
+      component: () => import('../views/checkout/CheckoutView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/dashboard',
       name: 'home',
       component: () => import('../views/HomeView.vue'),

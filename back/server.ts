@@ -28,6 +28,7 @@ import publicBrandingRoutes from './routes/publicBranding';
 import menuRoutes from './routes/menus';
 import superAdminRoutes from './routes/superAdmin';
 import facturasRoutes from './routes/facturas';
+import pagosRoutes from './routes/pagos';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig } from './models';
 import { ensureBucket } from './config/s3';
@@ -79,6 +80,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/branding', brandingRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/facturas', facturasRoutes);
+app.use('/api/pagos', pagosRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });

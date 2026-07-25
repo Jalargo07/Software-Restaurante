@@ -6,7 +6,9 @@ export const getBranding = async (req: Request, res: Response) => {
   try {
     const config = await TenantConfig.findOne({ where: { tenant_id: req.tenantId } });
     if (!config) return res.status(404).json({ error: 'Configuración de branding no encontrada' });
-    return res.json(config);
+
+    const tenant: any = await Tenant.findByPk(req.tenantId, { attributes: ['plan'] });
+    return res.json({ ...config.toJSON(), plan: tenant?.plan || 'basico' });
   } catch (error: any) {
     return res.status(500).json({ error: 'Error al obtener configuración de branding' });
   }

@@ -65,6 +65,11 @@ function toggleTheme() {
   localStorage.setItem('theme', theme.value)
 }
 
+function labelPlan(plan: string) {
+  const map: Record<string, string> = { basico: 'Básico', pro: 'Pro', enterprise: 'Enterprise' }
+  return map[plan] || plan
+}
+
 function salir() {
   authStore.logout()
   router.push('/login')
@@ -150,6 +155,7 @@ function isActive(path: string) {
 
       <div class="flex items-center gap-2 pl-2 ml-1 border-l border-gray-700 text-xs text-gray-400">
         <span>{{ authStore.user?.nombre }}</span>
+        <span v-if="authStore.user?.plan" class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-300">{{ labelPlan(authStore.user.plan) }}</span>
         <button class="px-2 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs transition-colors" @click="salir">Salir</button>
       </div>
     </nav>

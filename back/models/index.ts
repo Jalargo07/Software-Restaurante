@@ -13,6 +13,7 @@ import CorteCaja from './CorteCaja';
 import TenantConfig from './TenantConfig';
 import Kardex from './Kardex';
 import DocumentoFiscal from './DocumentoFiscal';
+import Transaccion from './Transaccion';
 
 // Tenant -> Models
 Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
@@ -114,6 +115,10 @@ DocumentoFiscal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 Venta.hasOne(DocumentoFiscal, { foreignKey: 'ventaId' });
 DocumentoFiscal.belongsTo(Venta, { foreignKey: 'ventaId' });
 
+// Transaccion
+Tenant.hasMany(Transaccion, { foreignKey: 'tenant_id' });
+Transaccion.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
 export {
   Tenant,
   Mesa,
@@ -130,4 +135,5 @@ export {
   TenantConfig,
   Kardex,
   DocumentoFiscal,
+  Transaccion,
 };

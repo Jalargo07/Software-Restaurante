@@ -30,6 +30,7 @@ export interface Usuario {
   email: string
   rol: UsuarioRol
   activo: boolean
+  plan?: string
 }
 
 export interface Producto {
@@ -378,6 +379,14 @@ export interface Toast {
   id: number
   message: string
   type: ToastType
+}
+
+export interface SuperAdminStats {
+  total: number
+  activos: number
+  suspendidos: number
+  pendientes: number
+  ingresosEstimados: number
 }
 
 export type TenantPlan = 'basico' | 'pro' | 'enterprise'
