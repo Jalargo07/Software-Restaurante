@@ -16,6 +16,14 @@ const form = ref({
   colorAcento: '#198754',
   nombreCompleto: '',
   fontPrincipal: 'Inter',
+  pais: 'chile',
+  rut: '',
+  razonSocial: '',
+  giro: '',
+  direccion: '',
+  comuna: '',
+  ciudad: '',
+  ambiente: 'pruebas',
 })
 
 const logoArchivo = ref<File | null>(null)
@@ -32,7 +40,10 @@ const fuentes = [
 ]
 
 onMounted(async () => {
-  await brandingStore.fetchBranding()
+  await Promise.all([
+    brandingStore.fetchBranding(),
+    api.get('/branding/tenant').then(r => { slug.value = r.data.slug }).catch(() => {}),
+  ])
   if (brandingStore.branding) {
     const b = brandingStore.branding
     form.value = {
@@ -41,6 +52,14 @@ onMounted(async () => {
       colorAcento: b.colorAcento,
       nombreCompleto: b.nombreCompleto || '',
       fontPrincipal: b.fontPrincipal,
+      pais: b.pais || 'chile',
+      rut: b.rut || '',
+      razonSocial: b.razonSocial || '',
+      giro: b.giro || '',
+      direccion: b.direccion || '',
+      comuna: b.comuna || '',
+      ciudad: b.ciudad || '',
+      ambiente: b.ambiente || 'pruebas',
     }
     logoPreview.value = b.logo || ''
     bannerPreview.value = b.banner || ''
@@ -84,9 +103,7 @@ const previewEstilo = computed(() => ({
 }))
 
 function abrirMenuQR() {
-  if (slug.value) {
-    window.open(`${window.location.origin}/menu/${slug.value}`, '_blank')
-  }
+  window.open(`${window.location.origin}/menu/${slug.value}`, '_blank')
 }
 
 async function guardar() {
@@ -98,6 +115,14 @@ async function guardar() {
       colorAcento: form.value.colorAcento,
       nombreCompleto: form.value.nombreCompleto || null,
       fontPrincipal: form.value.fontPrincipal,
+      pais: form.value.pais,
+      rut: form.value.rut || null,
+      razonSocial: form.value.razonSocial || null,
+      giro: form.value.giro || null,
+      direccion: form.value.direccion || null,
+      comuna: form.value.comuna || null,
+      ciudad: form.value.ciudad || null,
+      ambiente: form.value.ambiente,
     }
 
     if (logoArchivo.value) {
@@ -293,22 +318,64 @@ async function guardar() {
       </div>
     </div>
 
-    <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+    <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Configuración Fiscal</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">País</label>
+          <select v-model="form.pais" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
+            <option value="chile">Chile</option>
+            <option value="argentina">Argentina</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">RUT</label>
+          <input v-model="form.rut" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="12.345.678-9">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Razón Social</label>
+          <input v-model="form.razonSocial" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Razón social">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giro</label>
+          <input v-model="form.giro" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Giro comercial">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
+          <input v-model="form.direccion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Dirección">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comuna</label>
+          <input v-model="form.comuna" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Comuna">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ciudad</label>
+          <input v-model="form.ciudad" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Ciudad">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ambiente</label>
+          <select v-model="form.ambiente" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
+            <option value="pruebas">Pruebas</option>
+            <option value="produccion">Producción</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Menú QR Digital</h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Compartí este enlace para que tus clientes vean el menú digital desde su celular.</p>
-      <div class="flex items-center gap-3">
-        <input
-          v-model="slug"
-          type="text"
-          placeholder="slug-del-restaurante"
-          class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
-        />
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <code class="text-sm bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 break-all">{{ window.location.origin }}/menu/{{ slug }}</code>
         <button
           @click="abrirMenuQR"
-          :disabled="!slug"
-          class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none"
+          class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
         >
-          Ver Menú QR
+          🔗 Abrir
         </button>
       </div>
     </div>

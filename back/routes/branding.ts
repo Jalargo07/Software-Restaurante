@@ -5,6 +5,7 @@ import { authenticateToken, authorizeRole } from '../middleware/auth';
 const router = Router();
 
 router.get('/', authenticateToken, brandingController.getBranding);
+router.get('/tenant', authenticateToken, brandingController.getTenantSlug);
 router.put('/', authenticateToken, authorizeRole('admin'), brandingController.updateBranding);
 
 export default router;

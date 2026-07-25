@@ -17,7 +17,7 @@ export const updateBranding = async (req: Request, res: Response) => {
     const config: any = await TenantConfig.findOne({ where: { tenant_id: req.tenantId } });
     if (!config) return res.status(404).json({ error: 'Configuración de branding no encontrada' });
 
-    const allowedFields = ['logo', 'banner', 'colorPrimario', 'colorSecundario', 'colorAcento', 'nombreCompleto', 'fontPrincipal'];
+    const allowedFields = ['logo', 'banner', 'colorPrimario', 'colorSecundario', 'colorAcento', 'nombreCompleto', 'fontPrincipal', 'pais', 'rut', 'razonSocial', 'giro', 'direccion', 'comuna', 'ciudad', 'ambiente'];
     const campos: any = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
@@ -45,6 +45,16 @@ export const updateBranding = async (req: Request, res: Response) => {
       return res.status(400).json({ error: error.errors.map((e: any) => e.message).join(', ') });
     }
     return res.status(500).json({ error: 'Error al actualizar configuración de branding' });
+  }
+};
+
+export const getTenantSlug = async (req: Request, res: Response) => {
+  try {
+    const tenant: any = await Tenant.findByPk(req.tenantId, { attributes: ['id', 'nombre', 'slug'] });
+    if (!tenant) return res.status(404).json({ error: 'Tenant no encontrado' });
+    res.json({ nombre: tenant.nombre, slug: tenant.slug });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Error al obtener información del tenant' });
   }
 };
 

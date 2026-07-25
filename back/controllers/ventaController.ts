@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Venta, DetalleVenta, Producto, Mesa, DetalleReceta, Kardex } from '../models';
+import { Venta, DetalleVenta, Producto, Mesa, DetalleReceta, Kardex, DocumentoFiscal, TenantConfig } from '../models';
 import sequelize from '../config/database';
 import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
@@ -325,6 +325,24 @@ export const cobrar = async (req: Request, res: Response) => {
 
     await t.commit();
 
+    // Auto-generar documento fiscal si tenant tiene config
+    try {
+      const configFiscal: any = await TenantConfig.findOne({ where: { tenant_id: req.tenantId } });
+      if (configFiscal?.rut && configFiscal?.razonSocial) {
+        await DocumentoFiscal.create({
+          tenant_id: req.tenantId,
+          ventaId: venta.id,
+          tipo: 'boleta',
+          estado: 'pendiente',
+          montoNeto: Number((venta.total / 1.19).toFixed(2)),
+          iva: Number(((venta.total * 0.19) / 1.19).toFixed(2)),
+          montoTotal: venta.total,
+        });
+      }
+    } catch (e: any) {
+      console.error('Error al crear documento fiscal automático:', e);
+    }
+
     await registrarAuditoria({
       req,
       accion: 'cobrar',
@@ -501,6 +519,24 @@ export const crearRapida = async (req: Request, res: Response) => {
     }
 
     await t.commit();
+
+    // Auto-generar documento fiscal si tenant tiene config
+    try {
+      const configFiscal: any = await TenantConfig.findOne({ where: { tenant_id: req.tenantId } });
+      if (configFiscal?.rut && configFiscal?.razonSocial) {
+        await DocumentoFiscal.create({
+          tenant_id: req.tenantId,
+          ventaId: venta.id,
+          tipo: 'boleta',
+          estado: 'pendiente',
+          montoNeto: Number((total / 1.19).toFixed(2)),
+          iva: Number(((total * 0.19) / 1.19).toFixed(2)),
+          montoTotal: total,
+        });
+      }
+    } catch (e: any) {
+      console.error('Error al crear documento fiscal automático:', e);
+    }
 
     await registrarAuditoria({
       req,

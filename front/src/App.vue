@@ -99,8 +99,7 @@ function isActive(path: string) {
 
   <div
     v-else
-    class="flex flex-col min-h-screen"
-    :class="{ 'grid grid-cols-[260px_1fr] max-md:grid-cols-1 min-h-screen': authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) }"
+    :class="['flex flex-col min-h-screen', authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : '']"
   >
     <Sidebar
       v-if="authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute)"

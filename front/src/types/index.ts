@@ -160,6 +160,14 @@ export interface TenantConfig {
   colorAcento: string
   nombreCompleto: string | null
   fontPrincipal: string
+  pais?: string
+  rut?: string
+  razonSocial?: string
+  giro?: string
+  direccion?: string
+  comuna?: string
+  ciudad?: string
+  ambiente?: string
 }
 
 export interface TenantConfigUpdatePayload {
@@ -170,6 +178,14 @@ export interface TenantConfigUpdatePayload {
   colorAcento?: string
   nombreCompleto?: string | null
   fontPrincipal?: string
+  pais?: string
+  rut?: string
+  razonSocial?: string
+  giro?: string
+  direccion?: string
+  comuna?: string
+  ciudad?: string
+  ambiente?: string
 }
 
 export interface PublicBrandingResponse {
@@ -378,4 +394,32 @@ export interface Tenant {
   productosCount: number
   usuariosCount: number
   ventasHoyCount: number
+}
+
+export type TipoDocumentoFiscal = 'boleta' | 'factura'
+export type EstadoDocumentoFiscal = 'pendiente' | 'timbrado' | 'rechazado'
+
+export interface DocumentoFiscal {
+  id: number
+  tenant_id: number
+  ventaId: number
+  tipo: TipoDocumentoFiscal
+  estado: EstadoDocumentoFiscal
+  rutCliente?: string
+  razonSocial?: string
+  giro?: string
+  direccion?: string
+  comuna?: string
+  ciudad?: string
+  montoNeto: number
+  iva: number
+  montoTotal: number
+  xml?: string
+  pdf?: string
+  timbre?: string
+  folio?: string
+  codigoBarras?: string
+  fechaTimbre?: string
+  respuestaSii?: any
+  createdAt: string
 }

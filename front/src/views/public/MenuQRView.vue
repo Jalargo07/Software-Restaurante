@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import api from '../../services/api'
 
 const route = useRoute()
 const slug = route.params.slug as string
@@ -15,7 +15,7 @@ const busqueda = ref('')
 async function fetchMenu() {
   try {
     loading.value = true
-    const res = await axios.get(`/api/public/menus/${slug}`)
+    const res = await api.get(`/public/menus/${slug}`)
     tenant.value = res.data.tenant
     productos.value = res.data.productos
     if (tenant.value) {

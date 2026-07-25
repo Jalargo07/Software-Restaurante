@@ -4,25 +4,39 @@ import { useRouter } from 'vue-router'
 import { useVentaStore } from '../../stores/ventas'
 import { useReporteStore } from '../../stores/reportes'
 import { useToastStore } from '../../stores/toast'
+import { useFacturaStore } from '../../stores/facturas'
 import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 import VentaFormModal from '../../components/ventas/VentaFormModal.vue'
 import VentaDetailModal from '../../components/ventas/VentaDetailModal.vue'
+import FacturaDetailModal from '../../components/ventas/FacturaDetailModal.vue'
+import type { DocumentoFiscal } from '../../types'
 
 const router = useRouter()
 const ventaStore = useVentaStore()
 const reporteStore = useReporteStore()
+const facturaStore = useFacturaStore()
 const toast = useToastStore()
 const { isAdmin, isMesero } = useRoles()
 const modalFormAbierto = ref(false)
 const detalleVenta = ref<any>(null)
+const documentoFiscalModal = ref<DocumentoFiscal | null>(null)
 const filtroEstado = ref('')
 const filtroDesde = ref('')
 const filtroHasta = ref('')
 const paginaActual = ref(1)
 
+const docMap = computed(() => {
+  const map: Record<number, DocumentoFiscal> = {}
+  for (const doc of facturaStore.facturas) {
+    map[doc.ventaId] = doc
+  }
+  return map
+})
+
 onMounted(() => {
   cargarVentas()
+  facturaStore.fetchFacturas()
 })
 
 function cargarVentas() {
@@ -58,6 +72,21 @@ const ventasFiltradas = computed(() => {
 
 function continuarVenta(v: any) {
   router.push('/pedidos')
+}
+
+async function abrirDoc(v: any) {
+  await facturaStore.fetchDocumento(v.id)
+  documentoFiscalModal.value = facturaStore.documento
+}
+
+async function timbrarDoc(v: any) {
+  try {
+    await facturaStore.timbrar(v.id)
+    toast.success('Documento timbrado exitosamente')
+    await facturaStore.fetchFacturas()
+  } catch {
+    toast.error('Error al timbrar documento')
+  }
 }
 
 async function exportarExcel() {
@@ -116,6 +145,7 @@ async function exportarExcel() {
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Metodo Pago</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Doc</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
             </tr>
@@ -127,6 +157,15 @@ async function exportarExcel() {
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ new Date(v.createdAt).toLocaleDateString() }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ v.total }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">{{ v.metodoPago || '-' }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">
+                <template v-if="docMap[v.id]">
+                  <button class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer" :class="docMap[v.id].estado === 'timbrado' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' : docMap[v.id].estado === 'rechazado' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200'" @click="abrirDoc(v)">
+                    {{ docMap[v.id].estado }}
+                  </button>
+                </template>
+                <button v-else-if="v.estado === 'cerrada'" class="inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors" @click="timbrarDoc(v)">Timbrar</button>
+                <span v-else class="text-xs text-gray-400">-</span>
+              </td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 <span :class="v.estado === 'cerrada' ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : v.estado === 'cancelada' ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'">
                   {{ v.estado }}
@@ -138,7 +177,7 @@ async function exportarExcel() {
               </td>
             </tr>
             <tr v-if="ventasFiltradas.length === 0">
-              <td colspan="7" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No se encontraron ventas</td>
+              <td colspan="8" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No se encontraron ventas</td>
             </tr>
           </tbody>
         </table>
@@ -164,5 +203,7 @@ async function exportarExcel() {
     <ModalBase v-if="detalleVenta" id="ventaDetailModal" titulo="Detalle de Venta #{{ detalleVenta.id }}" @cerrar="detalleVenta = null">
       <VentaDetailModal :venta="detalleVenta" @cerrar="detalleVenta = null" />
     </ModalBase>
+
+    <FacturaDetailModal v-if="documentoFiscalModal" :documento="documentoFiscalModal" @cerrar="documentoFiscalModal = null" />
   </div>
 </template>
