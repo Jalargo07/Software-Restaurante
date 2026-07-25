@@ -13,6 +13,13 @@ const { canCreate, canEdit, canDelete } = useRoles()
 
 const modalAbierto = ref(false)
 const productoEditando = ref<Producto | undefined>(undefined)
+const expandidas = ref<Set<number>>(new Set())
+
+function toggleExpand(id: number) {
+  const s = new Set(expandidas.value)
+  if (s.has(id)) s.delete(id); else s.add(id)
+  expandidas.value = s
+}
 
 onMounted(() => {
   productoStore.fetchProductos()
@@ -69,29 +76,49 @@ async function eliminar(id: number) {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
-          <tr v-for="p in productosCompuestos" :key="p.id">
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-              <img v-if="p.imagen" :src="p.imagen" alt="" class="rounded-lg" style="width: 40px; height: 40px; object-fit: cover;">
-              <span v-else class="text-gray-500 dark:text-gray-400">—</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">{{ p.nombre }}</td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 capitalize">{{ p.categoria }}</td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ Number(p.precioVenta).toFixed(2) }}</td>
-            <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-              <ul v-if="p.detallesReceta && p.detallesReceta.length > 0" class="mb-0 ps-3 text-xs">
-                <li v-for="d in p.detallesReceta" :key="d.id">
-                  {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
-                  — {{ d.cantidad }} {{ d.unidad }}
-                  <span v-if="d.merma > 0" class="text-gray-500 dark:text-gray-400">(merma {{ d.merma }}%)</span>
-                </li>
-              </ul>
-              <span v-else class="text-gray-500 dark:text-gray-400 text-xs">Sin ingredientes</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
-              <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(p)">Editar</button>
-              <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(p.id)">X</button>
-            </td>
-          </tr>
+          <template v-for="p in productosCompuestos" :key="p.id">
+            <tr class="cursor-pointer" @click="toggleExpand(p.id)">
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <img v-if="p.imagen" :src="p.imagen" alt="" class="rounded-lg" style="width: 40px; height: 40px; object-fit: cover;">
+                <span v-else class="text-gray-500 dark:text-gray-400">—</span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">{{ p.nombre }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 capitalize hidden md:table-cell">{{ p.categoria }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ Number(p.precioVenta).toFixed(2) }}</td>
+              <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">
+                <ul v-if="p.detallesReceta && p.detallesReceta.length > 0" class="mb-0 ps-3 text-xs">
+                  <li v-for="d in p.detallesReceta" :key="d.id">
+                    {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
+                    — {{ d.cantidad }} {{ d.unidad }}
+                    <span v-if="d.merma > 0" class="text-gray-500 dark:text-gray-400">(merma {{ d.merma }}%)</span>
+                  </li>
+                </ul>
+                <span v-else class="text-gray-500 dark:text-gray-400 text-xs">Sin ingredientes</span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
+                <button class="md:hidden inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-lg mr-1 text-gray-600 dark:text-gray-300" @click.stop="toggleExpand(p.id)">
+                  <span>{{ expandidas.has(p.id) ? '▲' : '▼' }}</span>
+                </button>
+                <button v-if="canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click.stop="abrirModal(p)">Editar</button>
+                <button v-if="canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click.stop="eliminar(p.id)">X</button>
+              </td>
+            </tr>
+            <tr v-if="expandidas.has(p.id)" class="md:hidden">
+              <td colspan="6" class="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+                <div class="text-xs space-y-1">
+                  <p class="text-xs font-medium text-gray-500 mb-1">Ingredientes:</p>
+                  <ul v-if="p.detallesReceta && p.detallesReceta.length > 0" class="mb-0 ps-3 text-xs space-y-0.5">
+                    <li v-for="d in p.detallesReceta" :key="d.id">
+                      {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
+                      — {{ d.cantidad }} {{ d.unidad }}
+                      <span v-if="d.merma > 0" class="text-gray-500">(merma {{ d.merma }}%)</span>
+                    </li>
+                  </ul>
+                  <span v-else class="text-gray-400">Sin ingredientes</span>
+                </div>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
