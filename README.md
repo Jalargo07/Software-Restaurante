@@ -16,7 +16,9 @@ El sistema ya está desplegado y funcionando en producción:
 | **Upstash** | Redis (caché) |
 | **Cloudflare R2** | Almacenamiento de imágenes |
 
-Credenciales de prueba: `admin@restaurant.com` / `admin123`
+Credenciales de prueba:
+- Dueño (super-admin): `super@biteops.app` / `BiteOps2026!`
+- Restaurante: `admin@restaurant.com` / `admin123`
 
 ---
 

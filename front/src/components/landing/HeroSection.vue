@@ -1,6 +1,22 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import type { LandingHero } from '../../types'
+
+const router = useRouter()
+const clickCount = ref(0)
+let clickTimer: ReturnType<typeof setTimeout> | null = null
+
+function onLogoClickeado() {
+  clickCount.value++
+  if (clickTimer) clearTimeout(clickTimer)
+  if (clickCount.value >= 5) {
+    clickCount.value = 0
+    router.push('/admin/login')
+    return
+  }
+  clickTimer = setTimeout(() => { clickCount.value = 0 }, 3000)
+}
 
 const props = withDefaults(defineProps<{ data?: LandingHero }>(), {
   data: () => ({
@@ -24,7 +40,7 @@ const props = withDefaults(defineProps<{ data?: LandingHero }>(), {
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
       <div class="text-center max-w-4xl mx-auto">
         <div class="flex justify-center mb-8">
-          <img :src="data.logo" alt="BiteOps - Logo principal" loading="lazy" class="w-24 h-24 sm:w-32 sm:h-32 drop-shadow-2xl">
+          <img :src="data.logo" alt="BiteOps - Logo principal" loading="lazy" @click="onLogoClickeado" style="cursor: pointer" class="w-24 h-24 sm:w-32 sm:h-32 drop-shadow-2xl">
         </div>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
           {{ data.titulo }} de

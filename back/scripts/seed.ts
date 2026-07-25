@@ -273,7 +273,7 @@ async function seed() {
     })) as any;
 
     for (const d of detalles) {
-      await DetalleVenta.create({
+      const detalle = (await DetalleVenta.create({
         tenant_id: tenant.id,
         VentaId: venta.id,
         ProductoId: d.ProductoId,
@@ -283,7 +283,55 @@ async function seed() {
         estadoComanda: 'listo',
         createdAt: fechaHace(v.dias),
         updatedAt: fechaHace(v.dias),
-      });
+      })) as any;
+
+      const producto = prodMap[Object.keys(prodMap).find(k => prodMap[k].id === d.ProductoId) || ''];
+      if (!producto) continue;
+
+      // Kardex salida para directos y compuestos
+      if (producto.tipo === 'directo') {
+        const entradaAnterior = await Kardex.findOne({
+          where: { productoId: d.ProductoId, tipo: 'entrada', tenant_id: tenant.id },
+          order: [['createdAt', 'ASC'], ['id', 'ASC']],
+        });
+        await Kardex.create({
+          tenant_id: tenant.id,
+          productoId: d.ProductoId,
+          tipo: 'salida',
+          cantidad: d.cantidad,
+          precioUnitario: (entradaAnterior as any)?.precioUnitario || Number(producto.precioCompra),
+          ventaId: venta.id,
+          fecha: fechaHace(v.dias),
+          createdAt: fechaHace(v.dias),
+          updatedAt: fechaHace(v.dias),
+        });
+      }
+
+      if (producto.tipo === 'compuesto') {
+        const recetas = await DetalleReceta.findAll({ where: { productoId: d.ProductoId, tenant_id: tenant.id } });
+        for (const receta of recetas) {
+          const insumo: any = await Producto.findByPk((receta as any).insumoId);
+          if (!insumo) continue;
+          const entradaAnterior = await Kardex.findOne({
+            where: { productoId: insumo.id, tipo: 'entrada', tenant_id: tenant.id },
+            order: [['createdAt', 'ASC'], ['id', 'ASC']],
+          });
+          const cantReceta = Number((receta as any).cantidad) * d.cantidad;
+          const merma = Number((receta as any).merma || 0);
+          const cantConMerma = cantReceta * (1 + merma / 100);
+          await Kardex.create({
+            tenant_id: tenant.id,
+            productoId: insumo.id,
+            tipo: 'salida',
+            cantidad: cantConMerma,
+            precioUnitario: (entradaAnterior as any)?.precioUnitario || Number(insumo.precioCompra),
+            ventaId: venta.id,
+            fecha: fechaHace(v.dias),
+            createdAt: fechaHace(v.dias),
+            updatedAt: fechaHace(v.dias),
+          });
+        }
+      }
     }
   }
   console.log(`${ventasData.length} ventas de prueba creadas`);

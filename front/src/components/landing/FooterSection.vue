@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<{ data?: LandingFooter }>(), {
       { titulo: 'Legal', links: [
         { label: 'Privacidad', href: 'https://biteops-blush.vercel.app/privacidad' },
         { label: 'Términos', href: 'https://biteops-blush.vercel.app/terminos' },
+        { label: 'Admin', href: '/login' },
       ]},
     ],
     copyright: '© 2026 BiteOps. Todos los derechos reservados.',

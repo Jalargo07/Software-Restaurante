@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteMeta } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useSuperAdminAuthStore } from '../stores/superAdminAuth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -128,6 +129,11 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['super-admin'] } as RouteMeta,
     },
     {
+      path: '/admin/login',
+      name: 'super-admin-login',
+      component: () => import('../views/auth/SuperAdminLoginView.vue'),
+    },
+    {
       path: '/reportes',
       name: 'reportes',
       component: () => import('../views/ReportesView.vue'),
@@ -138,18 +144,23 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
+  const saAuthStore = useSuperAdminAuthStore()
+  if (to.name === 'super-admin-login') return next()
+  if (saAuthStore.isAuthenticated && (to.name === 'login' || to.name === 'landing' || to.name === 'tenant-login')) {
+    return next('/super-admin')
+  }
   if (to.meta.publico) return next()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
   } else if (to.name === 'login' && authStore.isAuthenticated) {
-    next('/dashboard')
+    next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
   } else if (to.name === 'landing' && authStore.isAuthenticated) {
-    next('/dashboard')
+    next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
   } else if (to.name === 'tenant-login' && authStore.isAuthenticated) {
-    next('/dashboard')
+    next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
   } else if (to.meta.roles && authStore.user) {
     if (!(to.meta.roles as string[]).includes(authStore.user.rol)) {
-      next('/dashboard')
+      next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
     } else {
       next()
     }

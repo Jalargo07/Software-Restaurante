@@ -31,7 +31,8 @@ import facturasRoutes from './routes/facturas';
 import pagosRoutes from './routes/pagos';
 import landingRoutes, { landingPublicRouter } from './routes/landing';
 import { setSocketIO } from './utils/cacheInvalidation';
-import { Tenant, Usuario, TenantConfig, LandingContent } from './models';
+import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin } from './models';
+import superAdminAuthRoutes from './routes/superAdminAuth';
 import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
 
@@ -66,6 +67,8 @@ app.use(express.json({ limit: '10mb' })); // Límite de tamaño de body
 app.use('/api/public', publicBrandingRoutes);
 app.use('/api/public', menuRoutes);
 app.use('/api/public', landingPublicRouter);
+
+app.use('/api/super-admin', superAdminAuthRoutes);
 
 app.use('/api', tenantContext);
 
@@ -138,6 +141,16 @@ const startServer = async () => {
           tenant_id: 1,
         });
         console.log('Admin user created: admin@restaurant.com / admin123');
+      }
+
+      const saExists = await SuperAdmin.findOne({ where: { email: 'super@biteops.app' } });
+      if (!saExists) {
+        await SuperAdmin.create({
+          nombre: 'Super Admin',
+          email: 'super@biteops.app',
+          password: 'BiteOps2026!',
+        });
+        console.log('Super-admin creado en tabla propia: super@biteops.app / BiteOps2026!');
       }
 
       await TenantConfig.findOrCreate({

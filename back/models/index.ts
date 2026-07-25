@@ -15,6 +15,7 @@ import Kardex from './Kardex';
 import DocumentoFiscal from './DocumentoFiscal';
 import Transaccion from './Transaccion';
 import LandingContent from './LandingContent';
+import SuperAdmin from './SuperAdmin';
 
 // Tenant -> Models
 Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
@@ -138,4 +139,5 @@ export {
   DocumentoFiscal,
   Transaccion,
   LandingContent,
+  SuperAdmin,
 };

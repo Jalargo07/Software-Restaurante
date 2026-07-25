@@ -20,7 +20,7 @@ const Kardex = sequelize.define('Kardex', {
     allowNull: false,
   },
   cantidad: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     allowNull: false,
   },
   precioUnitario: {
