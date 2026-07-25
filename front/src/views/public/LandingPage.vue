@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import PublicHeader from '../../components/public/PublicHeader.vue'
 import HeroSection from '../../components/landing/HeroSection.vue'
 import ProblemSection from '../../components/landing/ProblemSection.vue'
@@ -11,6 +12,15 @@ import FooterSection from '../../components/landing/FooterSection.vue'
 import { useScrollAnimation } from '../../composables/useScrollAnimation'
 
 useScrollAnimation()
+
+onMounted(() => {
+  document.documentElement.setAttribute('data-theme', 'light')
+})
+
+onUnmounted(() => {
+  const savedTheme = localStorage.getItem('theme') || 'dark'
+  document.documentElement.setAttribute('data-theme', savedTheme)
+})
 </script>
 
 <template>

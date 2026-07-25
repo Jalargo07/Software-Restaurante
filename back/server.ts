@@ -32,6 +32,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/public', publicBrandingRoutes);
+
 app.use('/api', tenantContext);
 
 app.use('/api/mesas', mesasRoutes);
@@ -46,7 +48,6 @@ app.use('/api/auditoria', auditoriaRoutes);
 app.use('/api/cortes', corteCajaRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/branding', brandingRoutes);
-app.use('/api/public/branding', publicBrandingRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 
 app.get('/api/health', (_req, res) => {
