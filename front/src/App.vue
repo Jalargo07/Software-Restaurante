@@ -70,15 +70,14 @@ function salir() {
 }
 
 const navItems = computed(() => {
-  const items = [
-    { path: '/mesas', icon: '🪑', label: 'Mesas', roles: ['admin', 'mesero', 'cajero'] },
-    { path: '/pedidos', icon: '📋', label: 'Pedidos', roles: ['admin', 'mesero', 'cajero'] },
-    { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin', 'mesero'] },
-    { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
-    { path: '/caja', icon: '🏦', label: 'Caja', roles: ['admin', 'cajero'] },
-    { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
-    { path: '/admin', icon: '⚙️', label: 'Admin', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
-  ]
+    const items = [
+      { path: '/mesas', icon: '🪑', label: 'Mesas', roles: ['admin', 'mesero', 'cajero'] },
+      { path: '/pedidos', icon: '📋', label: 'Pedidos', roles: ['admin', 'mesero', 'cajero'] },
+      { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
+      { path: '/caja', icon: '🏦', label: 'Caja', roles: ['admin', 'cajero'] },
+      { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
+      { path: '/admin', icon: '⚙️', label: 'Admin', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
+    ]
   return items.filter(item => item.roles.includes(authStore.user?.rol || ''))
 })
 

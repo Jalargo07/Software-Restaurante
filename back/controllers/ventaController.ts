@@ -227,7 +227,7 @@ export const cobrar = async (req: Request, res: Response) => {
             if (insumo.stock < totalRequerido) {
               await t.rollback();
               return res.status(400).json({
-                error: `Stock insuficiente de "${insumo.nombre}": necesita ${totalRequerido}, disponible ${insumo.stock}`,
+                message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
               });
             }
 
@@ -237,7 +237,7 @@ export const cobrar = async (req: Request, res: Response) => {
           if (Number(producto.stock) < Number(detalle.cantidad)) {
             await t.rollback();
             return res.status(400).json({
-              error: `Stock insuficiente de "${producto.nombre}": necesitás ${detalle.cantidad}, tenés ${producto.stock}`,
+              message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
             });
           }
           const nuevoStock = producto.stock - detalle.cantidad;
@@ -416,7 +416,7 @@ export const crearRapida = async (req: Request, res: Response) => {
           if (insumo.stock < totalRequerido) {
             await t.rollback();
             return res.status(400).json({
-              error: `Stock insuficiente de "${insumo.nombre}": necesita ${totalRequerido}, disponible ${insumo.stock}`,
+              message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
             });
           }
 
@@ -426,7 +426,7 @@ export const crearRapida = async (req: Request, res: Response) => {
         if (Number(producto.stock) < Number(item.cantidad)) {
           await t.rollback();
           return res.status(400).json({
-            error: `Stock insuficiente de "${producto.nombre}": necesitás ${item.cantidad}, tenés ${producto.stock}`,
+            message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
           });
         }
         await producto.update({ stock: producto.stock - item.cantidad }, { transaction: t });

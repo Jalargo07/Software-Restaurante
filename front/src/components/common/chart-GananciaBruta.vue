@@ -18,19 +18,19 @@ const props = defineProps<{
   data: GananciaBruta[]
 }>()
 
-const chartData = computed(() => ({
+const   chartData = computed(() => ({
   labels: props.data.map((item) => item.dia),
   datasets: [
     {
-      label: 'Ventas ($)',
-      data: props.data.map((item) => item.ventas),
-      backgroundColor: '#22c55e', // Verde
+      label: 'Costo ($)',
+      data: props.data.map((item) => item.costo),
+      backgroundColor: '#ef4444', // Rojo (Abajo)
       stack: 'combined',
     },
     {
-      label: 'Costo ($)',
-      data: props.data.map((item) => item.costo),
-      backgroundColor: '#ef4444', // Rojo
+      label: 'Ventas ($)',
+      data: props.data.map((item) => item.ventas),
+      backgroundColor: '#22c55e', // Verde (Encima)
       stack: 'combined',
     },
   ],
