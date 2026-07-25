@@ -11,9 +11,14 @@ const errorMsg = ref('')
 
 async function handleLogin() {
   errorMsg.value = ''
-  const ok = await authStore.login(email.value, password.value)
-  if (ok) router.push('/super-admin')
-  else errorMsg.value = authStore.error || 'Credenciales inválidas'
+  const result = await authStore.login(email.value, password.value)
+  if (result && typeof result === 'object' && result.twoFactorRequired) {
+    router.push('/admin/2fa')
+  } else if (result) {
+    router.push('/super-admin')
+  } else {
+    errorMsg.value = authStore.error || 'Credenciales inválidas'
+  }
 }
 </script>
 

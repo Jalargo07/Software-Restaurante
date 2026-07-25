@@ -8,6 +8,7 @@ import ToastContainer from './components/common/ToastContainer.vue'
 import Sidebar from './components/common/Sidebar.vue'
 
 const authStore = useAuthStore()
+const saAuthStore = useSuperAdminAuthStore()
 const brandingStore = useBrandingStore()
 const router = useRouter()
 const route = useRoute()
@@ -73,9 +74,8 @@ function labelPlan(plan: string) {
 
 function salir() {
   authStore.logout()
-  const saAuthStore = useSuperAdminAuthStore()
   saAuthStore.logout()
-  router.push('/login')
+  router.push('/admin/login')
 }
 
 const navItems = computed(() => {
@@ -107,10 +107,10 @@ function isActive(path: string) {
 
   <div
     v-else
-    :class="['flex flex-col', authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : 'min-h-screen']"
+    :class="['flex flex-col', (authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : 'min-h-screen']"
   >
     <Sidebar
-      v-if="authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute)"
+      v-if="(authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || isAdministrationRoute)"
       v-model="mobileMenuOpen"
       v-model:currentMode="currentMode"
       :theme="theme"
@@ -119,7 +119,7 @@ function isActive(path: string) {
     />
 
     <div class="flex flex-col flex-1 min-w-0">
-      <header v-if="authStore.isAuthenticated" class="flex items-center gap-3 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+      <header v-if="authStore.isAuthenticated || saAuthStore.isAuthenticated" class="flex items-center gap-3 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <button v-if="currentMode === 'administracion' || isAdministrationRoute" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" @click="mobileMenuOpen = !mobileMenuOpen">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
@@ -139,7 +139,7 @@ function isActive(path: string) {
       </main>
     </div>
 
-    <nav v-if="authStore.isAuthenticated && !(currentMode === 'administracion' || isAdministrationRoute)" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-800 rounded-2xl px-2 py-1.5 flex items-center gap-1 shadow-lg z-50 max-w-[calc(100vw-2rem)] overflow-x-auto scrollbar-hide">
+    <nav v-if="(authStore.isAuthenticated || saAuthStore.isAuthenticated) && !(currentMode === 'administracion' || isAdministrationRoute)" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-800 rounded-2xl px-2 py-1.5 flex items-center gap-1 shadow-lg z-50 max-w-[calc(100vw-2rem)] overflow-x-auto scrollbar-hide">
       <RouterLink
         v-for="item in navItems"
         :key="item.path"
