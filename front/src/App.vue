@@ -13,9 +13,10 @@ const route = useRoute()
 
 const theme = ref(localStorage.getItem('theme') || 'light')
 const currentMode = ref<'produccion' | 'administracion'>('produccion')
+const mobileMenuOpen = ref(false)
 
 const isPublicRoute = computed(() => {
-  return route.path === '/' || route.name === 'login' || route.name === 'tenant-login'
+  return route.path === '/' || route.name === 'login' || route.name === 'tenant-login' || route.name === 'menu-qr'
 })
 
 const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/inventario', '/reportes']
@@ -103,6 +104,7 @@ function isActive(path: string) {
   >
     <Sidebar
       v-if="authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute)"
+      v-model="mobileMenuOpen"
       v-model:currentMode="currentMode"
       :theme="theme"
       @toggle-theme="toggleTheme"
@@ -111,6 +113,9 @@ function isActive(path: string) {
 
     <div class="flex flex-col flex-1 min-w-0">
       <header v-if="authStore.isAuthenticated && brandingStore.branding" class="flex items-center gap-3 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <button v-if="currentMode === 'administracion' || isAdministrationRoute" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" @click="mobileMenuOpen = !mobileMenuOpen">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
         <img
           v-if="brandingStore.branding.logo"
           :src="brandingStore.branding.logo"

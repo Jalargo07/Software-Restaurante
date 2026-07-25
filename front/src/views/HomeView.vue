@@ -202,7 +202,7 @@ async function exportarReporteExcel() {
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === '30dias'" :icono="CalendarRange" texto="Últimos 30 días" @click="cambiarPeriodo('30dias')" />
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'mes'" :icono="Calendar" texto="Este Mes" @click="cambiarPeriodo('mes')" />
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'personalizado'" :icono="SlidersHorizontal" texto="Personalizado" @click="reporteStore.filtroPeriodo = 'personalizado'" />
-          <div class="w-64 ml-2">
+          <div class="w-full md:w-64 ml-2">
             <Multiselect v-model="reporteStore.productoIds" :options="productosList" placeholder="Filtrar por productos" @update:modelValue="aplicarFiltros" />
           </div>
         </div>

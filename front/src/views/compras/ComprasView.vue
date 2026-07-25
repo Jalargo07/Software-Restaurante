@@ -138,8 +138,8 @@ async function exportarExcel() {
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">ID</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Proveedor</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
@@ -148,8 +148,8 @@ async function exportarExcel() {
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700 [&_tr:nth-child(odd)]:bg-gray-50 dark:[&_tr:nth-child(odd)]:bg-gray-800/50">
             <tr v-for="c in comprasFiltradas" :key="c.id">
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ c.id }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ c.proveedor?.nombre || c.Proveedor?.nombre || c.proveedor }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">{{ c.id }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">{{ c.proveedor?.nombre || c.Proveedor?.nombre || c.proveedor }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ new Date(c.fecha).toLocaleDateString() }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${{ c.total }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
@@ -158,10 +158,10 @@ async function exportarExcel() {
                 </span>
               </td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-cyan-500 text-cyan-600 hover:bg-cyan-500 hover:text-white rounded-lg transition-colors mr-1" @click="verDetalle(c)">Ver</button>
-                <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="editarCompra(c)">Editar</button>
-                <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mr-1" @click="recibirCompra(c.id)">Recibir</button>
-                <button v-if="c.estado === 'pendiente' && canDelete" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="cancelarCompra(c.id)">Cancelar</button>
+                <button class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 border border-cyan-500 text-cyan-600 hover:bg-cyan-500 hover:text-white rounded-lg transition-colors mr-1" @click="verDetalle(c)">Ver</button>
+                <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="editarCompra(c)">Editar</button>
+                <button v-if="c.estado === 'pendiente' && canEdit" class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mr-1" @click="recibirCompra(c.id)">Recibir</button>
+                <button v-if="c.estado === 'pendiente' && canDelete" class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="cancelarCompra(c.id)">Cancelar</button>
               </td>
             </tr>
             <tr v-if="comprasFiltradas.length === 0">

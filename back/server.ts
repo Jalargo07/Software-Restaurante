@@ -25,6 +25,7 @@ import corteCajaRoutes from './routes/corteCaja';
 import uploadRoutes from './routes/upload';
 import brandingRoutes from './routes/branding';
 import publicBrandingRoutes from './routes/publicBranding';
+import menuRoutes from './routes/menus';
 import superAdminRoutes from './routes/superAdmin';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig } from './models';
@@ -59,6 +60,7 @@ app.use('/api', generalLimiter);
 app.use(express.json({ limit: '10mb' })); // Límite de tamaño de body
 
 app.use('/api/public', publicBrandingRoutes);
+app.use('/api/public', menuRoutes);
 
 app.use('/api', tenantContext);
 

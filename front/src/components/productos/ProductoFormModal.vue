@@ -170,7 +170,7 @@ async function guardar() {
       <textarea v-model="form.descripcion" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" rows="2"></textarea>
     </div>
     <div class="grid grid-cols-12 gap-3 mb-2">
-      <div class="col-span-6">
+      <div class="col-span-12 md:col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoria</label>
         <select v-model="form.categoria" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
           <option value="comida">Comida</option>
@@ -179,7 +179,7 @@ async function guardar() {
           <option value="insumo">Insumo</option>
         </select>
       </div>
-      <div class="col-span-6">
+      <div class="col-span-12 md:col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unidad</label>
         <select v-model="form.unidad" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm">
           <option value="unidad">Unidad</option>
@@ -198,25 +198,25 @@ async function guardar() {
       </select>
     </div>
     <div class="grid grid-cols-12 gap-3 mb-2">
-      <div class="col-span-6">
+      <div class="col-span-12 md:col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Compra</label>
         <input v-model.number="form.precioCompra" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required min="0">
       </div>
-      <div class="col-span-6">
+      <div class="col-span-12 md:col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Venta</label>
         <input v-model.number="form.precioVenta" type="number" step="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" required min="0">
       </div>
     </div>
     <div class="grid grid-cols-12 gap-3 mb-2">
-      <div class="col-span-6">
+      <div class="col-span-12 md:col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Minimo</label>
         <input v-model.number="form.stockMinimo" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" min="0">
       </div>
-      <div v-if="!esNuevo" class="col-span-6">
+      <div v-if="!esNuevo" class="col-span-12 md:col-span-6">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock (se gestiona con compras)</label>
         <input :value="form.stock" type="number" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-2 text-sm" readonly>
       </div>
-      <div v-else class="col-span-6 flex items-end">
+      <div v-else class="col-span-12 md:col-span-6 flex items-end">
         <span class="text-gray-500 dark:text-gray-400 text-xs">Stock: 0 (se actualiza con compras)</span>
       </div>
     </div>
@@ -232,7 +232,7 @@ async function guardar() {
         <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors" @click="agregarIngrediente">+ Ingrediente</button>
       </div>
       <div class="grid grid-cols-12 gap-3 mb-2">
-        <div class="col-span-3">
+        <div class="col-span-12 md:col-span-3">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Porciones</label>
           <input v-model.number="recetaForm.porciones" type="number" min="1" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
         </div>
@@ -242,19 +242,19 @@ async function guardar() {
           Sin ingredientes
         </div>
         <div v-for="(d, i) in recetaForm.detalles" :key="i" class="grid grid-cols-12 gap-1 mb-1 items-end">
-          <div class="col-span-4">
+          <div class="col-span-12 md:col-span-4">
             <select v-model="d.insumoId" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm" required>
               <option :value="null" disabled>Insumo</option>
               <option v-for="ins in insumos" :key="ins.id" :value="ins.id">{{ ins.nombre }}</option>
             </select>
           </div>
-          <div class="col-span-2">
+          <div class="col-span-6 md:col-span-2">
             <input v-model.number="d.cantidad" type="number" step="0.001" min="0.001" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500" placeholder="Cant." required>
           </div>
-          <div class="col-span-2">
+          <div class="col-span-4 md:col-span-2">
             <span class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 block">{{ insumos.find((i) => i.id === d.insumoId)?.unidad || '—' }}</span>
           </div>
-          <div class="col-span-2 text-right">
+          <div class="col-span-2 md:col-span-2 text-right">
             <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="quitarIngrediente(i)">X</button>
           </div>
         </div>

@@ -141,10 +141,10 @@ function estadoColor(estado: string) {
             <p v-if="mesa.ubicacion" class="text-gray-500 dark:text-gray-400 text-xs">{{ mesa.ubicacion }}</p>
             <span :class="`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${estadoColor(mesa.estado) === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : estadoColor(mesa.estado) === 'danger' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : estadoColor(mesa.estado) === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`">{{ mesa.estado }}</span>
             <div class="mt-2 flex items-center justify-center gap-1">
-              <button v-if="mesa.estado === 'disponible'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors mr-1" @click="abrirPedido(mesa)">Ocupar</button>
-              <button v-if="mesa.estado === 'ocupada'" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors mr-1" @click="verPedido(mesa)">Ver Pedido</button>
-              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(mesa)">Editar</button>
-              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(mesa.id)">Eliminar</button>
+              <button v-if="mesa.estado === 'disponible'" class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors mr-1" @click="abrirPedido(mesa)">Ocupar</button>
+              <button v-if="mesa.estado === 'ocupada'" class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors mr-1" @click="verPedido(mesa)">Ver Pedido</button>
+              <button class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors mr-1" @click="abrirModal(mesa)">Editar</button>
+              <button class="inline-flex items-center gap-1.5 text-xs px-2 py-1 md:text-xs md:px-3 md:py-1.5 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" @click="eliminar(mesa.id)">Eliminar</button>
             </div>
           </div>
         </div>

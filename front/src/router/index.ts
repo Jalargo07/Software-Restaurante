@@ -20,6 +20,12 @@ const router = createRouter({
       component: () => import('../views/auth/LoginView.vue'),
     },
     {
+      path: '/menu/:slug',
+      name: 'menu-qr',
+      component: () => import('../views/public/MenuQRView.vue'),
+      meta: { publico: true },
+    },
+    {
       path: '/dashboard',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
@@ -114,6 +120,7 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
+  if (to.meta.publico) return next()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
   } else if (to.name === 'login' && authStore.isAuthenticated) {

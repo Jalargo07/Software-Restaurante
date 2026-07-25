@@ -167,7 +167,27 @@ async function confirmarCobroDividido() {
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white rounded-lg transition-colors" @click="agregarFila">+ Agregar Parte</button>
         </div>
 
-        <div class="overflow-x-auto" style="max-height: 200px; overflow-y: auto;">
+        <!-- Mobile cards -->
+        <div class="flex flex-col gap-3 md:hidden">
+          <div v-for="(fila, index) in filasPersonalizadas" :key="fila.id" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+            <div class="mb-2">
+              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Monto ($)</label>
+              <input type="number" step="0.01" min="0" v-model.number="fila.monto" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
+            </div>
+            <div class="mb-2">
+              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Método</label>
+              <select v-model="fila.metodo" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+              </select>
+            </div>
+            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors" :disabled="filasPersonalizadas.length <= 1" @click="eliminarFila(index)">Eliminar</button>
+          </div>
+        </div>
+
+        <!-- Desktop table -->
+        <div class="overflow-x-auto hidden md:block" style="max-height: 200px; overflow-y: auto;">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
             <thead>
               <tr class="bg-gray-50 dark:bg-gray-800">
