@@ -2,10 +2,12 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import sequelize from './config/database';
 import { connectRedis, disconnectRedis } from './config/redis';
 import tenantContext from './middleware/tenantContext';
+import { generalLimiter } from './middleware/rateLimit';
 import mesasRoutes from './routes/mesas';
 import productosRoutes from './routes/productos';
 import comprasRoutes from './routes/compras';
@@ -29,13 +31,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Seguridad: Helmet (headers HTTP seguros)
+app.use(helmet({
+  contentSecurityPolicy: false, // Desactivado para permitir inline scripts de la app
+  crossOriginEmbedderPolicy: false, // Permitir embeds de imágenes de R2
+}));
+
 // CORS configurado según entorno
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 app.use(cors({
   origin: corsOrigin,
   credentials: true,
 }));
-app.use(express.json());
+
+// Rate limiting general (100 requests/15min por IP)
+app.use('/api', generalLimiter);
+
+app.use(express.json({ limit: '10mb' })); // Límite de tamaño de body
 
 app.use('/api/public', publicBrandingRoutes);
 

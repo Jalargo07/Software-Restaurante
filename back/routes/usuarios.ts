@@ -3,11 +3,12 @@ import Usuario from '../models/Usuario';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
+import { loginLimiter } from '../middleware/rateLimit';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 
 const router = Router();
 
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const usuario = await Usuario.findOne({ where: { email } });
   if (!usuario) return res.status(401).json({ error: 'Credenciales inválidas' });

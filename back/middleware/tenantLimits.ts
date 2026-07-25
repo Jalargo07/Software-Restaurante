@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Tenant, Producto, Usuario, Venta } from '../models';
+import { Tenant, Producto, Usuario, Venta, Auditoria } from '../models';
 import { Op } from 'sequelize';
 
-export const checkTenantLimit = (limitType: 'producto' | 'venta' | 'usuario') => {
+export const checkTenantLimit = (limitType: 'producto' | 'venta' | 'usuario' | 'upload') => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenantId = req.tenantId || req.user?.tenantId;
@@ -54,6 +54,27 @@ export const checkTenantLimit = (limitType: 'producto' | 'venta' | 'usuario') =>
         }
         if (plan === 'pro' && count >= 200) {
           return res.status(403).json({ error: 'Límite de ventas diarias alcanzado para el plan Pro (máximo 200)' });
+        }
+      } else if (limitType === 'upload') {
+        // Límite de uploads por día (imágenes)
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const count = await Auditoria.count({
+          where: {
+            usuarioId: req.user?.id,
+            accion: 'UPLOAD_IMAGEN',
+            createdAt: {
+              [Op.gte]: startOfDay,
+            },
+          },
+        });
+
+        if (plan === 'basico' && count >= 20) {
+          return res.status(403).json({ error: 'Límite de uploads diarios alcanzado para el plan Básico (máximo 20)' });
+        }
+        if (plan === 'pro' && count >= 100) {
+          return res.status(403).json({ error: 'Límite de uploads diarios alcanzado para el plan Pro (máximo 100)' });
         }
       }
 

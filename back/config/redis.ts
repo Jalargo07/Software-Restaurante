@@ -10,7 +10,7 @@ export function connectRedis(): Redis | null {
     // Upstash usa URL HTTPS + token, ioredis necesita formato especial
     const config: any = {
       maxRetriesPerRequest: 3,
-      retryStrategy(times) {
+      retryStrategy(times: number) {
         if (times > 3) return null;
         return Math.min(times * 200, 2000);
       },
