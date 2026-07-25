@@ -31,16 +31,20 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (necesario para rate limiting detrás de reverse proxy en Koyeb/Vercel)
+app.set('trust proxy', 1);
+
 // Seguridad: Helmet (headers HTTP seguros)
 app.use(helmet({
   contentSecurityPolicy: false, // Desactivado para permitir inline scripts de la app
   crossOriginEmbedderPolicy: false, // Permitir embeds de imágenes de R2
 }));
 
-// CORS configurado según entorno
+// CORS configurado según entorno (soporta múltiples orígenes separados por coma)
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+const corsOrigins = corsOrigin.split(',').map(o => o.trim());
 app.use(cors({
-  origin: corsOrigin,
+  origin: corsOrigins,
   credentials: true,
 }));
 
@@ -88,44 +92,53 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected');
-    await sequelize.sync({ alter: true });
-    console.log('Models synced');
+
+    // Solo sincronizar schema en desarrollo, no en producción
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync({ alter: true });
+      console.log('Models synced');
+    } else {
+      console.log('Producción: sincronización de modelos omitida (usar migraciones)');
+    }
 
     await ensureBucket();
 
-    const [defaultTenant] = await Tenant.findOrCreate({
-      where: { id: 1 },
-      defaults: {
-        nombre: 'Restaurante Principal',
-        slug: 'restaurante-principal',
-        activo: true,
-      },
-    }) as [any, boolean];
-    console.log(`Tenant por defecto activo: ${defaultTenant.nombre}`);
+    // Solo crear datos por defecto en desarrollo
+    if (process.env.NODE_ENV !== 'production' || process.env.RUN_SEED === 'true') {
+      const [defaultTenant] = await Tenant.findOrCreate({
+        where: { id: 1 },
+        defaults: {
+          nombre: 'Restaurante Principal',
+          slug: 'restaurante-principal',
+          activo: true,
+        },
+      }) as [any, boolean];
+      console.log(`Tenant por defecto activo: ${defaultTenant.nombre}`);
 
-    const adminExists = await Usuario.findOne({ where: { email: 'admin@restaurant.com' } });
-    if (!adminExists) {
-      await Usuario.create({
-        nombre: 'Administrador',
-        email: 'admin@restaurant.com',
-        password: 'admin123',
-        rol: 'admin',
-        tenant_id: 1,
+      const adminExists = await Usuario.findOne({ where: { email: 'admin@restaurant.com' } });
+      if (!adminExists) {
+        await Usuario.create({
+          nombre: 'Administrador',
+          email: 'admin@restaurant.com',
+          password: 'admin123',
+          rol: 'admin',
+          tenant_id: 1,
+        });
+        console.log('Admin user created: admin@restaurant.com / admin123');
+      }
+
+      await TenantConfig.findOrCreate({
+        where: { tenant_id: defaultTenant.get('id') },
+        defaults: {
+          nombreCompleto: 'Restaurante Principal',
+          colorPrimario: '#0d6efd',
+          colorSecundario: '#6c757d',
+          colorAcento: '#198754',
+          fontPrincipal: 'Inter',
+        },
       });
-      console.log('Admin user created: admin@restaurant.com / admin123');
+      console.log('TenantConfig por defecto creada');
     }
-
-    await TenantConfig.findOrCreate({
-      where: { tenant_id: defaultTenant.get('id') },
-      defaults: {
-        nombreCompleto: 'Restaurante Principal',
-        colorPrimario: '#0d6efd',
-        colorSecundario: '#6c757d',
-        colorAcento: '#198754',
-        fontPrincipal: 'Inter',
-      },
-    });
-    console.log('TenantConfig por defecto creada');
 
     connectRedis();
 

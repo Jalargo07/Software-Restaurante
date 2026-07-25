@@ -19,12 +19,13 @@ export function connectRedis(): Redis | null {
 
     // Si hay token, es Upstash (URL HTTPS)
     if (token && url.startsWith('https://')) {
-      // Upstash REST API no es compatible con ioredis directamente
-      // Usamos URL con token embebido si es formato rediss://
-      const upstashUrl = url.replace('https://', `rediss://:${token}@`);
-      config.username = 'default';
+      // Upstash requiere configuración TLS especial
+      config.tls = { rejectUnauthorized: false };
       config.password = token;
-      client = new Redis(upstashUrl, config);
+      // Upstash usa un formato de URL diferente, extraemos el host
+      const urlObj = new URL(url);
+      const redisUrl = `rediss://default:${token}@${urlObj.hostname}`;
+      client = new Redis(redisUrl, config);
     } else if (token) {
       // Formato rediss:// con token
       config.password = token;

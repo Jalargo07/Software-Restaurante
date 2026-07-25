@@ -3,8 +3,15 @@ import { S3Client, CreateBucketCommand, HeadBucketCommand, PutBucketPolicyComman
 export const BUCKET = process.env.S3_BUCKET_NAME || 'restaurante-bucket';
 export const REGION = process.env.S3_REGION || 'auto';
 export const ENDPOINT = process.env.S3_ENDPOINT || 'http://localhost:9000';
-export const ACCESS_KEY = process.env.S3_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || 'alejoadmin';
-export const SECRET_KEY = process.env.S3_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY || 'alejo1234';
+export const ACCESS_KEY = process.env.S3_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY;
+export const SECRET_KEY = process.env.S3_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY;
+
+if (!ACCESS_KEY || !SECRET_KEY) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('S3_ACCESS_KEY y S3_SECRET_KEY son requeridos en producción');
+  }
+  console.warn('⚠️ Credenciales S3 no configuradas, usando defaults de desarrollo');
+}
 
 // R2 requiere forcePathStyle: false, MinIO requiere true
 export const forcePathStyle = process.env.S3_FORCE_PATH_STYLE !== undefined
@@ -15,8 +22,8 @@ export const s3Client = new S3Client({
   region: REGION,
   endpoint: ENDPOINT,
   credentials: {
-    accessKeyId: ACCESS_KEY,
-    secretAccessKey: SECRET_KEY,
+    accessKeyId: ACCESS_KEY || 'dev-access-key',
+    secretAccessKey: SECRET_KEY || 'dev-secret-key',
   },
   forcePathStyle,
 });

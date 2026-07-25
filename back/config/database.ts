@@ -44,6 +44,13 @@ if (process.env.NODE_ENV === 'test') {
       dialectOptions: {
         useUTC: false,
         typeCast: true,
+        ssl: process.env.NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
+      },
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
       },
     }
   );
