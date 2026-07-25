@@ -160,6 +160,7 @@ export interface TenantConfig {
   colorAcento: string
   nombreCompleto: string | null
   fontPrincipal: string
+  estiloMenu?: EstiloMenu
   pais?: string
   rut?: string
   razonSocial?: string
@@ -178,6 +179,7 @@ export interface TenantConfigUpdatePayload {
   colorAcento?: string
   nombreCompleto?: string | null
   fontPrincipal?: string
+  estiloMenu?: EstiloMenu
   pais?: string
   rut?: string
   razonSocial?: string
@@ -398,6 +400,8 @@ export interface Tenant {
 
 export type TipoDocumentoFiscal = 'boleta' | 'factura'
 export type EstadoDocumentoFiscal = 'pendiente' | 'timbrado' | 'rechazado'
+
+export type EstiloMenu = 'elegante' | 'novedoso' | 'minimalista'
 
 export interface DocumentoFiscal {
   id: number

@@ -62,7 +62,7 @@ function isActive(path: string) {
 
 <template>
   <div v-if="modelValue" class="fixed inset-0 bg-black/50 z-40 md:hidden" @click="emit('update:modelValue', false)"></div>
-  <aside class="w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col h-screen sticky top-0 fixed inset-y-0 left-0 z-50 transform transition-transform md:translate-x-0 md:relative md:h-screen" :class="modelValue ? 'translate-x-0' : '-translate-x-full'">
+  <aside class="w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col h-screen sticky top-0 overflow-hidden fixed inset-y-0 left-0 z-50 transform transition-transform md:translate-x-0 md:relative md:h-screen" :class="modelValue ? 'translate-x-0' : '-translate-x-full'">
     <div class="p-4 border-b border-gray-700">
       <div class="flex rounded-lg bg-gray-800 p-1">
         <button

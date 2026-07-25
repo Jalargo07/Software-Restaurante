@@ -1,8 +1,19 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useBrandingStore } from '../../stores/branding'
 import { useToastStore } from '../../stores/toast'
 import api from '../../services/api'
+
+import QRCode from 'qrcode'
+
+const estilosMenu = [
+  { value: 'elegante' as const, label: 'Elegante', desc: 'Bordes redondeados, sombras suaves, badges de precio' },
+  { value: 'novedoso' as const, label: 'Novedoso', desc: 'Fotos full-width, animaciones, diseño moderno' },
+  { value: 'minimalista' as const, label: 'Minimalista', desc: 'Limpio, tipografía grande, sin imágenes' },
+]
+
+const qrCanvas = ref<HTMLCanvasElement | null>(null)
+const qrUrl = computed(() => `${origin}/menu/${slug.value}`)
 
 const brandingStore = useBrandingStore()
 const toast = useToastStore()
@@ -17,6 +28,7 @@ const form = ref({
   colorAcento: '#198754',
   nombreCompleto: '',
   fontPrincipal: 'Inter',
+  estiloMenu: 'elegante',
   pais: 'chile',
   rut: '',
   razonSocial: '',
@@ -61,6 +73,7 @@ onMounted(async () => {
       comuna: b.comuna || '',
       ciudad: b.ciudad || '',
       ambiente: b.ambiente || 'pruebas',
+      estiloMenu: b.estiloMenu || 'elegante',
     }
     logoPreview.value = b.logo || ''
     bannerPreview.value = b.banner || ''
@@ -107,6 +120,22 @@ function abrirMenuQR() {
   window.open(`${window.location.origin}/menu/${slug.value}`, '_blank')
 }
 
+watch([qrUrl, qrCanvas], async () => {
+  if (qrCanvas.value && slug.value) {
+    try {
+      await QRCode.toCanvas(qrCanvas.value, qrUrl.value, { width: 200, margin: 2 })
+    } catch { /* ignore */ }
+  }
+}, { immediate: true })
+
+function descargarQR() {
+  if (!qrCanvas.value) return
+  const link = document.createElement('a')
+  link.download = `menu-${slug.value}.png`
+  link.href = qrCanvas.value.toDataURL('image/png')
+  link.click()
+}
+
 async function guardar() {
   guardando.value = true
   try {
@@ -124,6 +153,7 @@ async function guardar() {
       comuna: form.value.comuna || null,
       ciudad: form.value.ciudad || null,
       ambiente: form.value.ambiente,
+      estiloMenu: form.value.estiloMenu,
     }
 
     if (logoArchivo.value) {
@@ -368,16 +398,32 @@ async function guardar() {
     </div>
 
     <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Menú QR Digital</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Compartí este enlace para que tus clientes vean el menú digital desde su celular.</p>
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <code class="text-sm bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 break-all">{{ origin }}/menu/{{ slug }}</code>
-        <button
-          @click="abrirMenuQR"
-          class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-        >
-          🔗 Abrir
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Estilo de Menú Digital</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Elegí el diseño de las cards del menú QR que ven tus clientes.</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <button v-for="estilo in estilosMenu" :key="estilo.value" @click="form.estiloMenu = estilo.value"
+          class="p-4 rounded-xl border-2 text-left transition-all"
+          :class="form.estiloMenu === estilo.value ? 'border-[var(--color-primario)] bg-[var(--color-primario)]/5' : 'border-gray-200 dark:border-gray-600 hover:border-gray-400'">
+          <h4 class="font-semibold text-gray-900 dark:text-gray-100">{{ estilo.label }}</h4>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ estilo.desc }}</p>
         </button>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Menú QR Digital</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Compartí este código QR para que tus clientes accedan al menú digital.</p>
+      <div class="flex flex-col sm:flex-row items-center gap-4">
+        <div class="bg-white p-2 rounded-xl shadow-sm">
+          <canvas ref="qrCanvas" class="w-40 h-40"></canvas>
+        </div>
+        <div class="flex-1 space-y-3">
+          <code class="block text-sm bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 break-all">{{ origin }}/menu/{{ slug }}</code>
+          <div class="flex gap-2">
+            <button @click="abrirMenuQR" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors">Abrir</button>
+            <button @click="descargarQR" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium rounded-lg transition-colors">Descargar QR</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -63,6 +63,10 @@ const TenantConfig = sequelize.define('TenantConfig', {
     type: DataTypes.STRING,
     defaultValue: 'Inter',
   },
+  estiloMenu: {
+    type: DataTypes.ENUM('elegante', 'novedoso', 'minimalista'),
+    defaultValue: 'elegante',
+  },
   pais: { type: DataTypes.ENUM('chile', 'argentina'), defaultValue: 'chile' },
   rut: { type: DataTypes.STRING, allowNull: true },
   razonSocial: { type: DataTypes.STRING, allowNull: true },

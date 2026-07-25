@@ -17,7 +17,7 @@ export const updateBranding = async (req: Request, res: Response) => {
     const config: any = await TenantConfig.findOne({ where: { tenant_id: req.tenantId } });
     if (!config) return res.status(404).json({ error: 'Configuración de branding no encontrada' });
 
-    const allowedFields = ['logo', 'banner', 'colorPrimario', 'colorSecundario', 'colorAcento', 'nombreCompleto', 'fontPrincipal', 'pais', 'rut', 'razonSocial', 'giro', 'direccion', 'comuna', 'ciudad', 'ambiente'];
+    const allowedFields = ['logo', 'banner', 'colorPrimario', 'colorSecundario', 'colorAcento', 'nombreCompleto', 'fontPrincipal', 'estiloMenu', 'pais', 'rut', 'razonSocial', 'giro', 'direccion', 'comuna', 'ciudad', 'ambiente'];
     const campos: any = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {

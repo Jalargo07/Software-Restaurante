@@ -25,6 +25,7 @@ export const getPublicMenu = async (req: Request, res: Response) => {
         logo: tenant.TenantConfig?.logo || null,
         colorPrimario: tenant.TenantConfig?.colorPrimario || '#2563eb',
         colorSecundario: tenant.TenantConfig?.colorSecundario || '#1e40af',
+        estiloMenu: tenant.TenantConfig?.estiloMenu || 'elegante',
       },
       productos,
     });
