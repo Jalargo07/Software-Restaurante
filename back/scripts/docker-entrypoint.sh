@@ -2,13 +2,32 @@
 set -e
 cd /app
 
-# Solo ejecutar seed en desarrollo o si se fuerza explícitamente
+# Resolver IPv4 para DATABASE_URL (fix Supabase + Render ENETUNREACH)
+if [ -n "$DATABASE_URL" ]; then
+  DB_HOST=$(echo "$DATABASE_URL" | sed -E 's|.*@([^:/]+).*|\1|')
+  DB_IP=$(DB_HOST="$DB_HOST" node -e "
+    const dns = require('dns');
+    const host = process.env.DB_HOST;
+    dns.resolve4(host, (err, addrs) => {
+      if (err || !addrs.length) process.exit(1);
+      process.stdout.write(addrs[0]);
+    });
+  " 2>/dev/null) || true
+  if [ -n "$DB_IP" ]; then
+    export DATABASE_URL=$(echo "$DATABASE_URL" | sed "s|$DB_HOST|$DB_IP|")
+    echo "DNS: resolved $DB_HOST -> IPv4: $DB_IP"
+  else
+    echo "DNS: could not resolve IPv4 for $DB_HOST, using original"
+  fi
+fi
+
+# Solo ejecutar seed en desarrollo o si se fuerza explicitamente
 if [ "$RUN_SEED" = "true" ] || [ "$NODE_ENV" != "production" ]; then
   echo "Ejecutando seed..."
   node dist/scripts/seed.js
 else
-  echo "Seed omitido (producción). Usando base de datos existente."
+  echo "Seed omitido (produccion). Usando base de datos existente."
 fi
 
 echo "Arrancando servidor..."
-exec pnpm start
+exec node --dns-result-order=ipv4first dist/server.js
