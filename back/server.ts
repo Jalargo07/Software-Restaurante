@@ -29,8 +29,10 @@ import menuRoutes from './routes/menus';
 import superAdminRoutes from './routes/superAdmin';
 import facturasRoutes from './routes/facturas';
 import pagosRoutes from './routes/pagos';
+import landingRoutes, { landingPublicRouter } from './routes/landing';
 import { setSocketIO } from './utils/cacheInvalidation';
-import { Tenant, Usuario, TenantConfig } from './models';
+import { Tenant, Usuario, TenantConfig, LandingContent } from './models';
+import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
 
 dotenv.config();
@@ -63,6 +65,7 @@ app.use(express.json({ limit: '10mb' })); // Límite de tamaño de body
 
 app.use('/api/public', publicBrandingRoutes);
 app.use('/api/public', menuRoutes);
+app.use('/api/public', landingPublicRouter);
 
 app.use('/api', tenantContext);
 
@@ -81,6 +84,7 @@ app.use('/api/branding', brandingRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/facturas', facturasRoutes);
 app.use('/api/pagos', pagosRoutes);
+app.use('/api/landing', landingRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
@@ -147,6 +151,13 @@ const startServer = async () => {
         },
       });
       console.log('TenantConfig por defecto creada');
+
+      // Seed landing content por defecto
+      const landingCount = await LandingContent.count();
+      if (landingCount === 0) {
+        await LandingContent.create({ data: getDefaultData() });
+        console.log('Landing content por defecto creado');
+      }
     }
 
     connectRedis();

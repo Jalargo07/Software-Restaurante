@@ -122,6 +122,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['super-admin'] } as RouteMeta,
     },
     {
+      path: '/cms',
+      name: 'cms',
+      component: () => import('../views/admin/CmsView.vue'),
+      meta: { requiresAuth: true, roles: ['super-admin'] } as RouteMeta,
+    },
+    {
       path: '/reportes',
       name: 'reportes',
       component: () => import('../views/ReportesView.vue'),

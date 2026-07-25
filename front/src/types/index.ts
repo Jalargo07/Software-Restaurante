@@ -436,3 +436,27 @@ export interface DocumentoFiscal {
   respuestaSii?: any
   createdAt: string
 }
+
+// ─── CMS Landing Types ─────────────────────────────────
+
+export interface LandingHero {
+  logo: string; titulo: string; tituloGradiente: string; subtitulo: string
+  ctaPrincipal: { texto: string; link: string }
+  ctaSecundario: { texto: string; link: string }
+}
+export interface LandingItem { icon: string; titulo: string; descripcion: string }
+export interface LandingDiffItem { feature: string; biteops: boolean; competencia: boolean }
+export interface LandingPlan { nombre: string; precio: number; comision: string; descripcion: string; features: string[]; planId: string; destacado: boolean }
+export interface LandingTestimonial { nombre: string; cargo: string; texto: string; iniciales: string }
+export interface LandingCta { titulo: string; subtitulo: string; boton: { texto: string; link: string } }
+export interface LandingFooter { marca: string; descripcion: string; grupos: Array<{ titulo: string; links: Array<{ label: string; href: string }> }>; copyright: string }
+export interface LandingData {
+  hero: LandingHero
+  problem: { titulo: string; subtitulo: string; items: LandingItem[] }
+  solution: { titulo: string; subtitulo: string; items: LandingItem[] }
+  differentiators: { titulo: string; subtitulo: string; items: LandingDiffItem[] }
+  pricing: { titulo: string; subtitulo: string; planes: LandingPlan[] }
+  testimonials: { titulo: string; subtitulo: string; items: LandingTestimonial[] }
+  cta: LandingCta
+  footer: LandingFooter
+}
