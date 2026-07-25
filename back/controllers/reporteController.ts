@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Venta, DetalleVenta, Producto, Compra } from '../models';
+import { Venta, DetalleVenta, Producto, Compra, Kardex } from '../models';
 import { Op, fn, col, literal } from 'sequelize';
 import { scopeTenant } from '../utils/tenantScope';
 
@@ -64,7 +64,16 @@ export const ventasPorDia = async (req: Request, res: Response) => {
 
       const cantidad = ventasDia.length;
       const total = ventasDia.reduce((sum, v: any) => sum + Number(v.total), 0);
-      resultados.push({ dia: fechaStr, cantidad, total });
+      const efectivo = ventasDia
+        .filter((v: any) => v.metodoPago === 'efectivo')
+        .reduce((sum: number, v: any) => sum + Number(v.total), 0);
+      const tarjeta = ventasDia
+        .filter((v: any) => v.metodoPago === 'tarjeta')
+        .reduce((sum: number, v: any) => sum + Number(v.total), 0);
+      const transferencia = ventasDia
+        .filter((v: any) => v.metodoPago === 'transferencia')
+        .reduce((sum: number, v: any) => sum + Number(v.total), 0);
+      resultados.push({ dia: fechaStr, cantidad, total, efectivo, tarjeta, transferencia });
     }
 
     return res.json(resultados);
@@ -138,5 +147,62 @@ export const comprasMes = async (req: Request, res: Response) => {
     return res.json({ total, cantidad: compras.length });
   } catch (error: any) {
     return res.status(500).json({ error: 'Error al obtener compras del período' });
+  }
+};
+
+export const gananciaBruta = async (req: Request, res: Response) => {
+  try {
+    const { dias = 7, fechaDesde, fechaHasta } = req.query;
+    let fechasArray: string[] = [];
+
+    if (fechaDesde && fechaHasta) {
+      let current = new Date(`${fechaDesde}T00:00:00Z`);
+      const end = new Date(`${fechaHasta}T00:00:00Z`);
+      while (current <= end) {
+        fechasArray.push(current.toISOString().split('T')[0]);
+        current.setUTCDate(current.getUTCDate() + 1);
+      }
+    } else {
+      const numDias = parseInt(dias as string, 10) || 7;
+      for (let i = numDias - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setUTCDate(d.getUTCDate() - i);
+        fechasArray.push(d.toISOString().split('T')[0]);
+      }
+    }
+
+    const resultados = [];
+    for (const fechaStr of fechasArray) {
+      const ventasDia = await Venta.findAll({
+        where: scopeTenant({
+          estado: 'cerrada',
+          createdAt: {
+            [Op.gte]: new Date(`${fechaStr}T00:00:00.000Z`),
+            [Op.lte]: new Date(`${fechaStr}T23:59:59.999Z`),
+          },
+        }, req.tenantId!),
+      });
+
+      const totalVentas = ventasDia.reduce((sum, v: any) => sum + Number(v.total), 0);
+
+      const salidasKardex = await Kardex.findAll({
+        where: scopeTenant({
+          tipo: 'salida',
+          fecha: {
+            [Op.gte]: new Date(`${fechaStr}T00:00:00.000Z`),
+            [Op.lte]: new Date(`${fechaStr}T23:59:59.999Z`),
+          },
+        }, req.tenantId!),
+      });
+
+      const totalCosto = salidasKardex.reduce((sum, k: any) => sum + Number(k.precioUnitario) * Number(k.cantidad), 0);
+      const ganancia = totalVentas - totalCosto;
+
+      resultados.push({ dia: fechaStr, ventas: totalVentas, costo: totalCosto, ganancia });
+    }
+
+    return res.json(resultados);
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Error al obtener ganancia bruta' });
   }
 };

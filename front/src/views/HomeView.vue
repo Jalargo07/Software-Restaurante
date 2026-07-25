@@ -5,6 +5,7 @@ import { useReporteStore } from '../stores/reportes'
 import { useToastStore } from '../stores/toast'
 import { connectSocket, disconnectSocket, socket } from '../services/socket'
 import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
+import GananciaBrutaChart from '../components/common/chart-GananciaBruta.vue'
 import MesasChart from '../components/common/chart-Mesas.vue'
 import TopProductosChart from '../components/common/chart-TopProductos.vue'
 import PeriodoFilterButton from '../components/dashboard/PeriodoFilterButton.vue'
@@ -236,7 +237,7 @@ async function exportarReporteExcel() {
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full xl:col-span-2">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full xl:col-span-1">
           <div class="pt-4 px-4 flex justify-between items-center">
             <ChartHeader icon-color="blue" titulo="Evolución de Ventas" descripcion="Comportamiento financiero en el rango seleccionado">
               <template #icon><BarChart3 :size="18" /></template>
@@ -245,6 +246,19 @@ async function exportarReporteExcel() {
           <div class="px-4 pb-4">
             <div class="h-[320px]">
               <VentasPorDiaChart :data="reporteStore.ventasPorDia" />
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full xl:col-span-1">
+          <div class="pt-4 px-4 flex justify-between items-center">
+            <ChartHeader icon-color="green" titulo="Margen de Ganancia Bruta" descripcion="Relación entre ventas y costo de productos">
+              <template #icon><TrendingUp :size="18" /></template>
+            </ChartHeader>
+          </div>
+          <div class="px-4 pb-4">
+            <div class="h-[320px]">
+              <GananciaBrutaChart :data="reporteStore.gananciaBruta" />
             </div>
           </div>
         </div>

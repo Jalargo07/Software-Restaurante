@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Venta, DetalleVenta, Producto, Mesa, DetalleReceta } from '../models';
+import { Venta, DetalleVenta, Producto, Mesa, DetalleReceta, Kardex } from '../models';
 import sequelize from '../config/database';
 import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
@@ -246,6 +246,70 @@ export const cobrar = async (req: Request, res: Response) => {
       }
     }
 
+    for (const detalle of detalles) {
+      if (detalle.Producto) {
+        const producto: any = detalle.Producto;
+
+        if (producto.tipo === 'compuesto') {
+          const ingredientes: any = await DetalleReceta.findAll({
+            where: scopeTenant({ productoId: producto.id }, req.tenantId!),
+            transaction: t,
+          });
+
+          for (const ingrediente of ingredientes) {
+            const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
+            const cantidadDescontada = Number(ingrediente.cantidad) * Number(detalle.cantidad);
+            const mermaFactor = 1 + Number(insumo.merma) / 100;
+            const totalDescontado = Math.ceil(cantidadDescontada * mermaFactor);
+
+            const entradas = await Kardex.findAll({
+              where: scopeTenant({
+                productoId: ingrediente.insumoId,
+                tipo: 'entrada',
+              }, req.tenantId!),
+              order: [['fecha', 'ASC']],
+              transaction: t,
+            });
+
+            let costoUnitario = Number(insumo.precioCompra);
+            if (entradas.length > 0) {
+              costoUnitario = Number((entradas[0] as any).precioUnitario);
+            }
+
+            await Kardex.create(withTenant({
+              productoId: ingrediente.insumoId,
+              tipo: 'salida',
+              cantidad: totalDescontado,
+              precioUnitario: costoUnitario,
+              ventaId: venta.id,
+            }, req.tenantId!), { transaction: t });
+          }
+        } else {
+          const entradas = await Kardex.findAll({
+            where: scopeTenant({
+              productoId: producto.id,
+              tipo: 'entrada',
+            }, req.tenantId!),
+            order: [['fecha', 'ASC']],
+            transaction: t,
+          });
+
+          let costoUnitario = Number(producto.precioCompra);
+          if (entradas.length > 0) {
+            costoUnitario = Number((entradas[0] as any).precioUnitario);
+          }
+
+          await Kardex.create(withTenant({
+            productoId: producto.id,
+            tipo: 'salida',
+            cantidad: Number(detalle.cantidad),
+            precioUnitario: costoUnitario,
+            ventaId: venta.id,
+          }, req.tenantId!), { transaction: t });
+        }
+      }
+    }
+
     await venta.update({
       estado: 'cerrada',
       metodoPago: metodoPagoToSave,
@@ -366,6 +430,69 @@ export const crearRapida = async (req: Request, res: Response) => {
           });
         }
         await producto.update({ stock: producto.stock - item.cantidad }, { transaction: t });
+      }
+    }
+
+    for (const item of productos) {
+      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
+      if (producto) {
+        if (producto.tipo === 'compuesto') {
+          const ingredientes: any = await DetalleReceta.findAll({
+            where: scopeTenant({ productoId: producto.id }, req.tenantId!),
+            transaction: t,
+          });
+
+          for (const ingrediente of ingredientes) {
+            const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
+            const cantidadDescontada = Number(ingrediente.cantidad) * Number(item.cantidad);
+            const mermaFactor = 1 + Number(insumo.merma) / 100;
+            const totalDescontado = Math.ceil(cantidadDescontada * mermaFactor);
+
+            const entradas = await Kardex.findAll({
+              where: scopeTenant({
+                productoId: ingrediente.insumoId,
+                tipo: 'entrada',
+              }, req.tenantId!),
+              order: [['fecha', 'ASC']],
+              transaction: t,
+            });
+
+            let costoUnitario = Number(insumo.precioCompra);
+            if (entradas.length > 0) {
+              costoUnitario = Number((entradas[0] as any).precioUnitario);
+            }
+
+            await Kardex.create(withTenant({
+              productoId: ingrediente.insumoId,
+              tipo: 'salida',
+              cantidad: totalDescontado,
+              precioUnitario: costoUnitario,
+              ventaId: venta.id,
+            }, req.tenantId!), { transaction: t });
+          }
+        } else {
+          const entradas = await Kardex.findAll({
+            where: scopeTenant({
+              productoId: producto.id,
+              tipo: 'entrada',
+            }, req.tenantId!),
+            order: [['fecha', 'ASC']],
+            transaction: t,
+          });
+
+          let costoUnitario = Number(producto.precioCompra);
+          if (entradas.length > 0) {
+            costoUnitario = Number((entradas[0] as any).precioUnitario);
+          }
+
+          await Kardex.create(withTenant({
+            productoId: producto.id,
+            tipo: 'salida',
+            cantidad: Number(item.cantidad),
+            precioUnitario: costoUnitario,
+            ventaId: venta.id,
+          }, req.tenantId!), { transaction: t });
+        }
       }
     }
 

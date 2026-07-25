@@ -11,6 +11,7 @@ import Auditoria from './Auditoria';
 import DetalleReceta from './DetalleReceta';
 import CorteCaja from './CorteCaja';
 import TenantConfig from './TenantConfig';
+import Kardex from './Kardex';
 
 // Tenant -> Models
 Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
@@ -90,6 +91,22 @@ Auditoria.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 Usuario.hasMany(CorteCaja, { foreignKey: 'usuarioId' });
 CorteCaja.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 
+// Tenant -> Kardex
+Tenant.hasMany(Kardex, { foreignKey: 'tenant_id' });
+Kardex.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+// Producto -> Kardex
+Producto.hasMany(Kardex, { foreignKey: 'productoId' });
+Kardex.belongsTo(Producto, { foreignKey: 'productoId' });
+
+// Compra -> Kardex
+Compra.hasMany(Kardex, { foreignKey: 'compraId' });
+Kardex.belongsTo(Compra, { foreignKey: 'compraId' });
+
+// Venta -> Kardex
+Venta.hasMany(Kardex, { foreignKey: 'ventaId' });
+Kardex.belongsTo(Venta, { foreignKey: 'ventaId' });
+
 export {
   Tenant,
   Mesa,
@@ -104,4 +121,5 @@ export {
   DetalleReceta,
   CorteCaja,
   TenantConfig,
+  Kardex,
 };

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Compra, DetalleCompra, Producto, Proveedor } from '../models';
+import { Compra, DetalleCompra, Producto, Proveedor, Kardex } from '../models';
 import sequelize from '../config/database';
 import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
@@ -124,6 +124,14 @@ export const recibir = async (req: Request, res: Response) => {
         { stock: producto.stock + detalle.cantidad },
         { transaction: t }
       );
+
+      await Kardex.create(withTenant({
+        productoId: detalle.ProductoId,
+        tipo: 'entrada',
+        cantidad: detalle.cantidad,
+        precioUnitario: detalle.precioUnitario,
+        compraId: compra.id,
+      }, req.tenantId!), { transaction: t });
     }
 
     await t.commit();

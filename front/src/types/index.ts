@@ -327,6 +327,13 @@ export interface VentasPorDia {
   total: number
 }
 
+export interface GananciaBruta {
+  dia: string
+  ventas: number
+  costo: number
+  ganancia: number
+}
+
 // ─── Pagination ──────────────────────────────────────
 
 export interface PaginatedResponse<T> {

@@ -41,7 +41,7 @@ const router = createRouter({
       path: '/inventario',
       name: 'inventario',
       component: () => import('../views/inventario/InventarioView.vue'),
-      meta: { requiresAuth: true, roles: ['admin', 'mesero'] },
+      meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
       path: '/compras',
@@ -71,7 +71,7 @@ const router = createRouter({
       path: '/proveedores',
       name: 'proveedores',
       component: () => import('../views/proveedores/ProveedoresView.vue'),
-      meta: { requiresAuth: true, roles: ['admin', 'mesero'] },
+      meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
       path: '/comandas',

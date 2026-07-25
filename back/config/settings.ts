@@ -8,7 +8,7 @@ const settings = {
 
   server: {
     port: parseInt(process.env.PORT || '3000', 10),
-    trustProxy: env === 'production',
+    trustProxy: env === 'production' ? 'loopback' : false,
   },
 
   cors: {

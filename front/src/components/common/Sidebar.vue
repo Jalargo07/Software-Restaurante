@@ -22,7 +22,6 @@ const rol = computed(() => authStore.user?.rol || '')
 const produccionItems = [
   { path: '/mesas', icon: '🪑', label: 'Mesas', roles: ['admin', 'mesero', 'cajero'] },
   { path: '/pedidos', icon: '📋', label: 'Pedidos', roles: ['admin', 'mesero', 'cajero'] },
-  { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin', 'mesero'] },
   { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
   { path: '/caja', icon: '🏦', label: 'Caja', roles: ['admin', 'cajero'] },
   { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
@@ -30,7 +29,8 @@ const produccionItems = [
 
 const administracionItems = [
   { path: '/', icon: '📊', label: 'Dashboard', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
-  { path: '/proveedores', icon: '🏢', label: 'Proveedores', roles: ['admin', 'mesero'] },
+  { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin'] },
+  { path: '/proveedores', icon: '🏢', label: 'Proveedores', roles: ['admin'] },
   { path: '/compras', icon: '🛒', label: 'Compras', roles: ['admin'] },
   { path: '/recetas', icon: '📖', label: 'Recetas', roles: ['admin'] },
   { path: '/usuarios', icon: '👥', label: 'Usuarios', roles: ['admin'] },
