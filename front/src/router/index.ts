@@ -145,25 +145,22 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
   const saAuthStore = useSuperAdminAuthStore()
-  const isSA = saAuthStore.isAuthenticated
-  const isUser = authStore.isAuthenticated
+  const token = authStore.token || saAuthStore.token
+  const user = authStore.user || saAuthStore.user
 
   if (to.name === 'super-admin-login') return next()
-  if (isSA && (to.name === 'login' || to.name === 'landing' || to.name === 'tenant-login')) return next('/super-admin')
   if (to.meta.publico) return next()
 
-  const requiresAuth = to.meta.requiresAuth
-  if (requiresAuth && !isUser && !isSA) return next('/login')
+  if (to.meta.requiresAuth && !token) return next('/login')
 
-  if (to.name === 'login' && isUser) return next('/dashboard')
-  if (to.name === 'landing' && isUser) return next('/dashboard')
-  if (to.name === 'tenant-login' && isUser) return next('/dashboard')
+  if (saAuthStore.token && (to.name === 'login' || to.name === 'landing' || to.name === 'tenant-login')) return next('/super-admin')
 
-  if (to.meta.roles) {
-    const user = authStore.user || saAuthStore.user
-    if (!user || !(to.meta.roles as string[]).includes(user.rol)) {
-      return next(isSA ? '/super-admin' : '/dashboard')
-    }
+  if (to.name === 'login' && authStore.token) return next('/dashboard')
+  if (to.name === 'landing' && authStore.token) return next('/dashboard')
+  if (to.name === 'tenant-login' && authStore.token) return next('/dashboard')
+
+  if (to.meta.roles && user && !(to.meta.roles as string[]).includes(user.rol)) {
+    return next(saAuthStore.token ? '/super-admin' : '/dashboard')
   }
   next()
 })
