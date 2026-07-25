@@ -305,7 +305,7 @@ async function guardar() {
             :disabled="guardando"
           >
             <span v-if="guardando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
-            {{ guardando ? 'Guardando...' : 'Guardar Branding' }}
+            {{ guardando ? 'Guardando...' : 'Guardar' }}
           </button>
         </form>
       </div>
@@ -408,6 +408,60 @@ async function guardar() {
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ estilo.desc }}</p>
         </button>
       </div>
+
+      <!-- Preview en vivo del estilo seleccionado -->
+      <div class="mt-6 border-t border-gray-200 dark:border-gray-600 pt-4">
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3">Vista previa:</p>
+        <div class="max-w-sm mx-auto">
+
+          <!-- Preview Elegante -->
+          <div v-if="form.estiloMenu === 'elegante'"
+            class="bg-white dark:bg-gray-700 rounded-2xl shadow-md border border-gray-100 dark:border-gray-600 overflow-hidden">
+            <div class="w-full h-24 bg-gradient-to-br from-[var(--color-primario)]/20 to-[var(--color-secundario)]/20 flex items-center justify-center">
+              <span class="text-3xl opacity-30">🍽️</span>
+            </div>
+            <div class="p-3">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-semibold text-sm text-gray-900 dark:text-gray-100">Pizza Muzzarella</h4>
+                <span class="text-[9px] bg-[var(--color-primario)] text-white px-1.5 py-0.5 rounded-full">Receta</span>
+              </div>
+              <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">Mozzarella, salsa de tomate, albahaca</p>
+              <div class="mt-2">
+                <span class="inline-block bg-[var(--color-primario)] text-white px-2.5 py-0.5 rounded-full text-xs font-bold">$10.000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Novedoso -->
+          <div v-if="form.estiloMenu === 'novedoso'"
+            class="bg-white dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden">
+            <div class="w-full h-24 bg-gradient-to-br from-[var(--color-primario)] to-[var(--color-secundario)]/50 flex items-center justify-center">
+              <span class="text-3xl opacity-40">🌟</span>
+            </div>
+            <div class="p-4">
+              <span class="text-[9px] font-medium text-[var(--color-secundario)] bg-[var(--color-secundario)]/10 px-1.5 py-0.5 rounded-full">comida</span>
+              <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">Pizza Muzzarella</h4>
+              <p class="text-2xl font-black text-[var(--color-primario)] mt-1">$10.000</p>
+            </div>
+          </div>
+
+          <!-- Preview Minimalista -->
+          <div v-if="form.estiloMenu === 'minimalista'"
+            class="border-b border-gray-200 dark:border-gray-600 pb-3">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">Pizza Muzzarella</h4>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">Mozzarella, salsa de tomate</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-base font-semibold text-[var(--color-primario)]">$10.000</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <p class="text-[10px] text-gray-400 text-center mt-2">Las cards se adaptan a los colores de tu marca</p>
+      </div>
     </div>
 
     <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
@@ -425,6 +479,14 @@ async function guardar() {
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="mt-4 flex justify-end">
+      <button @click="guardar" :disabled="guardando"
+        class="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-semibold rounded-lg transition-colors focus:ring-2 focus:ring-[var(--color-primario)] focus:outline-none">
+        <span v-if="guardando" class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
+        {{ guardando ? 'Guardando...' : 'Guardar Todos los Cambios' }}
+      </button>
     </div>
   </div>
 </template>

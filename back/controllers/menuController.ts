@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import { Tenant, TenantConfig, Producto } from '../models';
 
 export const getPublicMenu = async (req: Request, res: Response) => {
@@ -13,7 +14,7 @@ export const getPublicMenu = async (req: Request, res: Response) => {
     if (!tenant) return res.status(404).json({ error: 'Restaurante no encontrado' });
 
     const productos = await Producto.findAll({
-      where: { tenant_id: tenant.id, activo: true },
+      where: { tenant_id: tenant.id, activo: true, tipo: { [Op.notIn]: ['insumo'] } },
       attributes: ['id', 'nombre', 'descripcion', 'categoria', 'tipo', 'precioVenta', 'imagen', 'unidad'],
       order: [['categoria', 'ASC'], ['nombre', 'ASC']],
     });
