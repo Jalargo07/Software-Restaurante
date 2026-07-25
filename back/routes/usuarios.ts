@@ -4,6 +4,7 @@ import Tenant from '../models/Tenant';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
+import { checkTenantLimit } from '../middleware/tenantLimits';
 import { loginLimiter } from '../middleware/rateLimit';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 
@@ -34,7 +35,7 @@ router.get('/', authenticateToken, authorizeRole('admin'), async (req: Request, 
   res.json(usuarios);
 });
 
-router.post('/', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {
+router.post('/', authenticateToken, authorizeRole('admin'), checkTenantLimit('usuario'), async (req: Request, res: Response) => {
   try {
     const { nombre, email, password, rol } = req.body;
     if (!nombre || !email || !password) {

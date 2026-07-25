@@ -65,7 +65,10 @@ services:
       - .env
 
   frontend:
-    build: ./front
+    build:
+      context: ./front
+      args:
+        VITE_PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
     container_name: restaurant-frontend
     ports:
       - "80:80"

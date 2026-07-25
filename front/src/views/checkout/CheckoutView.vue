@@ -59,6 +59,7 @@ function renderPayPalButton() {
         if (res.data.status === 'completado') {
           toast.success(`¡Plan ${plan.value.nombre} activado!`)
           authStore.user!.plan = planId
+          localStorage.setItem('user', JSON.stringify(authStore.user))
           setTimeout(() => router.push('/dashboard'), 2000)
         } else {
           toast.error('El pago no pudo completarse')

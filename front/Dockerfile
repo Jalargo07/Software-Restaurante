@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 COPY . .
+ARG VITE_PAYPAL_CLIENT_ID
+ENV VITE_PAYPAL_CLIENT_ID=$VITE_PAYPAL_CLIENT_ID
 RUN pnpm run build
 
 FROM nginx:alpine

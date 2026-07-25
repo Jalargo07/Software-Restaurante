@@ -3,6 +3,7 @@ import * as ventaController from '../controllers/ventaController';
 import { body, ValidationChain } from 'express-validator';
 import validar from '../middleware/validar';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
+import { checkTenantLimit } from '../middleware/tenantLimits';
 
 const router = Router();
 
@@ -47,10 +48,10 @@ const validarDetalle: ValidationChain[] = [
 
 router.get('/', authenticateToken, ventaController.obtenerTodas);
 router.get('/:id', authenticateToken, ventaController.obtenerPorId);
-router.post('/rapida', authenticateToken, authorizeRole(...rolesVenta), validarRapida, validar, ventaController.crearRapida);
-router.post('/', authenticateToken, authorizeRole(...rolesVenta), validarVenta, validar, ventaController.crear);
+router.post('/rapida', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarRapida, validar, ventaController.crearRapida);
+router.post('/', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarVenta, validar, ventaController.crear);
 router.post('/:id/productos', authenticateToken, authorizeRole(...rolesVenta), validarProductos, validar, ventaController.agregarProductos);
-router.put('/:id/cobrar', authenticateToken, authorizeRole(...rolesVenta), validarCobro, validar, ventaController.cobrar);
+router.put('/:id/cobrar', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarCobro, validar, ventaController.cobrar);
 router.put('/:id', authenticateToken, authorizeRole(...rolesVenta), ventaController.actualizar);
 router.delete('/:id', authenticateToken, authorizeRole(...rolesVenta), ventaController.cancelar);
 router.put('/:id/detalle/:detalleId', authenticateToken, authorizeRole(...rolesVenta), validarDetalle, ventaController.actualizarDetalle);
