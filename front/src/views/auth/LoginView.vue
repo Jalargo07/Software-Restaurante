@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useBrandingStore } from '../../stores/branding'
@@ -31,17 +31,23 @@ function applyBranding(config: { colorPrimario: string; colorSecundario: string;
 }
 
 onMounted(() => {
-  const slug = (route.query.tenant as string) || 'restaurante-principal'
+  const slug = route.params.slug as string || (route.query.tenant as string) || 'restaurante-principal'
   brandingStore.fetchPublicBranding(slug)
+})
+
+onUnmounted(() => {
+  document.documentElement.style.removeProperty('--color-primario')
+  document.documentElement.style.removeProperty('--color-secundario')
+  document.documentElement.style.removeProperty('--color-acento')
 })
 
 async function handleLogin() {
   errorMsg.value = ''
   const ok = await authStore.login(email.value, password.value)
   if (ok) {
-    router.push('/')
+    router.push('/dashboard')
   } else {
-    errorMsg.value = authStore.error || 'Credenciales invalidas'
+    errorMsg.value = authStore.error || 'Credenciales inválidas'
   }
 }
 </script>
@@ -64,10 +70,10 @@ async function handleLogin() {
           class="text-2xl font-semibold mb-4"
           :style="{ color: branding.branding.colorPrimario, fontFamily: branding.branding.fontPrincipal }"
         >
-          {{ branding.branding.nombreCompleto || 'Iniciar Sesion' }}
+          {{ branding.branding.nombreCompleto || 'Iniciar Sesión' }}
         </h3>
       </div>
-      <h3 v-else class="text-xl font-bold text-center text-gray-900 dark:text-white mb-6">Iniciar Sesion</h3>
+      <h3 v-else class="text-xl font-bold text-center text-gray-900 dark:text-white mb-6">Iniciar Sesión</h3>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>

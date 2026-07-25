@@ -5,12 +5,22 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/',
+      name: 'landing',
+      component: () => import('../views/public/LandingPage.vue'),
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/auth/LoginView.vue'),
     },
     {
-      path: '/',
+      path: '/:slug/login',
+      name: 'tenant-login',
+      component: () => import('../views/auth/LoginView.vue'),
+    },
+    {
+      path: '/dashboard',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
       meta: { requiresAuth: true, roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
@@ -100,11 +110,15 @@ router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
-  } else if (to.path === '/login' && authStore.isAuthenticated) {
-    next('/')
+  } else if (to.name === 'login' && authStore.isAuthenticated) {
+    next('/dashboard')
+  } else if (to.name === 'landing' && authStore.isAuthenticated) {
+    next('/dashboard')
+  } else if (to.name === 'tenant-login' && authStore.isAuthenticated) {
+    next('/dashboard')
   } else if (to.meta.roles && authStore.user) {
     if (!(to.meta.roles as string[]).includes(authStore.user.rol)) {
-      next('/')
+      next('/dashboard')
     } else {
       next()
     }

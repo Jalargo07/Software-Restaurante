@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', {
         return true
       } catch (err) {
         const axiosError = err as AxiosError<{ error: string }>
-        this.error = axiosError.response?.data?.error || 'Error al iniciar sesion'
+        this.error = axiosError.response?.data?.error || 'Error al iniciar sesión'
         return false
       }
     },

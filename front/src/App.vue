@@ -14,7 +14,11 @@ const route = useRoute()
 const theme = ref(localStorage.getItem('theme') || 'light')
 const currentMode = ref<'produccion' | 'administracion'>('produccion')
 
-const adminRoutes = ['/', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding']
+const isPublicRoute = computed(() => {
+  return route.path === '/' || route.name === 'login' || route.name === 'tenant-login'
+})
+
+const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding']
 
 const isAdministrationRoute = computed(() => {
   return adminRoutes.includes(route.path) || adminRoutes.some(r => r !== '/' && route.path.startsWith(r))
@@ -79,13 +83,22 @@ const navItems = computed(() => {
 })
 
 function isActive(path: string) {
-  if (path === '/') return route.path === '/'
+  if (path === '/dashboard') return route.path === '/dashboard'
   return route.path.startsWith(path)
 }
 </script>
 
 <template>
   <div
+    v-if="isPublicRoute"
+    class="min-h-screen"
+  >
+    <RouterView />
+    <ToastContainer />
+  </div>
+
+  <div
+    v-else
     class="flex flex-col min-h-screen"
     :class="{ 'grid grid-cols-[260px_1fr] max-md:grid-cols-1 min-h-screen': authStore.isAuthenticated && (currentMode === 'administracion' || isAdministrationRoute) }"
   >
