@@ -18,7 +18,7 @@ export function useScrollAnimation() {
     )
 
     document.querySelectorAll('[data-scroll]').forEach((el) => {
-      el.classList.add('opacity-0', 'translate-y-8', 'transition-all', 'duration-700', 'ease-out')
+      el.classList.add('translate-y-8', 'transition-all', 'duration-700', 'ease-out')
       observer?.observe(el)
     })
   })

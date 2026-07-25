@@ -47,78 +47,130 @@ export const ventasHoy = async (req: Request, res: Response) => {
   }
 };
 
+async function getVentasYGananciaAgrupadas(
+  tenantId: number,
+  params: { dias?: string; fechaDesde?: string; fechaHasta?: string; productoIds?: string }
+) {
+  const { dias = '7', fechaDesde, fechaHasta, productoIds } = params;
+  let fechasArray: string[] = [];
+
+  const ids: number[] = productoIds
+    ? productoIds.split(',').map(Number).filter(n => !isNaN(n))
+    : [];
+
+  if (fechaDesde && fechaHasta) {
+    let current = new Date(`${fechaDesde}T00:00:00Z`);
+    const end = new Date(`${fechaHasta}T00:00:00Z`);
+    while (current <= end) {
+      fechasArray.push(current.toISOString().split('T')[0]);
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
+  } else {
+    const numDias = parseInt(dias, 10) || 7;
+    for (let i = numDias - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() - i);
+      fechasArray.push(d.toISOString().split('T')[0]);
+    }
+  }
+
+  let ventaIdsFiltradas: number[] = [];
+  if (ids.length > 0) {
+    const detalles = await DetalleVenta.findAll({
+      attributes: ['VentaId'],
+      where: { ProductoId: { [Op.in]: ids }, tenant_id: tenantId },
+      raw: true,
+    });
+    ventaIdsFiltradas = [...new Set(detalles.map((d: any) => d.VentaId))];
+    if (ventaIdsFiltradas.length === 0) {
+      return {
+        ventasPorDia: fechasArray.map(f => ({ dia: f, cantidad: 0, total: 0, efectivo: 0, tarjeta: 0, transferencia: 0 })),
+        gananciaBruta: fechasArray.map(f => ({ dia: f, ventas: 0, costo: 0, ganancia: 0 })),
+      };
+    }
+  }
+
+  const desde = fechasArray[0];
+  const hasta = fechasArray[fechasArray.length - 1];
+
+  const ventaWhere: any = {
+    estado: 'cerrada',
+    createdAt: {
+      [Op.gte]: new Date(`${desde}T00:00:00.000Z`),
+      [Op.lte]: new Date(`${hasta}T23:59:59.999Z`),
+    },
+  };
+
+  if (ventaIdsFiltradas.length > 0) {
+    ventaWhere.id = { [Op.in]: ventaIdsFiltradas };
+  }
+
+  const ventas = await Venta.findAll({
+    where: scopeTenant(ventaWhere, tenantId),
+  });
+
+  const kardexWhere: any = {
+    tipo: 'salida',
+    fecha: {
+      [Op.gte]: new Date(`${desde}T00:00:00.000Z`),
+      [Op.lte]: new Date(`${hasta}T23:59:59.999Z`),
+    },
+  };
+
+  if (ids.length > 0) {
+    kardexWhere.productoId = { [Op.in]: ids };
+  }
+
+  const salidasKardex = await Kardex.findAll({
+    where: scopeTenant(kardexWhere, tenantId),
+  });
+
+  const ventasPorDia = fechasArray.map(fechaStr => {
+    const ventasDia = ventas.filter((v: any) => {
+      const vDate = new Date(v.createdAt).toISOString().split('T')[0];
+      return vDate === fechaStr;
+    });
+
+    return {
+      dia: fechaStr,
+      cantidad: ventasDia.length,
+      total: ventasDia.reduce((sum: number, v: any) => sum + Number(v.total), 0),
+      efectivo: ventasDia.filter((v: any) => v.metodoPago === 'efectivo').reduce((sum: number, v: any) => sum + Number(v.total), 0),
+      tarjeta: ventasDia.filter((v: any) => v.metodoPago === 'tarjeta').reduce((sum: number, v: any) => sum + Number(v.total), 0),
+      transferencia: ventasDia.filter((v: any) => v.metodoPago === 'transferencia').reduce((sum: number, v: any) => sum + Number(v.total), 0),
+    };
+  });
+
+  const gananciaBruta = fechasArray.map(fechaStr => {
+    const salidasDia = salidasKardex.filter((k: any) => {
+      const kDate = new Date(k.fecha).toISOString().split('T')[0];
+      return kDate === fechaStr;
+    });
+
+    const ventasDia = ventas.filter((v: any) => {
+      const vDate = new Date(v.createdAt).toISOString().split('T')[0];
+      return vDate === fechaStr;
+    });
+
+    const totalVentas = ventasDia.reduce((sum: number, v: any) => sum + Number(v.total), 0);
+    const totalCosto = salidasDia.reduce((sum: number, k: any) => sum + Number(k.precioUnitario) * Number(k.cantidad), 0);
+
+    return { dia: fechaStr, ventas: totalVentas, costo: totalCosto, ganancia: totalVentas - totalCosto };
+  });
+
+  return { ventasPorDia, gananciaBruta };
+}
+
 export const ventasPorDia = async (req: Request, res: Response) => {
   try {
-    const { dias = 7, fechaDesde, fechaHasta, productoIds } = req.query;
-    let fechasArray: string[] = [];
-
-    const ids: number[] = productoIds
-      ? (productoIds as string).split(',').map(Number).filter(n => !isNaN(n))
-      : [];
-
-    if (fechaDesde && fechaHasta) {
-      let current = new Date(`${fechaDesde}T00:00:00Z`);
-      const end = new Date(`${fechaHasta}T00:00:00Z`);
-      while (current <= end) {
-        fechasArray.push(current.toISOString().split('T')[0]);
-        current.setUTCDate(current.getUTCDate() + 1);
-      }
-    } else {
-      const numDias = parseInt(dias as string, 10) || 7;
-      for (let i = numDias - 1; i >= 0; i--) {
-        const d = new Date();
-        d.setUTCDate(d.getUTCDate() - i);
-        const fechaStr = d.toISOString().split('T')[0];
-        fechasArray.push(fechaStr);
-      }
-    }
-
-    let ventaIdsFiltradas: number[] = [];
-    if (ids.length > 0) {
-      const detalles = await DetalleVenta.findAll({
-        attributes: ['VentaId'],
-        where: { ProductoId: { [Op.in]: ids }, tenant_id: req.tenantId },
-        raw: true,
-      });
-      ventaIdsFiltradas = [...new Set(detalles.map((d: any) => d.VentaId))];
-      if (ventaIdsFiltradas.length === 0) {
-        return res.json(fechasArray.map(f => ({ dia: f, cantidad: 0, total: 0, efectivo: 0, tarjeta: 0, transferencia: 0 })));
-      }
-    }
-
-    const resultados = [];
-    for (const fechaStr of fechasArray) {
-      const ventaWhere: any = {
-        estado: 'cerrada',
-        createdAt: {
-          [Op.gte]: new Date(`${fechaStr}T00:00:00.000Z`),
-          [Op.lte]: new Date(`${fechaStr}T23:59:59.999Z`),
-        },
-      };
-
-      if (ventaIdsFiltradas.length > 0) {
-        ventaWhere.id = { [Op.in]: ventaIdsFiltradas };
-      }
-
-      const ventasDia = await Venta.findAll({
-        where: scopeTenant(ventaWhere, req.tenantId!),
-      });
-
-      const cantidad = ventasDia.length;
-      const total = ventasDia.reduce((sum, v: any) => sum + Number(v.total), 0);
-      const efectivo = ventasDia
-        .filter((v: any) => v.metodoPago === 'efectivo')
-        .reduce((sum: number, v: any) => sum + Number(v.total), 0);
-      const tarjeta = ventasDia
-        .filter((v: any) => v.metodoPago === 'tarjeta')
-        .reduce((sum: number, v: any) => sum + Number(v.total), 0);
-      const transferencia = ventasDia
-        .filter((v: any) => v.metodoPago === 'transferencia')
-        .reduce((sum: number, v: any) => sum + Number(v.total), 0);
-      resultados.push({ dia: fechaStr, cantidad, total, efectivo, tarjeta, transferencia });
-    }
-
-    return res.json(resultados);
+    const { dias, fechaDesde, fechaHasta, productoIds } = req.query;
+    const result = await getVentasYGananciaAgrupadas(req.tenantId!, {
+      dias: dias as string,
+      fechaDesde: fechaDesde as string,
+      fechaHasta: fechaHasta as string,
+      productoIds: productoIds as string,
+    });
+    return res.json(result.ventasPorDia);
   } catch (error: any) {
     console.error(error);
     return res.status(500).json({ error: 'Error al obtener ventas por día' });
@@ -219,85 +271,14 @@ export const comprasMes = async (req: Request, res: Response) => {
 
 export const gananciaBruta = async (req: Request, res: Response) => {
   try {
-    const { dias = 7, fechaDesde, fechaHasta, productoIds } = req.query;
-    let fechasArray: string[] = [];
-
-    const ids: number[] = productoIds
-      ? (productoIds as string).split(',').map(Number).filter(n => !isNaN(n))
-      : [];
-
-    if (fechaDesde && fechaHasta) {
-      let current = new Date(`${fechaDesde}T00:00:00Z`);
-      const end = new Date(`${fechaHasta}T00:00:00Z`);
-      while (current <= end) {
-        fechasArray.push(current.toISOString().split('T')[0]);
-        current.setUTCDate(current.getUTCDate() + 1);
-      }
-    } else {
-      const numDias = parseInt(dias as string, 10) || 7;
-      for (let i = numDias - 1; i >= 0; i--) {
-        const d = new Date();
-        d.setUTCDate(d.getUTCDate() - i);
-        fechasArray.push(d.toISOString().split('T')[0]);
-      }
-    }
-
-    let ventaIdsFiltradas: number[] = [];
-    if (ids.length > 0) {
-      const detalles = await DetalleVenta.findAll({
-        attributes: ['VentaId'],
-        where: { ProductoId: { [Op.in]: ids }, tenant_id: req.tenantId },
-        raw: true,
-      });
-      ventaIdsFiltradas = [...new Set(detalles.map((d: any) => d.VentaId))];
-      if (ventaIdsFiltradas.length === 0) {
-        return res.json(fechasArray.map(f => ({ dia: f, ventas: 0, costo: 0, ganancia: 0 })));
-      }
-    }
-
-    const resultados = [];
-    for (const fechaStr of fechasArray) {
-      const ventaWhere: any = {
-        estado: 'cerrada',
-        createdAt: {
-          [Op.gte]: new Date(`${fechaStr}T00:00:00.000Z`),
-          [Op.lte]: new Date(`${fechaStr}T23:59:59.999Z`),
-        },
-      };
-
-      if (ventaIdsFiltradas.length > 0) {
-        ventaWhere.id = { [Op.in]: ventaIdsFiltradas };
-      }
-
-      const ventasDia = await Venta.findAll({
-        where: scopeTenant(ventaWhere, req.tenantId!),
-      });
-
-      const totalVentas = ventasDia.reduce((sum, v: any) => sum + Number(v.total), 0);
-
-      const kardexWhere: any = {
-        tipo: 'salida',
-        fecha: {
-          [Op.gte]: new Date(`${fechaStr}T00:00:00.000Z`),
-          [Op.lte]: new Date(`${fechaStr}T23:59:59.999Z`),
-        },
-      };
-
-      if (ids.length > 0) {
-        kardexWhere.productoId = { [Op.in]: ids };
-      }
-
-      const salidasKardex = await Kardex.findAll({
-        where: scopeTenant(kardexWhere, req.tenantId!),
-      });
-
-      const totalCosto = salidasKardex.reduce((sum, k: any) => sum + Number(k.precioUnitario) * Number(k.cantidad), 0);
-      const ganancia = totalVentas - totalCosto;
-
-      resultados.push({ dia: fechaStr, ventas: totalVentas, costo: totalCosto, ganancia });
-    }
-
-    return res.json(resultados);
+    const { dias, fechaDesde, fechaHasta, productoIds } = req.query;
+    const result = await getVentasYGananciaAgrupadas(req.tenantId!, {
+      dias: dias as string,
+      fechaDesde: fechaDesde as string,
+      fechaHasta: fechaHasta as string,
+      productoIds: productoIds as string,
+    });
+    return res.json(result.gananciaBruta);
   } catch (error: any) {
     console.error(error);
     return res.status(500).json({ error: 'Error al obtener ganancia bruta' });

@@ -35,6 +35,8 @@ import {
 const reporteStore = useReporteStore()
 const toast = useToastStore()
 
+let cargandoDatos = false
+
 const stats = ref({
   mesasDisponibles: 0,
   mesasOcupadas: 0,
@@ -104,6 +106,9 @@ const aplicarFiltros = () => {
 }
 
 async function cargarDatos() {
+  if (cargandoDatos) return
+  cargandoDatos = true
+  try {
   const [mesas, productos, pedidos] = await Promise.all([
     api.get('/mesas'),
     api.get('/productos'),
@@ -129,6 +134,9 @@ async function cargarDatos() {
     reporteStore.fetchAll({ fechaDesde: reporteStore.fechaDesde, fechaHasta: reporteStore.fechaHasta, productoIds: reporteStore.productoIds })
   } else {
     cambiarPeriodo('hoy')
+  }
+  } finally {
+    cargandoDatos = false
   }
 }
 

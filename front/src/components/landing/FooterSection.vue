@@ -2,18 +2,18 @@
 const productLinks = [
   { label: 'Funciones', href: '#features' },
   { label: 'Precios', href: '#pricing' },
-  { label: 'Demo', href: '#' },
+  { label: 'Demo', href: 'https://biteops.app/demo' },
 ]
 
 const companyLinks = [
-  { label: 'Sobre nosotros', href: '#' },
-  { label: 'Blog', href: '#' },
-  { label: 'Contacto', href: '#' },
+  { label: 'Sobre nosotros', href: 'https://biteops.app/about' },
+  { label: 'Blog', href: 'https://blog.biteops.app' },
+  { label: 'Contacto', href: 'mailto:contacto@biteops.app' },
 ]
 
 const legalLinks = [
-  { label: 'Privacidad', href: '#' },
-  { label: 'Términos', href: '#' },
+  { label: 'Privacidad', href: 'https://biteops.app/privacidad' },
+  { label: 'Términos', href: 'https://biteops.app/terminos' },
 ]
 </script>
 

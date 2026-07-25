@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://biteops.app/sitemap.xml
