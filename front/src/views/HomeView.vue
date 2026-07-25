@@ -12,6 +12,7 @@ import PeriodoFilterButton from '../components/dashboard/PeriodoFilterButton.vue
 import StatCard from '../components/dashboard/StatCard.vue'
 import MiniStatCard from '../components/dashboard/MiniStatCard.vue'
 import ChartHeader from '../components/dashboard/ChartHeader.vue'
+import Multiselect from '../components/common/Multiselect.vue'
 import {
   Coins,
   ShoppingBag,
@@ -42,6 +43,8 @@ const stats = ref({
   pedidosActivos: 0,
 })
 
+const productosList = ref<{ id: string | number, label: string }[]>([])
+
 const getFormattedDate = (date: Date) => date.toISOString().slice(0, 10)
 
 const cambiarPeriodo = (periodo: 'hoy' | '7dias' | '30dias' | 'mes' | 'personalizado') => {
@@ -52,27 +55,27 @@ const cambiarPeriodo = (periodo: 'hoy' | '7dias' | '30dias' | 'mes' | 'personali
   if (periodo === 'hoy') {
     reporteStore.fechaDesde = hoyStr
     reporteStore.fechaHasta = hoyStr
-    reporteStore.fetchAll({ fechaDesde: hoyStr, fechaHasta: hoyStr, dias: 1 })
+    reporteStore.fetchAll({ fechaDesde: hoyStr, fechaHasta: hoyStr, dias: 1, productoIds: reporteStore.productoIds })
   } else if (periodo === '7dias') {
     const d = new Date()
     d.setDate(d.getDate() - 6)
     const desdeStr = getFormattedDate(d)
     reporteStore.fechaDesde = desdeStr
     reporteStore.fechaHasta = hoyStr
-    reporteStore.fetchAll({ fechaDesde: desdeStr, fechaHasta: hoyStr, dias: 7 })
+    reporteStore.fetchAll({ fechaDesde: desdeStr, fechaHasta: hoyStr, dias: 7, productoIds: reporteStore.productoIds })
   } else if (periodo === '30dias') {
     const d = new Date()
     d.setDate(d.getDate() - 29)
     const desdeStr = getFormattedDate(d)
     reporteStore.fechaDesde = desdeStr
     reporteStore.fechaHasta = hoyStr
-    reporteStore.fetchAll({ fechaDesde: desdeStr, fechaHasta: hoyStr, dias: 30 })
+    reporteStore.fetchAll({ fechaDesde: desdeStr, fechaHasta: hoyStr, dias: 30, productoIds: reporteStore.productoIds })
   } else if (periodo === 'mes') {
     const primerDia = new Date(hoyObj.getFullYear(), hoyObj.getMonth(), 1)
     const desdeStr = getFormattedDate(primerDia)
     reporteStore.fechaDesde = desdeStr
     reporteStore.fechaHasta = hoyStr
-    reporteStore.fetchAll({ fechaDesde: desdeStr, fechaHasta: hoyStr })
+    reporteStore.fetchAll({ fechaDesde: desdeStr, fechaHasta: hoyStr, productoIds: reporteStore.productoIds })
   }
 }
 
@@ -84,7 +87,20 @@ const aplicarFiltroPersonalizado = () => {
   reporteStore.fetchAll({
     fechaDesde: reporteStore.fechaDesde,
     fechaHasta: reporteStore.fechaHasta,
+    productoIds: reporteStore.productoIds,
   })
+}
+
+const aplicarFiltros = () => {
+  const params: any = {
+    fechaDesde: reporteStore.fechaDesde,
+    fechaHasta: reporteStore.fechaHasta,
+    productoIds: reporteStore.productoIds
+  }
+  if (reporteStore.filtroPeriodo === 'hoy') params.dias = 1
+  else if (reporteStore.filtroPeriodo === '7dias') params.dias = 7
+  else if (reporteStore.filtroPeriodo === '30dias') params.dias = 30
+  reporteStore.fetchAll(params)
 }
 
 async function cargarDatos() {
@@ -97,6 +113,8 @@ async function cargarDatos() {
   const mesasArr = mesas.data.data || mesas.data
   const prodsArr = productos.data.data || productos.data
 
+  productosList.value = prodsArr.map((p: any) => ({ id: p.id, label: p.nombre }))
+
   stats.value = {
     mesasDisponibles: mesasArr.filter((m: any) => m.estado === 'disponible').length,
     mesasOcupadas: mesasArr.filter((m: any) => m.estado === 'ocupada').length,
@@ -108,7 +126,7 @@ async function cargarDatos() {
   if (!reporteStore.filtroPeriodo || reporteStore.filtroPeriodo !== 'personalizado') {
     cambiarPeriodo(reporteStore.filtroPeriodo || 'hoy')
   } else if (reporteStore.fechaDesde && reporteStore.fechaHasta) {
-    reporteStore.fetchAll({ fechaDesde: reporteStore.fechaDesde, fechaHasta: reporteStore.fechaHasta })
+    reporteStore.fetchAll({ fechaDesde: reporteStore.fechaDesde, fechaHasta: reporteStore.fechaHasta, productoIds: reporteStore.productoIds })
   } else {
     cambiarPeriodo('hoy')
   }
@@ -170,12 +188,15 @@ async function exportarReporteExcel() {
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-4 p-3">
       <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-3">
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2 items-center">
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'hoy'" :icono="Calendar" texto="Hoy" @click="cambiarPeriodo('hoy')" />
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === '7dias'" :icono="Calendar" texto="Últimos 7 días" @click="cambiarPeriodo('7dias')" />
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === '30dias'" :icono="CalendarRange" texto="Últimos 30 días" @click="cambiarPeriodo('30dias')" />
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'mes'" :icono="Calendar" texto="Este Mes" @click="cambiarPeriodo('mes')" />
           <PeriodoFilterButton :activo="reporteStore.filtroPeriodo === 'personalizado'" :icono="SlidersHorizontal" texto="Personalizado" @click="reporteStore.filtroPeriodo = 'personalizado'" />
+          <div class="w-64 ml-2">
+            <Multiselect v-model="reporteStore.productoIds" :options="productosList" placeholder="Filtrar por productos" @update:modelValue="aplicarFiltros" />
+          </div>
         </div>
 
         <div v-if="reporteStore.filtroPeriodo === 'personalizado'" class="flex items-center gap-2 transition-all">

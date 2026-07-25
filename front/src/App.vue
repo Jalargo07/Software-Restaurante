@@ -18,7 +18,7 @@ const isPublicRoute = computed(() => {
   return route.path === '/' || route.name === 'login' || route.name === 'tenant-login'
 })
 
-const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding']
+const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/inventario', '/reportes']
 
 const isAdministrationRoute = computed(() => {
   return adminRoutes.includes(route.path) || adminRoutes.some(r => r !== '/' && route.path.startsWith(r))
