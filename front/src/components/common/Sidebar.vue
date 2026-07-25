@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useSuperAdminAuthStore } from '../../stores/superAdminAuth'
 
 function labelPlan(plan: string) {
   const map: Record<string, string> = { basico: 'Básico', pro: 'Pro', enterprise: 'Enterprise' }
@@ -24,7 +25,9 @@ const emit = defineEmits<{
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
-const rol = computed(() => authStore.user?.rol || '')
+const saAuthStore = useSuperAdminAuthStore()
+const user = computed(() => authStore.user || saAuthStore.user)
+const rol = computed(() => authStore.user?.rol || saAuthStore.user?.rol || '')
 
 const produccionItems = [
   { path: '/mesas', icon: '🪑', label: 'Mesas', roles: ['admin', 'mesero', 'cajero'] },
@@ -43,6 +46,8 @@ const administracionItems = [
   { path: '/usuarios', icon: '👥', label: 'Usuarios', roles: ['admin'] },
   { path: '/auditoria', icon: '📋', label: 'Auditoría', roles: ['admin'] },
   { path: '/branding', icon: '🎨', label: 'Branding', roles: ['admin'] },
+  { path: '/super-admin', icon: '⚡', label: 'Super Admin', roles: ['super-admin'] },
+  { path: '/cms', icon: '📝', label: 'CMS Landing', roles: ['super-admin'] },
 ]
 
 const visibleItems = computed(() => {
@@ -103,9 +108,9 @@ function isActive(path: string) {
     <div class="p-4 border-t border-gray-700">
       <div class="flex items-center gap-2 mb-3">
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">{{ authStore.user?.nombre }}</p>
-          <p v-if="authStore.user?.plan" class="text-xs text-gray-400 mt-0.5">{{ labelPlan(authStore.user.plan) }}</p>
-          <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{{ authStore.user?.rol }}</span>
+          <p class="text-sm font-medium truncate">{{ user?.nombre }}</p>
+          <p v-if="user?.plan" class="text-xs text-gray-400 mt-0.5">{{ labelPlan(user.plan) }}</p>
+          <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{{ user?.rol }}</span>
         </div>
       </div>
       <div class="space-y-1">

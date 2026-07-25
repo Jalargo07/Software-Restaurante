@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
+import { useSuperAdminAuthStore } from './stores/superAdminAuth'
 import { useBrandingStore } from './stores/branding'
 import { ref, onMounted, computed, watch } from 'vue'
 import ToastContainer from './components/common/ToastContainer.vue'
@@ -16,10 +17,10 @@ const currentMode = ref<'produccion' | 'administracion'>('produccion')
 const mobileMenuOpen = ref(false)
 
 const isPublicRoute = computed(() => {
-  return route.path === '/' || route.name === 'login' || route.name === 'tenant-login' || route.name === 'menu-qr'
+  return route.path === '/' || route.name === 'login' || route.name === 'tenant-login' || route.name === 'menu-qr' || route.name === 'super-admin-login'
 })
 
-const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/inventario', '/reportes']
+const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/inventario', '/reportes', '/super-admin', '/cms']
 
 const isAdministrationRoute = computed(() => {
   return adminRoutes.includes(route.path) || adminRoutes.some(r => r !== '/' && route.path.startsWith(r))
@@ -72,6 +73,8 @@ function labelPlan(plan: string) {
 
 function salir() {
   authStore.logout()
+  const saAuthStore = useSuperAdminAuthStore()
+  saAuthStore.logout()
   router.push('/login')
 }
 
