@@ -21,11 +21,18 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      if (!localStorage.getItem('sa_token') && window.location.pathname !== '/login') {
-        window.location.href = '/login'
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      const saToken = localStorage.getItem('sa_token')
+      if (saToken) {
+        const currentPath = window.location.pathname
+        localStorage.setItem('sa_refresh_redirect', currentPath)
+        window.location.href = '/admin/refresh-2fa'
+      } else {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
       }
     }
     return Promise.reject(error)

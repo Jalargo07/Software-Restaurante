@@ -68,4 +68,18 @@ router.post('/disable-2fa', authenticateToken, authorizeRole('super-admin'), asy
   }
 });
 
+// Obtener datos del super-admin autenticado
+router.get('/me', authenticateToken, authorizeRole('super-admin'), async (req: Request, res: Response) => {
+  try {
+    const sa: any = await SuperAdmin.findByPk(req.user?.id, {
+      attributes: ['id', 'nombre', 'email', 'twoFactorEnabled']
+    });
+    if (!sa) return res.status(404).json({ error: 'SuperAdmin no encontrado' });
+    res.json({ usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
+  } catch (error: any) {
+    console.error('Error en get /me:', error);
+    res.status(500).json({ error: 'Error al obtener datos' });
+  }
+});
+
 export default router;

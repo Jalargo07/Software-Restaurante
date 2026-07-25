@@ -9,6 +9,7 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
     user: JSON.parse(localStorage.getItem('sa_user') || 'null') as Usuario | null,
     tempToken: null as string | null,
     error: null as string | null,
+    refreshAttempts: 0,
   }),
   getters: {
     isAuthenticated: (state) => !!state.token,
@@ -63,6 +64,29 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
     async disable2fa() {
       const { data } = await api.post('/super-admin/disable-2fa')
       return data
+    },
+    async refresh2fa(code: string) {
+      try {
+        const expiredToken = localStorage.getItem('sa_token')
+        if (!expiredToken) throw new Error('No token')
+        const { data } = await api.post('/super-admin/refresh-2fa', { expiredToken, code })
+        this.token = data.token
+        this.user = data.usuario
+        localStorage.setItem('sa_token', data.token)
+        localStorage.setItem('sa_user', JSON.stringify(data.usuario))
+        this.refreshAttempts = 0
+        this.error = null
+        return true
+      } catch (err) {
+        this.refreshAttempts++
+        const axiosError = err as AxiosError<{ error: string }>
+        this.error = axiosError.response?.data?.error || 'Código inválido'
+        if (this.refreshAttempts >= 3) {
+          this.logout()
+          localStorage.removeItem('sa_refresh_redirect')
+        }
+        return false
+      }
     },
     logout() {
       this.token = null

@@ -30,9 +30,9 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin' },
       process.env.JWT_SECRET!,
-      { expiresIn: '20m' }
+      { expiresIn: '25m' }
     );
-    res.json({ token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin' } });
+    res.json({ token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
   } catch (error: any) {
     console.error('Error en super-admin login:', error);
     res.status(500).json({ error: 'Error al iniciar sesión' });
@@ -57,13 +57,42 @@ router.post('/login-2fa', async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin' },
       process.env.JWT_SECRET!,
-      { expiresIn: '20m' }
+      { expiresIn: '25m' }
     );
-    res.json({ token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin' } });
+    res.json({ token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') return res.status(401).json({ error: 'Token expirado, reiniciá el login' });
     console.error('Error en login-2fa:', error);
     res.status(500).json({ error: 'Error al verificar 2FA' });
+  }
+});
+
+// Refresh 2FA (cuando el token expira, renueva con código 2FA)
+router.post('/refresh-2fa', async (req: Request, res: Response) => {
+  try {
+    const { expiredToken, code } = req.body;
+    if (!expiredToken || !code) return res.status(400).json({ error: 'Token y código requeridos' });
+
+    const payload: any = jwt.verify(expiredToken, process.env.JWT_SECRET!, { ignoreExpiration: true });
+    if (payload.rol !== 'super-admin') return res.status(401).json({ error: 'Token inválido' });
+
+    const sa: any = await SuperAdmin.findByPk(payload.id);
+    if (!sa || !sa.twoFactorEnabled || !sa.twoFactorSecret) return res.status(401).json({ error: '2FA no configurado' });
+
+    const result = verifySync({ token: code, secret: sa.twoFactorSecret });
+    const isValid = result.valid;
+    if (!isValid) return res.status(401).json({ error: 'Código inválido' });
+
+    const newToken = jwt.sign(
+      { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin' },
+      process.env.JWT_SECRET!,
+      { expiresIn: '25m' }
+    );
+
+    res.json({ token: newToken, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
+  } catch (error: any) {
+    console.error('Error en refresh-2fa:', error);
+    res.status(500).json({ error: 'Error al renovar sesión' });
   }
 });
 

@@ -145,6 +145,11 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['super-admin'] } as RouteMeta,
     },
     {
+      path: '/admin/refresh-2fa',
+      name: 'super-admin-refresh',
+      component: () => import('../views/auth/SuperAdminRefreshView.vue'),
+    },
+    {
       path: '/reportes',
       name: 'reportes',
       component: () => import('../views/ReportesView.vue'),
@@ -162,6 +167,7 @@ router.beforeEach((to, _from, next) => {
   if (saAuthStore.token && to.path === '/') return next('/super-admin')
   if (to.name === 'super-admin-login') return next()
   if (to.name === 'super-admin-2fa') return next()
+  if (to.name === 'super-admin-refresh') return next()
   if (to.meta.publico) return next()
 
   if (to.meta.requiresAuth && !token) return next('/login')

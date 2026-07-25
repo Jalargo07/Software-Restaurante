@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCmsStore } from '../../stores/cms'
 import { useToastStore } from '../../stores/toast'
 import type { LandingData } from '../../types'
 
+const route = useRoute()
 const cmsStore = useCmsStore()
 const toast = useToastStore()
 
 const data = ref<LandingData | null>(null)
 const seccionActiva = ref('hero')
+
+watch(() => route.query.section, (section) => {
+  if (section && typeof section === 'string') seccionActiva.value = section
+}, { immediate: true })
 const guardando = ref(false)
 
 onMounted(async () => {
@@ -32,19 +38,6 @@ async function guardar() {
 
 <template>
   <div class="flex h-[calc(100vh-73px)] bg-gray-50 dark:bg-gray-900">
-    <!-- Sidebar secciones -->
-    <aside class="w-20 lg:w-24 bg-[#047857] flex flex-col items-center py-4 gap-1 overflow-y-auto flex-shrink-0">
-      <button v-for="s in [ 'hero', 'problem', 'solution', 'diff', 'pricing', 'testimonials', 'cta', 'footer' ]" :key="s"
-        @click="seccionActiva = s"
-        class="w-16 lg:w-20 py-3 rounded-xl text-center text-xs font-medium transition-all"
-        :class="seccionActiva === s ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'">
-        <div class="text-xl mb-0.5">
-          {{ { hero: '🏠', problem: '⚠️', solution: '✅', diff: '⚖️', pricing: '💰', testimonials: '⭐', cta: '📣', footer: '🔗' }[s] }}
-        </div>
-        <span class="text-[10px] leading-tight">{{ { hero: 'Hero', problem: 'Problemas', solution: 'Solución', diff: 'Diferenciadores', pricing: 'Precios', testimonials: 'Testimonios', cta: 'CTA', footer: 'Footer' }[s] }}</span>
-      </button>
-    </aside>
-
     <!-- Contenido -->
     <div class="flex-1 overflow-y-auto p-4 lg:p-6">
       <div class="flex items-center justify-between mb-6">

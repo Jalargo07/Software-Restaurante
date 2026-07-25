@@ -3,6 +3,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import { useSuperAdminAuthStore } from '../../stores/superAdminAuth'
 import { useToastStore } from '../../stores/toast'
 import QRCode from 'qrcode'
+import api from '../../services/api'
 
 const authStore = useSuperAdminAuthStore()
 const toast = useToastStore()
@@ -12,14 +13,41 @@ const loading = ref(true)
 const setupStep = ref<'idle' | 'qr' | 'verify'>('idle')
 const secret = ref('')
 const otpauthUrl = ref('')
-const code = ref('')
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
+const inputs = ref(['', '', '', '', '', ''])
+const inputRefs = ref<HTMLInputElement[]>([])
+
+function onInput(i: number, e: Event) {
+  const input = e.target as HTMLInputElement
+  const val = input.value.replace(/\D/g, '').slice(0, 1)
+  inputs.value[i] = val
+  if (val && i < 5) inputRefs.value[i + 1]?.focus()
+}
+
+function onKeydown(i: number, e: KeyboardEvent) {
+  if (e.key === 'Backspace' && !inputs.value[i] && i > 0) {
+    inputs.value[i - 1] = ''
+    inputRefs.value[i - 1]?.focus()
+  }
+}
+
+function onPaste(e: ClipboardEvent) {
+  const text = e.clipboardData?.getData('text')?.replace(/\D/g, '').slice(0, 6) || ''
+  if (!text) return
+  e.preventDefault()
+  for (let j = 0; j < 6; j++) inputs.value[j] = text[j] || ''
+  inputRefs.value[Math.min(text.length, 5)]?.focus()
+}
+
+function getCode() { return inputs.value.join('') }
 
 onMounted(async () => {
   try {
-    const user = authStore.user as any
-    twofaEnabled.value = user?.twoFactorEnabled || false
-  } finally { loading.value = false }
+    const { data } = await api.get('/super-admin/me')
+    twofaEnabled.value = data.usuario?.twoFactorEnabled || false
+    if (authStore.user) authStore.user.twoFactorEnabled = twofaEnabled.value
+  } catch { /* ignore */ }
+  finally { loading.value = false }
 })
 
 async function iniciarSetup() {
@@ -36,10 +64,13 @@ async function iniciarSetup() {
 }
 
 async function verificarCodigo() {
-  if (code.value.length !== 6) return
+  const code = getCode()
+  if (code.length !== 6) return
   try {
-    await authStore.verify2fa(secret.value, code.value)
+    await authStore.verify2fa(secret.value, code)
     twofaEnabled.value = true
+    if (authStore.user) authStore.user.twoFactorEnabled = true
+    localStorage.setItem('sa_user', JSON.stringify(authStore.user))
     setupStep.value = 'idle'
     toast.success('2FA activado exitosamente')
   } catch { toast.error('Código inválido') }
@@ -50,6 +81,8 @@ async function deshabilitar2fa() {
   try {
     await authStore.disable2fa()
     twofaEnabled.value = false
+    if (authStore.user) authStore.user.twoFactorEnabled = false
+    localStorage.setItem('sa_user', JSON.stringify(authStore.user))
     toast.success('2FA deshabilitado')
   } catch { toast.error('Error al deshabilitar 2FA') }
 }
@@ -105,18 +138,17 @@ async function deshabilitar2fa() {
       <div v-if="setupStep === 'verify'">
         <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">Ingresá el código de 6 dígitos que aparece en tu app</p>
         <div class="flex justify-center gap-2 mb-4">
-          <div v-for="i in 6" :key="i"
-            class="w-11 h-14 flex items-center justify-center text-xl font-bold rounded-xl border bg-white dark:bg-gray-700 transition"
-            :class="code.length >= i ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-gray-300 dark:border-gray-600 text-gray-400'">
-            {{ code[i-1] || '' }}
-          </div>
+          <input v-for="(_, i) in 6" :key="i"
+            :ref="(el: any) => { if (el) inputRefs[i] = el }"
+            :value="inputs[i]"
+            @input="onInput(i, $event)"
+            @keydown="onKeydown(i, $event)"
+            @paste="onPaste"
+            type="text" inputmode="numeric" maxlength="1"
+            class="w-11 h-14 text-center text-xl font-bold rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition" />
         </div>
-        <input v-model="code" @input="code = $event.target.value.replace(/\D/g,'').slice(0,6)"
-          type="text" inputmode="numeric" maxlength="6" autofocus
-          class="w-full px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
-          placeholder="------" />
-        <button @click="verificarCodigo" :disabled="code.length !== 6"
-          class="w-full mt-4 py-2.5 px-4 rounded-xl font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">
+        <button @click="verificarCodigo" :disabled="getCode().length !== 6"
+          class="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">
           Verificar y activar
         </button>
       </div>

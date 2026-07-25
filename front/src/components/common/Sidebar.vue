@@ -10,13 +10,13 @@ function labelPlan(plan: string) {
 }
 
 const props = defineProps<{
-  currentMode: 'produccion' | 'administracion'
+  currentMode: 'produccion' | 'administracion' | 'cms'
   theme: string
   modelValue?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:currentMode', mode: 'produccion' | 'administracion'): void
+  (e: 'update:currentMode', mode: 'produccion' | 'administracion' | 'cms'): void
   (e: 'toggle-theme'): void
   (e: 'logout'): void
   (e: 'update:modelValue', value: boolean): void
@@ -51,15 +51,30 @@ const administracionItems = [
   { path: '/cms', icon: '📝', label: 'CMS Landing', roles: ['super-admin'] },
 ]
 
+const cmsItems = [
+  { path: '/cms', icon: '🏠', label: 'Hero', roles: ['super-admin'] },
+  { path: '/cms?section=problem', icon: '⚠️', label: 'Problemas', roles: ['super-admin'] },
+  { path: '/cms?section=solution', icon: '✅', label: 'Solución', roles: ['super-admin'] },
+  { path: '/cms?section=diff', icon: '⚖️', label: 'Diferenciadores', roles: ['super-admin'] },
+  { path: '/cms?section=pricing', icon: '💰', label: 'Precios', roles: ['super-admin'] },
+  { path: '/cms?section=testimonials', icon: '⭐', label: 'Testimonios', roles: ['super-admin'] },
+  { path: '/cms?section=cta', icon: '📣', label: 'CTA', roles: ['super-admin'] },
+  { path: '/cms?section=footer', icon: '🔗', label: 'Footer', roles: ['super-admin'] },
+]
+
 const visibleItems = computed(() => {
-  const items = props.currentMode === 'produccion' ? produccionItems : administracionItems
+  const items = props.currentMode === 'produccion' ? produccionItems
+    : props.currentMode === 'cms' ? cmsItems
+    : administracionItems
   return items.filter(item => item.roles.includes(rol.value))
 })
 
-function setMode(mode: 'produccion' | 'administracion') {
+function setMode(mode: 'produccion' | 'administracion' | 'cms') {
   emit('update:currentMode', mode)
   if (mode === 'produccion') {
     router.push('/mesas')
+  } else if (mode === 'cms') {
+    router.push('/cms')
   } else {
     router.push('/')
   }
@@ -76,7 +91,7 @@ function isActive(path: string) {
   <aside class="w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 md:sticky md:top-0 overflow-hidden h-screen md:h-screen transform transition-transform md:translate-x-0" :class="modelValue ? 'translate-x-0' : 'max-md:-translate-x-full'">
     <div class="p-4 border-b border-gray-700">
       <div class="flex rounded-lg bg-gray-800 p-1">
-        <button
+        <button v-if="rol !== 'super-admin'"
           class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           :class="currentMode === 'produccion' ? 'bg-[var(--color-primario)] text-white' : 'text-gray-400 hover:text-white'"
           @click="setMode('produccion')"
@@ -89,6 +104,13 @@ function isActive(path: string) {
           @click="setMode('administracion')"
         >
           Admin
+        </button>
+        <button
+          class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          :class="currentMode === 'cms' ? 'bg-[var(--color-primario)] text-white' : 'text-gray-400 hover:text-white'"
+          @click="setMode('cms')"
+        >
+          CMS
         </button>
       </div>
     </div>
