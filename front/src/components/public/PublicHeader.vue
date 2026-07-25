@@ -16,15 +16,13 @@ function scrollTo(selector: string) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2">
-          <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-            BiteOps
-          </span>
+          <img src="/banner-biteops.png" alt="BiteOps" class="h-8 w-auto">
         </RouterLink>
 
         <nav class="hidden md:flex items-center gap-8">
-          <a href="#features" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click.prevent="scrollTo('#features')">Funciones</a>
-          <a href="#pricing" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click.prevent="scrollTo('#pricing')">Precios</a>
-          <RouterLink to="/login" class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+          <a href="#features" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" @click.prevent="scrollTo('#features')">Funciones</a>
+          <a href="#pricing" class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" @click.prevent="scrollTo('#pricing')">Precios</a>
+          <RouterLink to="/login" class="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors">
             Iniciar Sesión
           </RouterLink>
         </nav>
@@ -40,11 +38,11 @@ function scrollTo(selector: string) {
       </div>
 
       <div v-if="mobileOpen" class="md:hidden pb-4 space-y-2">
-        <a href="#features" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click.prevent="scrollTo('#features'); mobileOpen = false">Funciones</a>
-        <a href="#pricing" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" @click.prevent="scrollTo('#pricing'); mobileOpen = false">Precios</a>
-        <RouterLink to="/login" class="block px-3 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg text-center transition-colors" @click="mobileOpen = false">
-          Iniciar Sesión
-        </RouterLink>
+          <a href="#features" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" @click.prevent="scrollTo('#features'); mobileOpen = false">Funciones</a>
+          <a href="#pricing" class="block px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" @click.prevent="scrollTo('#pricing'); mobileOpen = false">Precios</a>
+          <RouterLink to="/login" class="block px-3 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg text-center transition-colors" @click="mobileOpen = false">
+            Iniciar Sesión
+          </RouterLink>
       </div>
     </div>
   </header>

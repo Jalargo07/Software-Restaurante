@@ -11,9 +11,12 @@ import { RouterLink } from 'vue-router'
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
       <div class="text-center max-w-4xl mx-auto" data-scroll>
+        <div class="flex justify-center mb-8">
+          <img src="/logo-biteops.png" alt="BiteOps" class="w-24 h-24 sm:w-32 sm:h-32 drop-shadow-2xl">
+        </div>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
           El sistema operativo de
-          <span class="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">tu restaurante</span>
+          <span class="bg-gradient-to-r from-emerald-600 to-orange-500 bg-clip-text text-transparent">tu restaurante</span>
         </h1>
         <p class="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
           Gestiona mesas, comandas, inventario, compras y reportes desde una sola plataforma.
@@ -21,7 +24,7 @@ import { RouterLink } from 'vue-router'
         <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <RouterLink
             to="/login"
-            class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+            class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all"
           >
             Comenzar gratis
           </RouterLink>
