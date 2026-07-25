@@ -145,28 +145,27 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
   const saAuthStore = useSuperAdminAuthStore()
+  const isSA = saAuthStore.isAuthenticated
+  const isUser = authStore.isAuthenticated
+
   if (to.name === 'super-admin-login') return next()
-  if (saAuthStore.isAuthenticated && (to.name === 'login' || to.name === 'landing' || to.name === 'tenant-login')) {
-    return next('/super-admin')
-  }
+  if (isSA && (to.name === 'login' || to.name === 'landing' || to.name === 'tenant-login')) return next('/super-admin')
   if (to.meta.publico) return next()
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-  } else if (to.name === 'login' && authStore.isAuthenticated) {
-    next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
-  } else if (to.name === 'landing' && authStore.isAuthenticated) {
-    next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
-  } else if (to.name === 'tenant-login' && authStore.isAuthenticated) {
-    next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
-  } else if (to.meta.roles && authStore.user) {
-    if (!(to.meta.roles as string[]).includes(authStore.user.rol)) {
-      next(authStore.user?.rol === 'super-admin' ? '/cms' : '/dashboard')
-    } else {
-      next()
+
+  const requiresAuth = to.meta.requiresAuth
+  if (requiresAuth && !isUser && !isSA) return next('/login')
+
+  if (to.name === 'login' && isUser) return next('/dashboard')
+  if (to.name === 'landing' && isUser) return next('/dashboard')
+  if (to.name === 'tenant-login' && isUser) return next('/dashboard')
+
+  if (to.meta.roles) {
+    const user = authStore.user || saAuthStore.user
+    if (!user || !(to.meta.roles as string[]).includes(user.rol)) {
+      return next(isSA ? '/super-admin' : '/dashboard')
     }
-  } else {
-    next()
   }
+  next()
 })
 
 export default router
