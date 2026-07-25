@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://biteops.app/sitemap.xml
+Sitemap: https://biteops-blush.vercel.app/sitemap.xml

@@ -12,5 +12,5 @@
   <text x="100" y="290" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="400" fill="rgba(255,255,255,0.9)">El sistema operativo de tu restaurante</text>
   <text x="100" y="360" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="300" fill="rgba(255,255,255,0.7)">POS · Inventario · Comandas · Reportes · Menú QR</text>
   <rect x="100" y="420" width="200" height="50" rx="25" fill="rgba(255,255,255,0.15)"/>
-  <text x="200" y="453" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">biteops.app</text>
+  <text x="200" y="453" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">biteops-blush.vercel.app</text>
 </svg>

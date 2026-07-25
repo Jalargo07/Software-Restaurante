@@ -2,18 +2,18 @@
 const productLinks = [
   { label: 'Funciones', href: '#features' },
   { label: 'Precios', href: '#pricing' },
-  { label: 'Demo', href: 'https://biteops.app/demo' },
+  { label: 'Demo', href: 'https://biteops-blush.vercel.app/demo' },
 ]
 
 const companyLinks = [
-  { label: 'Sobre nosotros', href: 'https://biteops.app/about' },
-  { label: 'Blog', href: 'https://blog.biteops.app' },
-  { label: 'Contacto', href: 'mailto:contacto@biteops.app' },
+  { label: 'Sobre nosotros', href: 'https://biteops-blush.vercel.app/about' },
+  { label: 'Blog', href: 'https://biteops-blush.vercel.app/blog' },
+  { label: 'Contacto', href: 'mailto:contacto@biteops-blush.vercel.app' },
 ]
 
 const legalLinks = [
-  { label: 'Privacidad', href: 'https://biteops.app/privacidad' },
-  { label: 'Términos', href: 'https://biteops.app/terminos' },
+  { label: 'Privacidad', href: 'https://biteops-blush.vercel.app/privacidad' },
+  { label: 'Términos', href: 'https://biteops-blush.vercel.app/terminos' },
 ]
 </script>
 
