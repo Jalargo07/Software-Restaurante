@@ -84,7 +84,7 @@ export const ventasPorDia = async (req: Request, res: Response) => {
 
 export const productosMasVendidos = async (req: Request, res: Response) => {
   try {
-    const { fechaDesde, fechaHasta } = req.query;
+    const { fechaDesde, fechaHasta, productoIds } = req.query;
     const ventaWhere: any = { estado: 'cerrada' };
     if (fechaDesde && fechaHasta) {
       ventaWhere.createdAt = {
@@ -93,10 +93,16 @@ export const productosMasVendidos = async (req: Request, res: Response) => {
       };
     }
 
+    const productoWhere: any = {};
+    if (productoIds) {
+      const ids = (productoIds as string).split(',').map(Number);
+      productoWhere.id = { [Op.in]: ids };
+    }
+
     const resultados: any = await DetalleVenta.findAll({
       where: scopeTenant({}, req.tenantId!),
       include: [
-        { model: Producto, attributes: ['nombre'] },
+        { model: Producto, attributes: ['nombre'], where: Object.keys(productoWhere).length > 0 ? productoWhere : undefined },
         { model: Venta, attributes: [], where: ventaWhere, required: true }
       ],
       attributes: [

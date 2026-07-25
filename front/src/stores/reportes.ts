@@ -15,15 +15,19 @@ export const useReporteStore = defineStore('reportes', {
     filtroPeriodo: 'hoy' as 'hoy' | '7dias' | '30dias' | 'mes' | 'personalizado',
     fechaDesde: '',
     fechaHasta: '',
+    productoIds: [] as (string | number)[],
   }),
   actions: {
-    async fetchAll(params?: { fechaDesde?: string; fechaHasta?: string; dias?: number }) {
+    async fetchAll(params?: { fechaDesde?: string; fechaHasta?: string; dias?: number; productoIds?: (string | number)[] }) {
       this.loading = true
       try {
         const queryParams = new URLSearchParams()
         if (params?.fechaDesde) queryParams.append('fechaDesde', params.fechaDesde)
         if (params?.fechaHasta) queryParams.append('fechaHasta', params.fechaHasta)
         if (params?.dias !== undefined) queryParams.append('dias', params.dias.toString())
+        if (params?.productoIds && params.productoIds.length > 0) {
+          queryParams.append('productoIds', params.productoIds.join(','))
+        }
 
         const qs = queryParams.toString() ? `?${queryParams.toString()}` : ''
 
