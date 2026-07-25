@@ -1,14 +1,15 @@
 import { S3Client, CreateBucketCommand, HeadBucketCommand, PutBucketPolicyCommand } from '@aws-sdk/client-s3';
 
 export const BUCKET = process.env.S3_BUCKET_NAME || 'restaurante-bucket';
-export const REGION = process.env.S3_REGION || 'us-east-1';
+export const REGION = process.env.S3_REGION || 'auto';
 export const ENDPOINT = process.env.S3_ENDPOINT || 'http://localhost:9000';
 export const ACCESS_KEY = process.env.S3_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || 'alejoadmin';
 export const SECRET_KEY = process.env.S3_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY || 'alejo1234';
 
+// R2 requiere forcePathStyle: false, MinIO requiere true
 export const forcePathStyle = process.env.S3_FORCE_PATH_STYLE !== undefined
   ? process.env.S3_FORCE_PATH_STYLE === 'true'
-  : true;
+  : ENDPOINT.includes('localhost');
 
 export const s3Client = new S3Client({
   region: REGION,

@@ -12,6 +12,24 @@ if (process.env.NODE_ENV === 'test') {
     storage: path.join(dataDir, 'test-database.sqlite'),
     logging: false,
   });
+} else if (process.env.DATABASE_URL) {
+  // Soporte para DATABASE_URL (Supabase, Railway, etc.)
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    timezone: '-03:00',
+    dialectOptions: {
+      useUTC: false,
+      typeCast: true,
+      ssl: process.env.NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+  });
 } else if (process.env.DB_DIALECT === 'postgres') {
   sequelize = new Sequelize(
     process.env.DB_NAME || 'restaurantedb',
