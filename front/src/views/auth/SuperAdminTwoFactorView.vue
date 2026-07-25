@@ -36,12 +36,16 @@ function handleInput(e: Event) {
       </div>
       <form @submit.prevent="handleVerify" class="space-y-6">
         <div class="flex justify-center gap-2">
-          <input v-for="i in 6" :key="i" :value="code[i-1] || ''"
-            class="w-11 h-14 text-center text-xl font-bold rounded-xl border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
-            :ref="(el: any) => { if (el && i === 1) (window as any)._2faFirst = el }"
-            @input="handleInput" maxlength="1" inputmode="numeric" pattern="[0-9]"
-            :disabled="!authStore.tempToken" />
+          <div v-for="i in 6" :key="i"
+            class="w-11 h-14 flex items-center justify-center text-xl font-bold rounded-xl border transition"
+            :class="code.length >= i ? 'border-emerald-500 text-emerald-400' : 'border-gray-700 text-gray-500'">
+            {{ code[i-1] || '' }}
+          </div>
         </div>
+        <input v-model="code" @input="code = $event.target.value.replace(/\D/g,'').slice(0,6)"
+          type="text" inputmode="numeric" maxlength="6" autofocus
+          class="w-full px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] rounded-xl border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+          placeholder="------" :disabled="!authStore.tempToken" />
         <p v-if="errorMsg" class="text-red-400 text-sm text-center">{{ errorMsg }}</p>
         <button type="submit" :disabled="code.length !== 6 || !authStore.tempToken"
           class="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">

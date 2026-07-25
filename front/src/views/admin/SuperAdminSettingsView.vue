@@ -105,13 +105,18 @@ async function deshabilitar2fa() {
       <div v-if="setupStep === 'verify'">
         <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">Ingresá el código de 6 dígitos que aparece en tu app</p>
         <div class="flex justify-center gap-2 mb-4">
-          <input v-for="i in 6" :key="i" :value="code[i-1] || ''"
-            @input="(e: any) => { const v = e.target.value.replace(/\D/g,''); code.value = (code.value + v).slice(0,6) }"
-            class="w-11 h-14 text-center text-xl font-bold rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
-            maxlength="1" inputmode="numeric" pattern="[0-9]" />
+          <div v-for="i in 6" :key="i"
+            class="w-11 h-14 flex items-center justify-center text-xl font-bold rounded-xl border bg-white dark:bg-gray-700 transition"
+            :class="code.length >= i ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-gray-300 dark:border-gray-600 text-gray-400'">
+            {{ code[i-1] || '' }}
+          </div>
         </div>
+        <input v-model="code" @input="code = $event.target.value.replace(/\D/g,'').slice(0,6)"
+          type="text" inputmode="numeric" maxlength="6" autofocus
+          class="w-full px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+          placeholder="------" />
         <button @click="verificarCodigo" :disabled="code.length !== 6"
-          class="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">
+          class="w-full mt-4 py-2.5 px-4 rounded-xl font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">
           Verificar y activar
         </button>
       </div>
