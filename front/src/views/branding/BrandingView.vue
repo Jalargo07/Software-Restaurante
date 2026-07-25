@@ -9,6 +9,7 @@ const toast = useToastStore()
 
 const guardando = ref(false)
 const slug = ref('')
+const origin = window.location.origin
 
 const form = ref({
   colorPrimario: '#0d6efd',
@@ -370,7 +371,7 @@ async function guardar() {
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Menú QR Digital</h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Compartí este enlace para que tus clientes vean el menú digital desde su celular.</p>
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <code class="text-sm bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 break-all">{{ window.location.origin }}/menu/{{ slug }}</code>
+        <code class="text-sm bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 break-all">{{ origin }}/menu/{{ slug }}</code>
         <button
           @click="abrirMenuQR"
           class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
