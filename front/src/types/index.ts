@@ -1,6 +1,6 @@
 // ─── String Literal Union Types ──────────────────────
 
-export type UsuarioRol = 'admin' | 'mesero' | 'cajero' | 'cocinero'
+export type UsuarioRol = 'admin' | 'mesero' | 'cajero' | 'cocinero' | 'super-admin'
 
 export type ProductoCategoria = 'bebida' | 'comida' | 'insumo' | 'postre'
 
@@ -360,4 +360,22 @@ export interface Toast {
   id: number
   message: string
   type: ToastType
+}
+
+export type TenantPlan = 'basico' | 'pro' | 'enterprise'
+export type TenantEstado = 'pendiente_aprobacion' | 'activo' | 'suspendido'
+
+export interface Tenant {
+  id: number
+  nombre: string
+  slug: string
+  plan: TenantPlan
+  estado: TenantEstado
+  activo: boolean
+  createdAt: string
+  updatedAt: string
+  TenantConfig?: TenantConfig
+  productosCount: number
+  usuariosCount: number
+  ventasHoyCount: number
 }

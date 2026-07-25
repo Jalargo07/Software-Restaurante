@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteMeta } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -29,7 +29,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
-      meta: { requiresAuth: true, roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
+      meta: { requiresAuth: true, roles: ['admin', 'mesero', 'cajero', 'cocinero', 'super-admin'] },
     },
     {
       path: '/admin',
@@ -108,6 +108,12 @@ const router = createRouter({
       name: 'branding',
       component: () => import('../views/branding/BrandingView.vue'),
       meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/super-admin',
+      name: 'super-admin',
+      component: () => import('../views/admin/SuperAdminView.vue'),
+      meta: { requiresAuth: true, roles: ['super-admin'] } as RouteMeta,
     },
     {
       path: '/reportes',
