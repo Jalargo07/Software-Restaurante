@@ -124,12 +124,12 @@ function isActive(path: string) {
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <img
-          v-if="brandingStore.branding.logo"
+          v-if="brandingStore.branding?.logo"
           :src="brandingStore.branding.logo"
-          :alt="brandingStore.branding.nombreCompleto || 'Logo'"
+          :alt="brandingStore.branding?.nombreCompleto || 'Logo'"
           class="h-8 w-auto object-contain"
         />
-        <span v-if="brandingStore.branding.nombreCompleto" class="text-lg font-semibold text-gray-900 dark:text-white">
+        <span v-if="brandingStore.branding?.nombreCompleto" class="text-lg font-semibold text-gray-900 dark:text-white">
           {{ brandingStore.branding.nombreCompleto }}
         </span>
       </header>
