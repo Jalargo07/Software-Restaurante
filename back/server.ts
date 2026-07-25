@@ -3,8 +3,12 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
+import dns from 'dns';
 import dotenv from 'dotenv';
 import sequelize from './config/database';
+
+// Forzar resolución DNS a IPv4 (fix para Supabase + Render)
+dns.setDefaultResultOrder('ipv4first');
 import { connectRedis, disconnectRedis } from './config/redis';
 import tenantContext from './middleware/tenantContext';
 import { generalLimiter } from './middleware/rateLimit';
