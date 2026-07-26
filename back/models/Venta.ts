@@ -11,6 +11,10 @@ const Venta = sequelize.define('Venta', {
     primaryKey: true,
     autoIncrement: true,
   },
+  tipo: {
+    type: DataTypes.ENUM('mesa', 'directa', 'delivery'),
+    defaultValue: 'directa',
+  },
   mesaId: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -28,6 +32,22 @@ const Venta = sequelize.define('Venta', {
     allowNull: true,
   },
   cliente: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  deliveryApp: {
+    type: DataTypes.ENUM('rappi', 'uber', 'pedidosya'),
+    allowNull: true,
+  },
+  deliveryPedidoId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  direccionEntrega: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  clienteTelefono: {
     type: DataTypes.STRING,
     allowNull: true,
   },

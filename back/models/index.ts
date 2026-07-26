@@ -16,6 +16,7 @@ import DocumentoFiscal from './DocumentoFiscal';
 import Transaccion from './Transaccion';
 import LandingContent from './LandingContent';
 import SuperAdmin from './SuperAdmin';
+import DeliveryConfig from './DeliveryConfig';
 
 // Tenant -> Models
 Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
@@ -121,6 +122,10 @@ DocumentoFiscal.belongsTo(Venta, { foreignKey: 'ventaId' });
 Tenant.hasMany(Transaccion, { foreignKey: 'tenant_id' });
 Transaccion.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
+// DeliveryConfig
+Tenant.hasMany(DeliveryConfig, { foreignKey: 'tenant_id' });
+DeliveryConfig.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
 export {
   Tenant,
   Mesa,
@@ -140,4 +145,5 @@ export {
   Transaccion,
   LandingContent,
   SuperAdmin,
+  DeliveryConfig,
 };

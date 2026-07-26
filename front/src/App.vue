@@ -86,6 +86,7 @@ const navItems = computed(() => {
       { path: '/pedidos', icon: '📋', label: 'Pedidos', roles: ['admin', 'mesero', 'cajero'] },
       { path: '/ventas', icon: '💰', label: 'Ventas', roles: ['admin', 'mesero', 'cajero'] },
       { path: '/caja', icon: '🏦', label: 'Caja', roles: ['admin', 'cajero'] },
+      { path: '/delivery/pedidos', icon: '🛵', label: 'Delivery', roles: ['admin', 'mesero', 'cajero'] },
       { path: '/comandas', icon: '👨‍🍳', label: 'Cocina', roles: ['admin', 'mesero', 'cocinero'] },
       { path: '/admin', icon: '⚙️', label: 'Admin', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
     ]

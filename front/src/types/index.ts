@@ -460,3 +460,22 @@ export interface LandingData {
   cta: LandingCta
   footer: LandingFooter
 }
+
+// ─── Delivery Types ────────────────────────────────────
+
+export type DeliveryApp = 'rappi' | 'uber' | 'pedidosya'
+
+export interface DeliveryConfig {
+  id: number
+  tenant_id: number
+  app: DeliveryApp
+  activo: boolean
+  webhookSecret?: string
+  apiKey?: string
+  createdAt: string
+}
+
+export interface DeliverySimularPayload {
+  app: DeliveryApp
+  productos: Array<{ nombre: string; cantidad: number; precio?: number }>
+}

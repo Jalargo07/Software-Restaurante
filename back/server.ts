@@ -30,6 +30,7 @@ import superAdminRoutes from './routes/superAdmin';
 import facturasRoutes from './routes/facturas';
 import pagosRoutes from './routes/pagos';
 import landingRoutes, { landingPublicRouter } from './routes/landing';
+import deliveryRoutes, { deliveryPublicRouter } from './routes/delivery';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin } from './models';
 import superAdminAuthRoutes from './routes/superAdminAuth';
@@ -67,6 +68,7 @@ app.use(express.json({ limit: '10mb' })); // Límite de tamaño de body
 app.use('/api/public', publicBrandingRoutes);
 app.use('/api/public', menuRoutes);
 app.use('/api/public', landingPublicRouter);
+app.use('/api/delivery', deliveryPublicRouter);
 
 app.use('/api/super-admin', superAdminAuthRoutes);
 
@@ -88,6 +90,7 @@ app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/facturas', facturasRoutes);
 app.use('/api/pagos', pagosRoutes);
 app.use('/api/landing', landingRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });

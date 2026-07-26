@@ -127,7 +127,9 @@ async function avanzarEstado(detalle: DetalleVenta) {
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full overflow-hidden" :class="obtenerDetalles(venta).every((d: DetalleVenta) => d.estadoComanda === 'listo') ? 'ring-2 ring-green-500' : contarPorEstado(venta, 'pendiente') > 0 ? 'ring-2 ring-red-500' : 'ring-2 ring-yellow-500'">
           <div class="flex items-center justify-between px-4 py-3"
             :class="obtenerDetalles(venta).every((d: DetalleVenta) => d.estadoComanda === 'listo') ? 'bg-green-600 text-white' : contarPorEstado(venta, 'pendiente') > 0 ? 'bg-red-600 text-white' : 'bg-yellow-500 text-white'">
-            <strong>Mesa #{{ venta.Mesa?.numero || 'Fast Food' }}</strong>
+            <strong>Mesa #{{ venta.Mesa?.numero || 'Fast Food' }}
+              <span v-if="venta.tipo === 'delivery'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700 ml-1">Delivery</span>
+            </strong>
             <span>${{ venta.total }}</span>
           </div>
           <div class="p-0">

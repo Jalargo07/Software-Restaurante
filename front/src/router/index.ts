@@ -155,6 +155,18 @@ const router = createRouter({
       component: () => import('../views/ReportesView.vue'),
       meta: { requiresAuth: true, roles: ['admin'] },
     },
+    {
+      path: '/delivery/config',
+      name: 'delivery-config',
+      component: () => import('../views/delivery/DeliveryConfigView.vue'),
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/delivery/pedidos',
+      name: 'delivery-pedidos',
+      component: () => import('../views/delivery/DeliveryPedidosView.vue'),
+      meta: { requiresAuth: true, roles: ['admin', 'mesero', 'cajero'] },
+    },
   ],
 })
 

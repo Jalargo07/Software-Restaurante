@@ -105,7 +105,7 @@ function isActive(path: string) {
         >
           Admin
         </button>
-        <button
+        <button v-if="rol === 'super-admin'"
           class="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           :class="currentMode === 'cms' ? 'bg-[var(--color-primario)] text-white' : 'text-gray-400 hover:text-white'"
           @click="setMode('cms')"
