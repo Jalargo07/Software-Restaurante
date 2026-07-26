@@ -163,14 +163,14 @@ async function handleLogin() {
         </div>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-4">
+      <form @submit.prevent="handleLogin" class="space-y-4" itemscope itemtype="https://schema.org/LoginAction">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input v-model="email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" required autocomplete="email">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="login-email">Email</label>
+          <input id="login-email" v-model="email" type="email" itemprop="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" required autocomplete="email">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input v-model="password" type="password" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" required autocomplete="current-password">
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="login-password">Password</label>
+          <input id="login-password" v-model="password" type="password" itemprop="password" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" required autocomplete="current-password">
         </div>
         <p v-if="errorMsg" class="text-red-500 text-sm text-center">{{ errorMsg }}</p>
         <button

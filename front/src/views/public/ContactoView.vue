@@ -34,22 +34,22 @@ function enviarMensaje() {
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Envianos un mensaje</h2>
-              <form class="space-y-5" @submit.prevent="enviarMensaje">
+              <form class="space-y-5" @submit.prevent="enviarMensaje" itemscope itemtype="https://schema.org/ContactPoint">
                 <div>
                   <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-                  <input id="nombre" v-model="nombre" type="text" required
+                  <input id="nombre" v-model="nombre" type="text" itemprop="name" required
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                     placeholder="Tu nombre completo" />
                 </div>
                 <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                  <input id="email" v-model="email" type="email" required
+                  <label for="contact-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                  <input id="contact-email" v-model="email" type="email" itemprop="email" required
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors"
                     placeholder="tu@email.com" />
                 </div>
                 <div>
                   <label for="mensaje" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mensaje</label>
-                  <textarea id="mensaje" v-model="mensaje" required rows="5"
+                  <textarea id="mensaje" v-model="mensaje" required rows="5" itemprop="description"
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors resize-none"
                     placeholder="¿En qué podemos ayudarte?" />
                 </div>
