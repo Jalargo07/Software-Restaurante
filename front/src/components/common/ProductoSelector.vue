@@ -4,8 +4,10 @@ import api from '../../services/api'
 
 const props = withDefaults(defineProps<{
   soloVentas?: boolean
+  soloInsumos?: boolean
 }>(), {
-  soloVentas: false
+  soloVentas: false,
+  soloInsumos: false
 })
 
 const emit = defineEmits<{
@@ -22,6 +24,9 @@ onMounted(async () => {
 
 const filtrados = computed(() => {
   let resultado = productos.value
+  if (props.soloInsumos) {
+    resultado = resultado.filter((p: any) => p.tipo === 'insumo')
+  }
   if (props.soloVentas) {
     resultado = resultado.filter((p: any) => p.tipo !== 'insumo')
   }

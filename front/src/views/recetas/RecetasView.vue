@@ -90,7 +90,7 @@ async function eliminar(id: number) {
                   <li v-for="d in p.detallesReceta" :key="d.id">
                     {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
                     — {{ d.cantidad }} {{ d.unidad }}
-                    <span v-if="d.merma > 0" class="text-gray-500 dark:text-gray-400">(merma {{ d.merma }}%)</span>
+
                   </li>
                 </ul>
                 <span v-else class="text-gray-500 dark:text-gray-400 text-xs">Sin ingredientes</span>
@@ -111,7 +111,7 @@ async function eliminar(id: number) {
                     <li v-for="d in p.detallesReceta" :key="d.id">
                       {{ d.insumo?.nombre || 'Insumo #' + d.insumoId }}
                       — {{ d.cantidad }} {{ d.unidad }}
-                      <span v-if="d.merma > 0" class="text-gray-500">(merma {{ d.merma }}%)</span>
+
                     </li>
                   </ul>
                   <span v-else class="text-gray-400">Sin ingredientes</span>

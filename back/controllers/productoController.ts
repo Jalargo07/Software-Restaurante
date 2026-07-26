@@ -67,7 +67,6 @@ export const crear = async (req: Request, res: Response) => {
         insumoId: d.insumoId,
         cantidad: d.cantidad,
         unidad: d.unidad || 'unidad',
-        merma: d.merma || 0,
       }, req.tenantId!));
       await DetalleReceta.bulkCreate(detallesData, { transaction: t });
     }
@@ -123,7 +122,6 @@ export const actualizar = async (req: Request, res: Response) => {
         insumoId: d.insumoId,
         cantidad: d.cantidad,
         unidad: d.unidad || 'unidad',
-        merma: d.merma || 0,
       }, req.tenantId!));
       await DetalleReceta.bulkCreate(detallesData, { transaction: t });
     } else if (producto.tipo !== 'compuesto') {

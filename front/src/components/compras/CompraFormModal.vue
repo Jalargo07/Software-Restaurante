@@ -127,7 +127,7 @@ async function guardar() {
       <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-lg transition-colors mb-2" @click="mostrarSelector = !mostrarSelector">
         + Agregar Producto
       </button>
-      <ProductoSelector v-if="mostrarSelector" @seleccionar="agregarProducto" />
+      <ProductoSelector v-if="mostrarSelector" :soloInsumos="true" @seleccionar="agregarProducto" />
       <div class="max-h-[250px] overflow-y-auto">
         <div v-for="(d, i) in detalles" :key="i" class="flex items-center gap-2 mb-1">
           <span class="flex-1 text-sm text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>

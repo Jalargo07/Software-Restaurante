@@ -38,6 +38,7 @@ import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin, Sucursal } f
 import superAdminAuthRoutes from './routes/superAdminAuth';
 import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
+import { validateLicense } from './utils/licenseValidator';
 
 dotenv.config();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -117,6 +118,19 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected');
+
+    // Validación de licencia (nunca bloquea el arranque)
+    const licenseKey = process.env.LICENSE_KEY;
+    if (licenseKey) {
+      const result = validateLicense(licenseKey);
+      if (result.valid) {
+        console.log(`✅ License OK: tenant=${result.tenantId}, type=${result.licenseType}, expires=${result.expiryDate}`);
+      } else {
+        console.warn(`⚠️ LICENSE WARNING: ${result.error}. El servidor continuará.`);
+      }
+    } else {
+      console.warn('⚠️ No LICENSE_KEY set. Running in unlicensed mode.');
+    }
 
     if (settings.db.synchronize) {
       await sequelize.sync({ alter: true });
