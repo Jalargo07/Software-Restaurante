@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMesaStore } from '../../stores/mesas'
 import { useVentaStore } from '../../stores/ventas'
 import { useToastStore } from '../../stores/toast'
+import { io } from 'socket.io-client'
 import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 import MesaFormModal from '../../components/mesas/MesaFormModal.vue'
@@ -21,10 +22,16 @@ const busqueda = ref('')
 const mostrarSelector = ref(false)
 const seleccionados = ref<{ productoId: number; nombre: string; cantidad: number; precioUnitario: number; subtotal: number }[]>([])
 
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000')
+
 onMounted(() => {
   mesaStore.fetchMesas()
   api.get('/productos').then(({ data }) => productos.value = data)
+  socket.on('venta-cerrada', () => mesaStore.fetchMesas())
+  socket.on('venta-cancelada', () => mesaStore.fetchMesas())
 })
+
+onUnmounted(() => { socket.disconnect() })
 
 const filtrados = computed(() => {
   let resultado = productos.value.filter((p: any) => p.tipo !== 'insumo')

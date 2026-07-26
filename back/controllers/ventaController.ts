@@ -408,7 +408,7 @@ export const cobrar = async (req: Request, res: Response) => {
               });
             }
 
-            await insumo.update({ stock: insumo.stock - totalRequerido }, { transaction: t });
+            await insumo.update({ stock: Math.floor(insumo.stock - totalRequerido) }, { transaction: t });
           }
         } else {
           if (Number(producto.stock) < Number(detalle.cantidad)) {
@@ -417,7 +417,7 @@ export const cobrar = async (req: Request, res: Response) => {
               message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
             });
           }
-          const nuevoStock = producto.stock - detalle.cantidad;
+          const nuevoStock = Math.floor(producto.stock - detalle.cantidad);
           await producto.update({ stock: nuevoStock }, { transaction: t });
         }
       }
@@ -537,6 +537,7 @@ export const cobrar = async (req: Request, res: Response) => {
     const io = req.app.get('io');
     if (io) io.emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
   } catch (error: any) {
+    console.error('Error en cobrar:', error.message || error);
     await t.rollback();
     return res.status(500).json({ error: 'Error al cobrar venta' });
   }
@@ -611,7 +612,7 @@ export const crearRapida = async (req: Request, res: Response) => {
             });
           }
 
-          await insumo.update({ stock: insumo.stock - totalRequerido }, { transaction: t });
+          await insumo.update({ stock: Math.floor(insumo.stock - totalRequerido) }, { transaction: t });
         }
       } else {
         if (Number(producto.stock) < Number(item.cantidad)) {
@@ -620,7 +621,7 @@ export const crearRapida = async (req: Request, res: Response) => {
             message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
           });
         }
-        await producto.update({ stock: producto.stock - item.cantidad }, { transaction: t });
+        await producto.update({ stock: Math.floor(producto.stock - item.cantidad) }, { transaction: t });
       }
     }
 

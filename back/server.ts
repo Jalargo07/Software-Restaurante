@@ -39,6 +39,7 @@ import superAdminAuthRoutes from './routes/superAdminAuth';
 import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
 import { validateLicense } from './utils/licenseValidator';
+import { checkLicense } from './utils/licenseGuard';
 
 dotenv.config();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -99,6 +100,11 @@ app.use('/api/sucursales', sucursalRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
+});
+
+app.get('/api/license-check', (_req, res) => {
+  const result = checkLicense();
+  res.json({ ok: result.ok, warning: result.warning || null });
 });
 
 const server = http.createServer(app);
@@ -214,16 +220,41 @@ const startServer = async () => {
 
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
+
+      // Check periódico de licencia (cada hora)
+      let lastLicenseOk = true;
+      licenseInterval = setInterval(() => {
+        const result = checkLicense();
+        
+        if (lastLicenseOk && !result.ok) {
+          // Cambió de válida a inválida — log de alerta
+          console.error(`\n╔══════════════════════════════════════════════════════════╗`);
+          console.error(`║  ⛔ LICENCIA EXPIRADA O INVÁLIDA DETECTADA              ║`);
+          console.error(`║  La licencia cambió de estado durante la ejecución.     ║`);
+          console.error(`║  Detalle: ${result.warning?.padEnd(45)}║`);
+          console.error(`║  Algunas funcionalidades pueden dejar de funcionar.     ║`);
+          console.error(`║  Contacte: soporte@biteops.app                          ║`);
+          console.error(`╚══════════════════════════════════════════════════════════╝\n`);
+        } else if (!lastLicenseOk && result.ok) {
+          // Cambió de inválida a válida — log de recuperación
+          console.log('✅ Licencia restaurada válida.');
+        }
+        
+        lastLicenseOk = result.ok;
+      }, 60 * 60 * 1000); // Cada hora
     });
   } catch (error) {
     console.error('Unable to start server:', error);
   }
 };
 
+let licenseInterval: NodeJS.Timeout | null = null;
+
 if (require.main === module) {
   startServer();
 
   const shutdown = async () => {
+    if (licenseInterval) clearInterval(licenseInterval);
     await disconnectRedis();
     process.exit(0);
   };
