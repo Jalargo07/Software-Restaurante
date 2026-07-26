@@ -33,6 +33,9 @@ export const webhookDelivery = async (req: Request, res: Response) => {
         });
         if (prod) {
           const cantidad = item.cantidad || 1;
+          if (cantidad <= 0) {
+            return res.status(400).json({ message: `Cantidad inválida para ${item.nombre}` });
+          }
           if (Number(prod.stock) < cantidad) {
             return res.status(400).json({
               message: `Stock insuficiente para ${prod.nombre}. Disponible: ${prod.stock}`,
@@ -104,6 +107,12 @@ export const simularPedido = async (req: Request, res: Response) => {
     const { app, productos } = req.body;
     if (!app || !productos || !Array.isArray(productos)) {
       return res.status(400).json({ error: 'app y productos requeridos' });
+    }
+
+    for (const p of productos) {
+      if (!p.cantidad || p.cantidad <= 0) {
+        return res.status(400).json({ message: `Cantidad inválida para ${p.nombre || 'producto desconocido'}` });
+      }
     }
 
     const mockBody = {

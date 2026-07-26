@@ -89,6 +89,10 @@ async function timbrarDoc(v: any) {
   }
 }
 
+function abrirVentaRapida() {
+  router.push('/pedidos')
+}
+
 async function exportarExcel() {
   try {
     await reporteStore.exportarVentasExcel(filtroDesde.value || undefined, filtroHasta.value || undefined)
@@ -108,6 +112,7 @@ async function exportarExcel() {
           <span v-if="reporteStore.exportando" class="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span>
           Exportar Excel
         </button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirVentaRapida()">+ Venta Rápida</button>
         <button v-if="isAdmin || isMesero" class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors" @click="modalFormAbierto = true">+ Nueva Venta</button>
       </div>
     </div>

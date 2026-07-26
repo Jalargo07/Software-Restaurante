@@ -91,6 +91,13 @@ function quitarSeleccion(i: number) {
 
 async function guardarPedido() {
   if (!ocupandoMesa.value || !seleccionados.value.length) return
+  for (const d of seleccionados.value) {
+    const prod = productos.value.find((p: any) => p.id === d.productoId)
+    if (prod && prod.tipo === 'directo' && prod.stock != null && prod.stock < d.cantidad) {
+      toast.error(`Stock insuficiente para ${prod.nombre}: disponible ${prod.stock}, requerido ${d.cantidad}`)
+      return
+    }
+  }
   try {
     const venta = await ventaStore.createVenta({ mesaId: ocupandoMesa.value.id })
     await ventaStore.addProductos(
