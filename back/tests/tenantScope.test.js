@@ -1,4 +1,4 @@
-const { scopeTenant, withTenant, belongsToTenant } = require('../utils/tenantScope');
+const { scopeTenant, withTenant, belongsToTenant } = require('../dist/utils/tenantScope');
 
 describe('tenantScope', () => {
   describe('scopeTenant', () => {

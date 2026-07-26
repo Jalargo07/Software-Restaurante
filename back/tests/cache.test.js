@@ -13,9 +13,9 @@ const mockRedisInstance = {
   connect: vi.fn(() => Promise.resolve()),
 };
 
-const redisPath = require.resolve('../config/redis');
-const cachePath = require.resolve('../middleware/cache');
-const invalidationPath = require.resolve('../utils/cacheInvalidation');
+const redisPath = require.resolve('../dist/config/redis');
+const cachePath = require.resolve('../dist/middleware/cache');
+const invalidationPath = require.resolve('../dist/utils/cacheInvalidation');
 
 const savedModules = {
   redis: require.cache[redisPath],
@@ -36,9 +36,9 @@ require.cache[redisPath] = {
 delete require.cache[cachePath];
 delete require.cache[invalidationPath];
 
-const cacheMiddleware = require('../middleware/cache');
-const { invalidarCache } = require('../utils/cacheInvalidation');
-const redisExports = require('../config/redis');
+const cacheMiddleware = require('../dist/middleware/cache');
+const { invalidarCache } = require('../dist/utils/cacheInvalidation');
+const redisExports = require('../dist/config/redis');
 
 afterAll(() => {
   Object.keys(savedModules).forEach((key) => {

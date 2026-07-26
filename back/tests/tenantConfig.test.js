@@ -1,4 +1,4 @@
-const { Tenant, TenantConfig } = require('../models');
+const { Tenant, TenantConfig } = require('../dist/models');
 const { setup, teardown } = require('./setup');
 
 beforeAll(async () => {

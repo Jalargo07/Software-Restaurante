@@ -1,9 +1,9 @@
 require('dotenv').config({ path: '../.env' });
 process.env.NODE_ENV = 'test';
 
-const app = require('../server');
-const sequelize = require('../config/database');
-const { Usuario, Tenant, TenantConfig } = require('../models');
+const app = require('../dist/server').default || require('../dist/server');
+const sequelize = require('../dist/config/database').default || require('../dist/config/database');
+const { Usuario, Tenant, TenantConfig } = require('../dist/models');
 
 let adminToken;
 

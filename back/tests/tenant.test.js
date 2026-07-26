@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { app, setup, teardown } = require('./setup');
-const { Tenant } = require('../models');
+const { Tenant } = require('../dist/models');
 
 beforeAll(async () => {
   await setup();

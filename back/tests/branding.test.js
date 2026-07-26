@@ -129,7 +129,7 @@ describe('Branding Público - GET /api/public/branding/:slug', () => {
   });
 
   test('GET con tenant inactivo → 404', async () => {
-    const { Tenant } = require('../models');
+    const { Tenant } = require('../dist/models');
     const tenant = await Tenant.create({
       nombre: 'Inactivo Test',
       slug: 'inactivo-test',
