@@ -27,6 +27,30 @@ const router = createRouter({
       meta: { publico: true },
     },
     {
+      path: '/sobre-nosotros',
+      name: 'sobre-nosotros',
+      component: () => import('../views/public/SobreNosotrosView.vue'),
+      meta: { publico: true },
+    },
+    {
+      path: '/contacto',
+      name: 'contacto',
+      component: () => import('../views/public/ContactoView.vue'),
+      meta: { publico: true },
+    },
+    {
+      path: '/privacidad',
+      name: 'privacidad',
+      component: () => import('../views/public/PrivacidadView.vue'),
+      meta: { publico: true },
+    },
+    {
+      path: '/terminos',
+      name: 'terminos',
+      component: () => import('../views/public/TerminosView.vue'),
+      meta: { publico: true },
+    },
+    {
       path: '/checkout/:plan',
       name: 'checkout',
       component: () => import('../views/checkout/CheckoutView.vue'),

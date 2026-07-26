@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 import type { LandingFooter } from '../../types'
 
 const props = withDefaults(defineProps<{ data?: LandingFooter }>(), {
@@ -7,23 +8,27 @@ const props = withDefaults(defineProps<{ data?: LandingFooter }>(), {
     descripcion: 'El sistema operativo inteligente para restaurantes. Gestioná, optimizá y hacé crecer tu negocio.',
     grupos: [
       { titulo: 'Producto', links: [
-        { label: 'Demo', href: 'https://biteops-blush.vercel.app/demo' },
+        { label: 'Demo', href: '/menu/demo' },
         { label: 'Precios', href: '#precios' },
-        { label: 'Sobre nosotros', href: 'https://biteops-blush.vercel.app/about' },
+        { label: 'Sobre nosotros', href: '/sobre-nosotros' },
       ]},
       { titulo: 'Recursos', links: [
         { label: 'Blog', href: 'https://biteops-blush.vercel.app/blog' },
-        { label: 'Contacto', href: 'mailto:contacto@biteops.app' },
+        { label: 'Contacto', href: '/contacto' },
       ]},
       { titulo: 'Legal', links: [
-        { label: 'Privacidad', href: 'https://biteops-blush.vercel.app/privacidad' },
-        { label: 'Términos', href: 'https://biteops-blush.vercel.app/terminos' },
+        { label: 'Privacidad', href: '/privacidad' },
+        { label: 'Términos', href: '/terminos' },
         { label: 'Admin', href: '/login' },
       ]},
     ],
     copyright: '© 2026 BiteOps. Todos los derechos reservados.',
   }),
 })
+
+function esLinkInterno(href: string) {
+  return href.startsWith('/') || href.startsWith('#')
+}
 </script>
 
 <template>
@@ -43,7 +48,8 @@ const props = withDefaults(defineProps<{ data?: LandingFooter }>(), {
           <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">{{ grupo.titulo }}</h3>
           <ul class="space-y-2">
             <li v-for="link in grupo.links" :key="link.label">
-              <a :href="link.href" class="text-sm hover:text-white transition-colors">{{ link.label }}</a>
+              <RouterLink v-if="esLinkInterno(link.href)" :to="link.href" class="text-sm hover:text-white transition-colors">{{ link.label }}</RouterLink>
+              <a v-else :href="link.href" target="_blank" rel="noopener noreferrer" class="text-sm hover:text-white transition-colors">{{ link.label }}</a>
             </li>
           </ul>
         </div>

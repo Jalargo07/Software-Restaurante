@@ -114,9 +114,9 @@ export function getDefaultData() {
       marca: 'BiteOps',
       descripcion: 'El sistema operativo inteligente para restaurantes. Gestioná, optimizá y hacé crecer tu negocio.',
       grupos: [
-        { titulo: 'Producto', links: [{ label: 'Demo', href: 'https://biteops-blush.vercel.app/demo' }, { label: 'Precios', href: '#precios' }, { label: 'Sobre nosotros', href: 'https://biteops-blush.vercel.app/about' }] },
-        { titulo: 'Recursos', links: [{ label: 'Blog', href: 'https://biteops-blush.vercel.app/blog' }, { label: 'Contacto', href: 'mailto:contacto@biteops.app' }] },
-        { titulo: 'Legal', links: [{ label: 'Privacidad', href: 'https://biteops-blush.vercel.app/privacidad' }, { label: 'Términos', href: 'https://biteops-blush.vercel.app/terminos' }] },
+        { titulo: 'Producto', links: [{ label: 'Demo', href: '/menu/demo' }, { label: 'Precios', href: '#precios' }, { label: 'Sobre nosotros', href: '/sobre-nosotros' }] },
+        { titulo: 'Recursos', links: [{ label: 'Blog', href: 'https://biteops-blush.vercel.app/blog' }, { label: 'Contacto', href: '/contacto' }] },
+        { titulo: 'Legal', links: [{ label: 'Privacidad', href: '/privacidad' }, { label: 'Términos', href: '/terminos' }] },
       ],
       copyright: '© 2026 BiteOps. Todos los derechos reservados.',
     },
