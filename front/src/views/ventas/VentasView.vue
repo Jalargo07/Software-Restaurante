@@ -11,6 +11,7 @@ import VentaFormModal from '../../components/ventas/VentaFormModal.vue'
 import VentaDetailModal from '../../components/ventas/VentaDetailModal.vue'
 import FacturaDetailModal from '../../components/ventas/FacturaDetailModal.vue'
 import type { DocumentoFiscal } from '../../types'
+import api from '../../services/api'
 
 const router = useRouter()
 const ventaStore = useVentaStore()
@@ -19,12 +20,18 @@ const facturaStore = useFacturaStore()
 const toast = useToastStore()
 const { isAdmin, isMesero } = useRoles()
 const modalFormAbierto = ref(false)
+const modalRapidoAbierto = ref(false)
 const detalleVenta = ref<any>(null)
 const documentoFiscalModal = ref<DocumentoFiscal | null>(null)
 const filtroEstado = ref('')
 const filtroDesde = ref('')
 const filtroHasta = ref('')
 const paginaActual = ref(1)
+const rapidoProductos = ref<any[]>([])
+const rapidoBusqueda = ref('')
+const rapidoMetodo = ref('efectivo')
+const rapidoEnviando = ref(false)
+const rapidoProductosList = ref<any[]>([])
 
 const docMap = computed(() => {
   const map: Record<number, DocumentoFiscal> = {}
@@ -37,6 +44,7 @@ const docMap = computed(() => {
 onMounted(() => {
   cargarVentas()
   facturaStore.fetchFacturas()
+  api.get('/productos').then(r => { rapidoProductosList.value = r.data.filter((p: any) => p.tipo !== 'insumo') }).catch(() => {})
 })
 
 function cargarVentas() {
@@ -90,7 +98,38 @@ async function timbrarDoc(v: any) {
 }
 
 function abrirVentaRapida() {
-  router.push('/pedidos')
+  modalRapidoAbierto.value = true
+  rapidoProductos.value = []
+  rapidoBusqueda.value = ''
+  rapidoMetodo.value = 'efectivo'
+}
+
+function agregarProductoRapido(p: any) {
+  const ex = rapidoProductos.value.find((r: any) => r.id === p.id)
+  if (ex) { ex.cantidad++ } 
+  else { rapidoProductos.value.push({ ...p, cantidad: 1 }) }
+}
+
+function quitarProductoRapido(i: number) {
+  rapidoProductos.value.splice(i, 1)
+}
+
+async function confirmarRapido() {
+  if (!rapidoProductos.value.length) return
+  rapidoEnviando.value = true
+  try {
+    await ventaStore.createVentaRapida({
+      metodoPago: rapidoMetodo.value as any,
+      productos: rapidoProductos.value.map((p: any) => ({
+        productoId: p.id, cantidad: p.cantidad,
+      })),
+    })
+    toast.success('Venta rápida creada')
+    modalRapidoAbierto.value = false
+    cargarVentas()
+  } catch (e: any) {
+    toast.error(e.response?.data?.message || 'Error al crear venta rápida')
+  } finally { rapidoEnviando.value = false }
 }
 
 async function exportarExcel() {

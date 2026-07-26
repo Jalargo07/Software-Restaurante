@@ -119,6 +119,10 @@ export const agregarProductos = async (req: Request, res: Response) => {
       }
     }
 
+    if (totalAgregado <= 0) {
+      return res.status(400).json({ error: 'No se pudieron agregar productos a la venta. Verifique stock y cantidades.' });
+    }
+
     await venta.update({ total: Number(venta.total) + totalAgregado });
 
     const ventaCompleta = await Venta.findByPk(venta.id, {
@@ -211,6 +215,11 @@ export const cobrar = async (req: Request, res: Response) => {
       include: [Producto],
       transaction: t,
     });
+
+    if (!detalles || detalles.length === 0) {
+      await t.rollback();
+      return res.status(400).json({ error: 'La venta no tiene productos para cobrar' });
+    }
 
     for (const detalle of detalles) {
       if (detalle.Producto) {
