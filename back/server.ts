@@ -126,10 +126,20 @@ const startServer = async () => {
       if (result.valid) {
         console.log(`✅ License OK: tenant=${result.tenantId}, type=${result.licenseType}, expires=${result.expiryDate}`);
       } else {
-        console.warn(`⚠️ LICENSE WARNING: ${result.error}. El servidor continuará.`);
+        console.error(`\n╔══════════════════════════════════════════════════════════╗`);
+        console.error(`║  ⛔ LICENCIA INVÁLIDA O EXPIRADA                        ║`);
+        console.error(`║  BiteOps requiere una licencia válida para uso comercial ║`);
+        console.error(`║  Detalle: ${result.error?.padEnd(45)}║`);
+        console.error(`║  Contacte: soporte@biteops.app                           ║`);
+        console.error(`╚══════════════════════════════════════════════════════════╝\n`);
       }
     } else {
-      console.warn('⚠️ No LICENSE_KEY set. Running in unlicensed mode.');
+      console.error(`\n╔══════════════════════════════════════════════════════════╗`);
+      console.error(`║  ⛔ SIN LICENCIA                                         ║`);
+      console.error(`║  BiteOps requiere una licencia válida para uso comercial ║`);
+      console.error(`║  Establezca la variable LICENSE_KEY en .env              ║`);
+      console.error(`║  Contacte: soporte@biteops.app                           ║`);
+      console.error(`╚══════════════════════════════════════════════════════════╝\n`);
     }
 
     if (settings.db.synchronize) {

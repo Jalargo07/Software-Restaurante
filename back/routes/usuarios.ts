@@ -7,27 +7,39 @@ import { authenticateToken, authorizeRole } from '../middleware/auth';
 import { checkTenantLimit } from '../middleware/tenantLimits';
 import { loginLimiter } from '../middleware/rateLimit';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
+import { checkLicense } from '../utils/licenseGuard';
 
 const router = Router();
 
 router.post('/login', loginLimiter, async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const usuario = await Usuario.findOne({ where: { email } });
-  if (!usuario) return res.status(401).json({ error: 'Credenciales inválidas' });
+  try {
+    const { email, password } = req.body;
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) return res.status(401).json({ error: 'Credenciales inválidas' });
 
-  const valid = await bcrypt.compare(password, usuario.password);
-  if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' });
+    const valid = await bcrypt.compare(password, usuario.password);
+    if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' });
 
-  const tenant: any = await Tenant.findByPk(usuario.tenant_id, { attributes: ['plan'] });
-  const plan = tenant?.plan || 'basico';
+    const tenant: any = await Tenant.findByPk(usuario.tenant_id, { attributes: ['plan'] });
+    const plan = tenant?.plan || 'basico';
 
-  const token = jwt.sign(
-    { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan },
-    process.env.JWT_SECRET!,
-    { expiresIn: '24h' }
-  );
+    const token = jwt.sign(
+      { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan },
+      process.env.JWT_SECRET!,
+      { expiresIn: '24h' }
+    );
 
-  res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan } });
+    const loginResponse: any = { token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan } };
+
+    const licencia = checkLicense();
+    if (!licencia.ok) {
+      loginResponse.licenseWarning = licencia.warning || 'Licencia inválida o ausente';
+    }
+
+    res.json(loginResponse);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
 });
 
 router.get('/', authenticateToken, authorizeRole('admin'), async (req: Request, res: Response) => {

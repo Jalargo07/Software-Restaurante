@@ -207,6 +207,7 @@ export interface LoginPayload {
 export interface AuthResponse {
   token: string
   usuario: Omit<Usuario, 'password'>
+  licenseWarning?: string
 }
 
 export interface ProductoCreatePayload {
@@ -304,7 +305,6 @@ export interface DetalleRecetaPayload {
   insumoId: number
   cantidad: number
   unidad?: DetalleRecetaUnidad
-  merma?: number
 }
 
 export interface UsuarioCreatePayload {

@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', {
     token: localStorage.getItem('token') || null,
     user: JSON.parse(localStorage.getItem('user') || 'null') as Usuario | null,
     error: null as string | null,
+    licenseWarning: localStorage.getItem('licenseWarning') || null as string | null,
   }),
   getters: {
     isAuthenticated: (state) => !!state.token,
@@ -24,6 +25,12 @@ export const useAuthStore = defineStore('auth', {
         this.user = data.usuario
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.usuario))
+        this.licenseWarning = (data as any).licenseWarning || null
+        if (this.licenseWarning) {
+          localStorage.setItem('licenseWarning', this.licenseWarning)
+        } else {
+          localStorage.removeItem('licenseWarning')
+        }
         this.error = null
         return true
       } catch (err) {
@@ -35,8 +42,10 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = null
       this.user = null
+      this.licenseWarning = null
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      localStorage.removeItem('licenseWarning')
     },
   },
 })

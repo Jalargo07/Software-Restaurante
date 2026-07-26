@@ -47,3 +47,6 @@ SPRINT_8_PLAN.md
 
 # Imágenes de diseño (NO subir)
 IMAGENES*/
+
+# Generador de licencias (tool dev-only, no subir)
+back/utils/generateLicense.ts

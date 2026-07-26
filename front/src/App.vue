@@ -111,6 +111,9 @@ function isActive(path: string) {
     v-if="isPublicRoute"
     class="min-h-screen"
   >
+    <div v-if="authStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
+      ⚠️ {{ authStore.licenseWarning }} — Contacte: soporte@biteops.app
+    </div>
     <RouterView />
     <ToastContainer />
   </div>
@@ -119,6 +122,10 @@ function isActive(path: string) {
     v-else
     :class="['flex flex-col', (authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : 'min-h-screen']"
   >
+    <div v-if="authStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
+      ⚠️ {{ authStore.licenseWarning }} — Contacte: soporte@biteops.app
+    </div>
+
     <Sidebar
       v-if="(authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute)"
       v-model="mobileMenuOpen"

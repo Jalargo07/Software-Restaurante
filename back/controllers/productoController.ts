@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 import { invalidarCache } from '../utils/cacheInvalidation';
+import { checkLicense } from '../utils/licenseGuard';
 
 export const obtenerTodos = async (req: Request, res: Response) => {
   try {
@@ -56,6 +57,11 @@ export const obtenerPorId = async (req: Request, res: Response) => {
 export const crear = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
+    if (!checkLicense().ok) {
+      await t.rollback();
+      return res.status(403).json({ error: 'Licencia inválida' });
+    }
+
     const { detallesReceta, ...productoDatos } = req.body;
     const datos = withTenant(productoDatos, req.tenantId!);
 
@@ -101,6 +107,11 @@ export const crear = async (req: Request, res: Response) => {
 export const actualizar = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
+    if (!checkLicense().ok) {
+      await t.rollback();
+      return res.status(403).json({ error: 'Licencia inválida' });
+    }
+
     const producto: any = await Producto.findByPk(req.params.id as string, { transaction: t });
     if (!producto || !belongsToTenant(producto, req.tenantId!)) {
       await t.rollback();
