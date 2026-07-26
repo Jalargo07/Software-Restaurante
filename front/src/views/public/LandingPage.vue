@@ -59,6 +59,6 @@ onUnmounted(() => {
       <TestimonialsSection />
       <CtaSection />
     </main>
-    <FooterSection :data="data?.footer" />
+    <FooterSection />
   </div>
 </template>
