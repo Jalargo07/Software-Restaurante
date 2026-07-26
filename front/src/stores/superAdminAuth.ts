@@ -10,6 +10,7 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
     tempToken: null as string | null,
     error: null as string | null,
     refreshAttempts: 0,
+    licenseWarning: localStorage.getItem("sa_licenseWarning") || null as string | null,
   }),
   getters: {
     isAuthenticated: (state) => !!state.token,
@@ -30,6 +31,12 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
         localStorage.setItem('sa_token', data.token)
         localStorage.setItem('sa_user', JSON.stringify(data.usuario))
         this.error = null
+        this.licenseWarning = data.licenseWarning || null
+        if (this.licenseWarning) {
+          localStorage.setItem('sa_licenseWarning', this.licenseWarning)
+        } else {
+          localStorage.removeItem('sa_licenseWarning')
+        }
         return true
       } catch (err) {
         const axiosError = err as AxiosError<{ error: string }>
@@ -46,6 +53,12 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
         localStorage.setItem('sa_token', data.token)
         localStorage.setItem('sa_user', JSON.stringify(data.usuario))
         this.error = null
+        this.licenseWarning = data.licenseWarning || null
+        if (this.licenseWarning) {
+          localStorage.setItem('sa_licenseWarning', this.licenseWarning)
+        } else {
+          localStorage.removeItem('sa_licenseWarning')
+        }
         return true
       } catch (err) {
         const axiosError = err as AxiosError<{ error: string }>
@@ -76,6 +89,12 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
         localStorage.setItem('sa_user', JSON.stringify(data.usuario))
         this.refreshAttempts = 0
         this.error = null
+        this.licenseWarning = data.licenseWarning || null
+        if (this.licenseWarning) {
+          localStorage.setItem('sa_licenseWarning', this.licenseWarning)
+        } else {
+          localStorage.removeItem('sa_licenseWarning')
+        }
         return true
       } catch (err) {
         this.refreshAttempts++
@@ -92,8 +111,10 @@ export const useSuperAdminAuthStore = defineStore('superAdminAuth', {
       this.token = null
       this.user = null
       this.tempToken = null
+      this.licenseWarning = null
       localStorage.removeItem('sa_token')
       localStorage.removeItem('sa_user')
+      localStorage.removeItem('sa_licenseWarning')
     },
   },
 })

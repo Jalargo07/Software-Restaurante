@@ -129,12 +129,12 @@ async function cargarDatos() {
   stats.value = {
     mesasDisponibles: mesasArr.filter((m: any) => m.estado === 'disponible').length,
     mesasOcupadas: mesasArr.filter((m: any) => m.estado === 'ocupada').length,
-    productosBajoStock: prodsArr.filter((p: any) => p.stock <= p.stockMinimo && p.activo).length,
+    productosBajoStock: prodsArr.filter((p: any) => p.stock <= p.stockMinimo && p.activo && p.tipo !== 'compuesto').length,
     totalProductos: prodsArr.length,
     pedidosActivos: Number(pedidos.data.total) || 0,
   }
 
-  const bajoStock = prodsArr.filter((p: any) => p.stock <= p.stockMinimo && p.activo)
+  const bajoStock = prodsArr.filter((p: any) => p.stock <= p.stockMinimo && p.activo && p.tipo !== 'compuesto')
   productosBajoStock.value = bajoStock
 
   if (!reporteStore.filtroPeriodo || reporteStore.filtroPeriodo !== 'personalizado') {

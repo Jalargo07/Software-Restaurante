@@ -4,9 +4,10 @@ import { useAuthStore } from './stores/auth'
 import { useSuperAdminAuthStore } from './stores/superAdminAuth'
 import { useBrandingStore } from './stores/branding'
 import { useSucursalStore } from './stores/sucursales'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import ToastContainer from './components/common/ToastContainer.vue'
 import Sidebar from './components/common/Sidebar.vue'
+import api from './services/api'
 
 const authStore = useAuthStore()
 const sucursalStore = useSucursalStore()
@@ -43,6 +44,9 @@ watch(
   { immediate: true }
 )
 
+// Check periódico de licencia — cleanup
+let licenseInterval: ReturnType<typeof setInterval> | null = null
+
 onMounted(async () => {
   document.documentElement.setAttribute('data-theme', theme.value)
 
@@ -64,6 +68,44 @@ onMounted(async () => {
   } catch {
     // fallback
   }
+
+  // Check inmediato de licencia al cargar
+  api.get('/license-check').then(({ data }) => {
+    if (!data.ok) {
+      authStore.licenseWarning = data.warning || 'Licencia inválida'
+      localStorage.setItem('licenseWarning', authStore.licenseWarning)
+    } else if (authStore.licenseWarning && data.ok) {
+      authStore.licenseWarning = null
+      localStorage.removeItem('licenseWarning')
+    }
+    if (saAuthStore.isAuthenticated) {
+      saAuthStore.licenseWarning = data.ok ? null : (data.warning || 'Licencia inválida')
+      if (saAuthStore.licenseWarning) localStorage.setItem('sa_licenseWarning', saAuthStore.licenseWarning)
+      else localStorage.removeItem('sa_licenseWarning')
+    }
+  }).catch(() => {})
+
+  // Check periódico de licencia (cada hora)
+  licenseInterval = setInterval(() => {
+    api.get('/license-check').then(({ data }) => {
+      if (!data.ok) {
+        authStore.licenseWarning = data.warning || 'Licencia inválida'
+        localStorage.setItem('licenseWarning', authStore.licenseWarning)
+      } else if (authStore.licenseWarning && data.ok) {
+        authStore.licenseWarning = null
+        localStorage.removeItem('licenseWarning')
+      }
+      if (saAuthStore.isAuthenticated) {
+        saAuthStore.licenseWarning = data.ok ? null : (data.warning || 'Licencia inválida')
+        if (saAuthStore.licenseWarning) localStorage.setItem('sa_licenseWarning', saAuthStore.licenseWarning)
+        else localStorage.removeItem('sa_licenseWarning')
+      }
+    }).catch(() => {})
+  }, 60 * 60 * 1000)
+})
+
+onUnmounted(() => {
+  if (licenseInterval) clearInterval(licenseInterval)
 })
 
 function toggleTheme() {
@@ -78,9 +120,10 @@ function labelPlan(plan: string) {
 }
 
 function salir() {
+  const wasSuperAdmin = !!saAuthStore.token
   authStore.logout()
   saAuthStore.logout()
-  router.push('/admin/login')
+  router.push(wasSuperAdmin ? '/admin/login' : '/login')
 }
 
 function cambiarSucursal() {
@@ -111,8 +154,8 @@ function isActive(path: string) {
     v-if="isPublicRoute"
     class="min-h-screen"
   >
-    <div v-if="authStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
-      ⚠️ {{ authStore.licenseWarning }} — Contacte: soporte@biteops.app
+    <div v-if="authStore.licenseWarning || saAuthStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
+      ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
     </div>
     <RouterView />
     <ToastContainer />
@@ -122,10 +165,6 @@ function isActive(path: string) {
     v-else
     :class="['flex flex-col', (authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : 'min-h-screen']"
   >
-    <div v-if="authStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
-      ⚠️ {{ authStore.licenseWarning }} — Contacte: soporte@biteops.app
-    </div>
-
     <Sidebar
       v-if="(authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute)"
       v-model="mobileMenuOpen"
@@ -154,6 +193,10 @@ function isActive(path: string) {
           <option v-for="s in sucursalStore.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
         </select>
       </header>
+
+      <div v-if="(authStore.licenseWarning || saAuthStore.licenseWarning) && !(currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute)" class="bg-red-600 text-white text-center text-xs py-1 px-4 font-medium">
+        ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
+      </div>
 
       <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 pb-24">
         <RouterView />
