@@ -55,6 +55,24 @@ const filtrados = computed(() => {
 
 const totalAgregar = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))
 
+function stockDisponibleProducto(producto: any): number {
+  if (!producto) return 0
+  if (producto.tipo === 'directo') return Number(producto.stock) || 0
+  if (producto.tipo === 'compuesto' && producto.detallesReceta?.length) {
+    let minStock = Infinity
+    for (const det of producto.detallesReceta) {
+      const insumo = det.insumo
+      if (!insumo) return 0
+      const reqPorUnidad = Number(det.cantidad)
+      if (reqPorUnidad <= 0) return 0
+      const disponibles = Math.floor(Number(insumo.stock) / reqPorUnidad)
+      minStock = Math.min(minStock, disponibles)
+    }
+    return minStock === Infinity ? 0 : minStock
+  }
+  return 0
+}
+
 function abrirAgregar(venta: any) {
   agregandoAVenta.value = venta
   seleccionados.value = []
@@ -245,17 +263,25 @@ async function eliminarProducto(ventaId: number, detalle: any) {
         <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500 mb-2" placeholder="Buscar...">
         <div style="max-height:150px;overflow-y:auto">
           <button v-for="p in filtrados" :key="p.id" type="button"
-            class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
-            @click="agregarProducto(p)">
+            :disabled="stockDisponibleProducto(p) < 1"
+            class="w-full text-left mb-1 px-3 py-1.5 text-xs border rounded-lg transition-colors block"
+            :class="stockDisponibleProducto(p) < 1
+              ? 'border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed'
+              : 'border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white dark:border-gray-400 dark:text-gray-300'"
+            @click="stockDisponibleProducto(p) >= 1 && agregarProducto(p)">
             <img v-if="p.imagen" :src="p.imagen" :alt="p.nombre" loading="lazy" class="rounded-lg mr-1 inline-block"
               style="width:24px;height:24px;object-fit:cover">
             {{ p.nombre }} - ${{ p.precioVenta }}
+            <span v-if="stockDisponibleProducto(p) < 1"
+              class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Agotado</span>
           </button>
         </div>
         <div v-for="(d,i) in seleccionados" :key="i" class="flex items-center gap-2 mt-2">
           <span class="flex-1 text-xs text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
-          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
-            @input="d.subtotal = d.cantidad * d.precioUnitario">
+          <input v-model.number="d.cantidad" type="number" min="1"
+            :max="stockDisponibleProducto(productos.find((p: any) => p.id === d.productoId) ?? null)"
+            class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
+            @input="d.cantidad = Math.min(d.cantidad, stockDisponibleProducto(productos.find((p: any) => p.id === d.productoId) ?? null)); d.subtotal = d.cantidad * d.precioUnitario">
           <span class="text-xs text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarSeleccion(i)">X</button>
         </div>
@@ -310,7 +336,10 @@ async function eliminarProducto(ventaId: number, detalle: any) {
         <p class="text-sm text-gray-900 dark:text-gray-100 mb-2"><strong>Producto:</strong> {{ editandoDetalle.Producto?.nombre }}</p>
         <div class="flex items-center gap-2 mb-3">
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors" :disabled="cantidadEditar <= 1" @click="cantidadEditar--">-</button>
-          <input v-model.number="cantidadEditar" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-center focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500">
+          <input v-model.number="cantidadEditar" type="number" min="1"
+            :max="stockDisponibleProducto(productos.find((p: any) => p.id === editandoDetalle.ProductoId) ?? null)"
+            class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-center focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
+            @input="cantidadEditar = Math.min(cantidadEditar, stockDisponibleProducto(productos.find((p: any) => p.id === editandoDetalle.ProductoId) ?? null))">
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors" @click="cantidadEditar++">+</button>
         </div>
         <p class="text-sm text-gray-900 dark:text-gray-100 mb-3"><strong>Subtotal:</strong> ${{ (cantidadEditar * editandoDetalle.precioUnitario).toFixed(2) }}</p>

@@ -24,6 +24,11 @@ export const usePedidoStore = defineStore('pedidos', {
       this.pedidos.unshift(data)
       return data
     },
+    async createPedidoConProductos(data: { mesaId?: number; productos: VentaProductoPayload[] }) {
+      const { data: res } = await api.post('/ventas/crear-con-productos', data)
+      this.pedidos.unshift(res)
+      return res
+    },
     async cancelarPedido(id: number) {
       await api.delete(`/ventas/${id}`)
       this.pedidos = this.pedidos.filter((p) => p.id !== id)

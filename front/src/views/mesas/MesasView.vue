@@ -35,6 +35,26 @@ const filtrados = computed(() => {
 
 const totalPedido = computed(() => seleccionados.value.reduce((s, d) => s + d.subtotal, 0))
 
+function stockDisponibleProducto(producto: any): number {
+  if (!producto) return 0
+  if (producto.tipo === 'directo') {
+    return Number(producto.stock) || 0
+  }
+  if (producto.tipo === 'compuesto' && producto.detallesReceta?.length) {
+    let minStock = Infinity
+    for (const det of producto.detallesReceta) {
+      const insumo = det.insumo
+      if (!insumo) return 0
+      const reqPorUnidad = Number(det.cantidad)
+      if (reqPorUnidad <= 0) return 0
+      const disponibles = Math.floor(Number(insumo.stock) / reqPorUnidad)
+      minStock = Math.min(minStock, disponibles)
+    }
+    return minStock === Infinity ? 0 : minStock
+  }
+  return 0
+}
+
 function abrirModal(mesa?: any) {
   editando.value = mesa ?? null
   modalAbierto.value = true
@@ -91,28 +111,20 @@ function quitarSeleccion(i: number) {
 
 async function guardarPedido() {
   if (!ocupandoMesa.value || !seleccionados.value.length) return
-  for (const d of seleccionados.value) {
-    const prod = productos.value.find((p: any) => p.id === d.productoId)
-    if (prod && prod.tipo === 'directo' && prod.stock != null && prod.stock < d.cantidad) {
-      toast.error(`Stock insuficiente para ${prod.nombre}: disponible ${prod.stock}, requerido ${d.cantidad}`)
-      return
-    }
-  }
   try {
-    const venta = await ventaStore.createVenta({ mesaId: ocupandoMesa.value.id })
-    await ventaStore.addProductos(
-      venta.id,
-      seleccionados.value.map((d) => ({
+    await ventaStore.createVentaConProductos({
+      mesaId: ocupandoMesa.value.id,
+      productos: seleccionados.value.map((d) => ({
         productoId: d.productoId,
         cantidad: d.cantidad,
         precioUnitario: d.precioUnitario,
-      }))
-    )
+      })),
+    })
     await mesaStore.fetchMesas()
     toast.success('Pedido guardado')
     cerrarPedido()
-  } catch {
-    toast.error('Error al guardar pedido')
+  } catch (err: any) {
+    toast.error(err.response?.data?.error || 'Error al guardar pedido')
   }
 }
 
@@ -175,9 +187,15 @@ function estadoColor(estado: string) {
           <input v-model="busqueda" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500 mb-1" placeholder="Buscar...">
           <div style="max-height: 150px; overflow-y: auto;">
             <button v-for="p in filtrados" :key="p.id" type="button"
-              class="w-full text-left mb-1 px-3 py-1.5 text-xs border border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white rounded-lg transition-colors block"
-              @click="agregarProducto(p)">
+              :disabled="stockDisponibleProducto(p) < 1"
+              class="w-full text-left mb-1 px-3 py-1.5 text-xs border rounded-lg transition-colors block"
+              :class="stockDisponibleProducto(p) < 1
+                ? 'border-gray-200 text-gray-300 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed'
+                : 'border-gray-500 text-gray-600 hover:bg-gray-500 hover:text-white dark:border-gray-400 dark:text-gray-300'"
+              @click="stockDisponibleProducto(p) >= 1 && agregarProducto(p)">
               {{ p.nombre }} - ${{ p.precioVenta }}
+              <span v-if="stockDisponibleProducto(p) < 1"
+                class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Agotado</span>
             </button>
             <p v-if="!filtrados.length" class="text-gray-500 dark:text-gray-400 text-xs">Sin resultados</p>
           </div>
@@ -185,8 +203,10 @@ function estadoColor(estado: string) {
 
         <div v-for="(d, i) in seleccionados" :key="i" class="flex items-center gap-2 mt-2 mb-1">
           <span class="flex-1 text-xs text-gray-900 dark:text-gray-100">{{ d.nombre }}</span>
-          <input v-model.number="d.cantidad" type="number" min="1" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
-            @input="d.subtotal = d.cantidad * d.precioUnitario">
+          <input v-model.number="d.cantidad" type="number" min="1"
+            :max="stockDisponibleProducto(productos.find((p: any) => p.id === d.productoId) ?? null)"
+            class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
+            @input="d.cantidad = Math.min(d.cantidad, stockDisponibleProducto(productos.find((p: any) => p.id === d.productoId) ?? null)); d.subtotal = d.cantidad * d.precioUnitario">
           <span class="text-xs text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
           <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarSeleccion(i)">X</button>
         </div>

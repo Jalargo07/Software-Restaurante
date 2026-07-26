@@ -33,6 +33,11 @@ export const useVentaStore = defineStore('ventas', {
       this.ventas.unshift(res.data)
       return res.data
     },
+    async createVentaConProductos(data: { mesaId?: number; productos: VentaProductoPayload[] }) {
+      const res = await api.post('/ventas/crear-con-productos', data)
+      this.ventas.unshift(res.data)
+      return res.data
+    },
     async createVentaRapida(data: { mesaId?: number; metodoPago: MetodoPago; productos: VentaProductoPayload[] }) {
       const toast = useToastStore()
       try {

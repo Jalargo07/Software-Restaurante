@@ -51,7 +51,7 @@ Credenciales de prueba:
 | **Frontend** | Vue 3.5 (Composition API) + TypeScript + Vite + Pinia + Tailwind CSS 4 + Lucide Icons + Vue Router + Axios + Chart.js + Socket.IO Client + PWA (Workbox) |
 | **Backend** | Node.js 22+ + Express 5 + Sequelize 6 + SQLite / PostgreSQL + JWT + bcryptjs + Socket.IO + Multer + AWS SDK v3 (S3/MinIO) |
 | **Multi-tenant** | Modelo Tenant + tenant_id en 12 tablas + middleware tenantContext + scoping automático en controllers |
-| **Testing & DevOps** | Vitest + Supertest (47 tests, 7 suites) + Docker & Docker Compose + Nginx |
+| **Testing & DevOps** | Vitest + Supertest (72+ tests, 10+ suites) + Docker & Docker Compose + Nginx |
 
 ---
 
@@ -145,6 +145,11 @@ pnpm run test:watch  # Ejecuta en modo watch
 - **PWA:** Progressive Web App con service worker (Workbox) y manifest para instalación offline.
 - **Paginación:** Server-side en Ventas, Compras y Proveedores con UI de navegación.
 - **Imágenes S3:** Upload/eliminar imágenes de productos con namespacing por tenant (Soporta MinIO, Cloudflare R2, Supabase Storage).
+- **2FA con Google Authenticator:** Autenticación de dos factores para Super Admin con setup/verify/disable y refresh sin reloguear.
+- **Menú QR:** Branding público con QR code en 3 estilos (grid, lista, compacto) para clientes.
+- **Planes y Pagos PayPal:** Planes Básico/Pro/Enterprise con landing de precios reales e integración PayPal Sandbox.
+- **Kardex FIFO/PEPS:** Control de inventario valuado con costo histórico, ganancia bruta por período.
+- **SEO Completo:** Meta tags, Open Graph, JSON-LD, robots.txt, sitemap.xml para landing pública.
 
 ---
 
@@ -164,3 +169,16 @@ pnpm run test:watch  # Ejecuta en modo watch
 | **Sprint 10** | ✅ Completado | Super Admin, Planes de Suscripción, Límites por Tenant |
 | **Sprint 11** | ✅ Completado | TypeScript Backend completo + Dashboard UX + Refactor Recetas |
 | **Sprint 12-18** | ✅ Completado | Migración completa a Tailwind CSS (0 clases Bootstrap, dark mode total) |
+| **Sprint 19** | ✅ Completado | Kardex FIFO/PEPS + Seed Realista con 28 productos, 4 proveedores, 8 compras |
+| **Sprint 20** | ✅ Completado | Dashboard P&L chart (gráfico apilado ventas vs costos) |
+| **Sprint 21** | ✅ Completado | Filtrado multiselect de productos en reportes/dashboard |
+| **Sprint 22** | ✅ Completado | SEO: Meta tags, OG, JSON-LD, robots.txt, sitemap.xml |
+| **Sprint 23** | ✅ Completado | Performance: Guard de concurrencia, queries agrupadas, cache Redis |
+| **Sprint 24** | ✅ Completado | Responsive: Sidebar drawer, ModalBase fullscreen, grids breakpoints |
+| **Sprint 25** | ✅ Completado | Menú QR: Backend público, vista standalone, branding con QR code y 3 estilos |
+| **Sprint 26** | ✅ Completado | Super Admin UI: Vista con tabla, stats, filtros, historial de cambios |
+| **Sprint 27** | ✅ Completado | Factura Electrónica: Modelo DocumentoFiscal, mock SII/AFIP, trigger en ventas |
+| **Sprint 28** | ✅ Completado | Menú QR Pro: 3 estilos de cards, QR real, preview en branding |
+| **Sprint 29** | ✅ Completado | Planes y Pagos: Plan en UI, landing con precios reales, PayPal sandbox, checkout |
+| **Sprint 30** | ✅ Completado | CMS Landing + Super Admin UI refinado |
+| **Sprint 31** | ✅ Completado | 2FA Google Authenticator: otplib, login con 2FA, setup/verify/disable, JWT 25min |

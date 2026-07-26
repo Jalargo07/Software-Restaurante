@@ -49,6 +49,7 @@ const validarDetalle: ValidationChain[] = [
 router.get('/', authenticateToken, ventaController.obtenerTodas);
 router.get('/:id', authenticateToken, ventaController.obtenerPorId);
 router.post('/rapida', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarRapida, validar, ventaController.crearRapida);
+router.post('/crear-con-productos', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarProductos, validar, ventaController.crearConProductos);
 router.post('/', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarVenta, validar, ventaController.crear);
 router.post('/:id/productos', authenticateToken, authorizeRole(...rolesVenta), validarProductos, validar, ventaController.agregarProductos);
 router.put('/:id/cobrar', authenticateToken, authorizeRole(...rolesVenta), checkTenantLimit('venta'), validarCobro, validar, ventaController.cobrar);

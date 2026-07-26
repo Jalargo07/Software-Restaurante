@@ -59,10 +59,6 @@ export const crear = async (req: Request, res: Response) => {
       estado: 'abierta',
     }, req.tenantId!));
 
-    if (mesaId) {
-      await Mesa.update({ estado: 'ocupada' }, { where: scopeTenant({ id: mesaId }, req.tenantId!) });
-    }
-
     const ventaCompleta = await Venta.findByPk(venta.id, {
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
     });
@@ -76,35 +72,82 @@ export const crear = async (req: Request, res: Response) => {
 };
 
 export const agregarProductos = async (req: Request, res: Response) => {
+  const t = await sequelize.transaction();
   try {
-    const venta: any = await Venta.findByPk(req.params.id as string);
-    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
-    if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
-    if (venta.estado !== 'abierta') return res.status(400).json({ error: 'La venta ya esta cerrada' });
+    const venta: any = await Venta.findByPk(req.params.id as string, { transaction: t });
+    if (!venta) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (!belongsToTenant(venta, req.tenantId!)) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (venta.estado !== 'abierta') {
+      await t.rollback();
+      return res.status(400).json({ error: 'La venta ya esta cerrada' });
+    }
 
     const { productos } = req.body;
 
     let totalAgregado = 0;
 
     for (const item of productos) {
-      const producto: any = await Producto.findByPk(item.productoId);
+      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
       if (!producto || !belongsToTenant(producto, req.tenantId!)) {
+        await t.rollback();
         return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
+      }
+
+      if (producto.tipo === 'compuesto') {
+        const ingredientes: any = await DetalleReceta.findAll({
+          where: scopeTenant({ productoId: producto.id }, req.tenantId!),
+          transaction: t,
+        });
+
+        if (!ingredientes || ingredientes.length === 0) {
+          await t.rollback();
+          return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
+        }
+
+        for (const ingrediente of ingredientes) {
+          const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
+          if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
+            await t.rollback();
+            return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
+          }
+
+          const totalRequerido = Number(ingrediente.cantidad) * Number(item.cantidad);
+
+          if (insumo.stock < totalRequerido) {
+            await t.rollback();
+            return res.status(400).json({
+              message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
+            });
+          }
+        }
+      } else {
+        if (Number(producto.stock) < Number(item.cantidad)) {
+          await t.rollback();
+          return res.status(400).json({
+            message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
+          });
+        }
       }
 
       const precio = item.precioUnitario || Number(producto.precioVenta);
       const cantidad = item.cantidad;
 
-      // Buscar si el producto ya existe en la venta
       const detalleExistente: any = await DetalleVenta.findOne({
-        where: { VentaId: venta.id, ProductoId: item.productoId, tenant_id: req.tenantId! }
+        where: { VentaId: venta.id, ProductoId: item.productoId, tenant_id: req.tenantId! },
+        transaction: t,
       });
 
       if (detalleExistente) {
         const nuevaCantidad = Number(detalleExistente.cantidad) + cantidad;
         detalleExistente.cantidad = nuevaCantidad;
         detalleExistente.subtotal = nuevaCantidad * Number(detalleExistente.precioUnitario);
-        await detalleExistente.save();
+        await detalleExistente.save({ transaction: t });
         totalAgregado += cantidad * Number(detalleExistente.precioUnitario);
       } else {
         const subtotal = cantidad * precio;
@@ -115,15 +158,24 @@ export const agregarProductos = async (req: Request, res: Response) => {
           cantidad,
           precioUnitario: precio,
           subtotal,
-        }, req.tenantId!));
+        }, req.tenantId!), { transaction: t });
       }
     }
 
     if (totalAgregado <= 0) {
+      await t.rollback();
       return res.status(400).json({ error: 'No se pudieron agregar productos a la venta. Verifique stock y cantidades.' });
     }
 
-    await venta.update({ total: Number(venta.total) + totalAgregado });
+    await venta.update({ total: Number(venta.total) + totalAgregado }, { transaction: t });
+
+    await t.commit();
+
+    if (venta.mesaId) {
+      await Mesa.update({ estado: 'ocupada' }, {
+        where: scopeTenant({ id: venta.mesaId, estado: 'disponible' }, req.tenantId!)
+      });
+    }
 
     const ventaCompleta = await Venta.findByPk(venta.id, {
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
@@ -134,7 +186,105 @@ export const agregarProductos = async (req: Request, res: Response) => {
     const io = req.app.get('io');
     if (io) io.emit('nueva-comanda', ventaCompleta);
   } catch (error: any) {
+    await t.rollback();
     return res.status(500).json({ error: 'Error al agregar productos' });
+  }
+};
+
+export const crearConProductos = async (req: Request, res: Response) => {
+  const t = await sequelize.transaction();
+  try {
+    const { mesaId, productos } = req.body;
+
+    for (const item of productos) {
+      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
+      if (!producto || !belongsToTenant(producto, req.tenantId!)) {
+        await t.rollback();
+        return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
+      }
+
+      if (producto.tipo === 'compuesto') {
+        const ingredientes: any = await DetalleReceta.findAll({
+          where: scopeTenant({ productoId: producto.id }, req.tenantId!),
+          transaction: t,
+        });
+
+        if (!ingredientes || ingredientes.length === 0) {
+          await t.rollback();
+          return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
+        }
+
+        for (const ingrediente of ingredientes) {
+          const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
+          if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
+            await t.rollback();
+            return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
+          }
+
+          const totalRequerido = Number(ingrediente.cantidad) * Number(item.cantidad);
+
+          if (insumo.stock < totalRequerido) {
+            await t.rollback();
+            return res.status(400).json({
+              message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
+            });
+          }
+        }
+      } else {
+        if (Number(producto.stock) < Number(item.cantidad)) {
+          await t.rollback();
+          return res.status(400).json({
+            message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
+          });
+        }
+      }
+    }
+
+    let total = 0;
+    for (const item of productos) {
+      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
+      const precio = item.precioUnitario || Number(producto.precioVenta);
+      total += item.cantidad * precio;
+    }
+
+    const venta: any = await Venta.create(withTenant({
+      mesaId: mesaId || null,
+      total: 0,
+      estado: 'abierta',
+    }, req.tenantId!), { transaction: t });
+
+    for (const item of productos) {
+      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
+      const precio = item.precioUnitario || Number(producto.precioVenta);
+      const subtotal = item.cantidad * precio;
+      await DetalleVenta.create(withTenant({
+        VentaId: venta.id,
+        ProductoId: item.productoId,
+        cantidad: item.cantidad,
+        precioUnitario: precio,
+        subtotal,
+      }, req.tenantId!), { transaction: t });
+    }
+
+    await venta.update({ total }, { transaction: t });
+
+    if (mesaId) {
+      await Mesa.update({ estado: 'ocupada' }, { where: scopeTenant({ id: mesaId }, req.tenantId!), transaction: t });
+    }
+
+    await t.commit();
+
+    const ventaCompleta = await Venta.findByPk(venta.id, {
+      include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
+    });
+
+    res.status(201).json(ventaCompleta);
+
+    const io = req.app.get('io');
+    if (io) io.emit('nueva-comanda', ventaCompleta);
+  } catch (error: any) {
+    await t.rollback();
+    return res.status(500).json({ error: 'Error al crear venta con productos' });
   }
 };
 
@@ -243,9 +393,7 @@ export const cobrar = async (req: Request, res: Response) => {
               return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
             }
 
-            const cantidadNecesaria = Number(ingrediente.cantidad) * Number(detalle.cantidad);
-            const mermaFactor = 1 + Number(insumo.merma) / 100;
-            const totalRequerido = Math.ceil(cantidadNecesaria * mermaFactor);
+            const totalRequerido = Number(ingrediente.cantidad) * Number(detalle.cantidad);
 
             if (insumo.stock < totalRequerido) {
               await t.rollback();
@@ -281,9 +429,7 @@ export const cobrar = async (req: Request, res: Response) => {
 
           for (const ingrediente of ingredientes) {
             const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-            const cantidadDescontada = Number(ingrediente.cantidad) * Number(detalle.cantidad);
-            const mermaFactor = 1 + Number(insumo.merma) / 100;
-            const totalDescontado = Math.ceil(cantidadDescontada * mermaFactor);
+            const totalDescontado = Number(ingrediente.cantidad) * Number(detalle.cantidad);
 
             const entradas = await Kardex.findAll({
               where: scopeTenant({
@@ -450,9 +596,7 @@ export const crearRapida = async (req: Request, res: Response) => {
             return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
           }
 
-          const cantidadNecesaria = Number(ingrediente.cantidad) * Number(item.cantidad);
-          const mermaFactor = 1 + Number(insumo.merma) / 100;
-          const totalRequerido = Math.ceil(cantidadNecesaria * mermaFactor);
+          const totalRequerido = Number(ingrediente.cantidad) * Number(item.cantidad);
 
           if (insumo.stock < totalRequerido) {
             await t.rollback();
@@ -485,9 +629,7 @@ export const crearRapida = async (req: Request, res: Response) => {
 
           for (const ingrediente of ingredientes) {
             const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-            const cantidadDescontada = Number(ingrediente.cantidad) * Number(item.cantidad);
-            const mermaFactor = 1 + Number(insumo.merma) / 100;
-            const totalDescontado = Math.ceil(cantidadDescontada * mermaFactor);
+            const totalDescontado = Number(ingrediente.cantidad) * Number(item.cantidad);
 
             const entradas = await Kardex.findAll({
               where: scopeTenant({
@@ -641,25 +783,46 @@ export const cancelar = async (req: Request, res: Response) => {
 };
 
 export const actualizarDetalle = async (req: Request, res: Response) => {
+  const t = await sequelize.transaction();
   try {
-    const venta: any = await Venta.findByPk(req.params.id as string);
-    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
-    if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
-    if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+    const venta: any = await Venta.findByPk(req.params.id as string, { transaction: t });
+    if (!venta) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (!belongsToTenant(venta, req.tenantId!)) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (venta.estado !== 'abierta') {
+      await t.rollback();
+      return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+    }
 
-    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId as string);
-    if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
-    if (!belongsToTenant(detalle, req.tenantId!)) return res.status(404).json({ error: 'Detalle no encontrado' });
-    if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
+    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId as string, { transaction: t });
+    if (!detalle) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Detalle no encontrado' });
+    }
+    if (!belongsToTenant(detalle, req.tenantId!)) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Detalle no encontrado' });
+    }
+    if (detalle.VentaId !== venta.id) {
+      await t.rollback();
+      return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
+    }
 
     const { cantidad } = req.body;
     const subtotal = cantidad * Number(detalle.precioUnitario);
 
-    await detalle.update({ cantidad, subtotal });
+    await detalle.update({ cantidad, subtotal }, { transaction: t });
 
-    const detalles: any = await DetalleVenta.findAll({ where: { VentaId: venta.id } });
+    const detalles: any = await DetalleVenta.findAll({ where: { VentaId: venta.id }, transaction: t });
     const nuevoTotal = detalles.reduce((sum: number, d: any) => sum + Number(d.subtotal), 0);
-    await venta.update({ total: nuevoTotal });
+    await venta.update({ total: nuevoTotal }, { transaction: t });
+
+    await t.commit();
 
     await registrarAuditoria({
       req,
@@ -675,32 +838,57 @@ export const actualizarDetalle = async (req: Request, res: Response) => {
 
     return res.json(ventaCompleta);
   } catch (error: any) {
+    await t.rollback();
     return res.status(500).json({ error: 'Error al actualizar detalle' });
   }
 };
 
 export const eliminarDetalle = async (req: Request, res: Response) => {
+  const t = await sequelize.transaction();
   try {
-    const venta: any = await Venta.findByPk(req.params.id as string);
-    if (!venta) return res.status(404).json({ error: 'Venta no encontrada' });
-    if (!belongsToTenant(venta, req.tenantId!)) return res.status(404).json({ error: 'Venta no encontrada' });
-    if (venta.estado !== 'abierta') return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+    const venta: any = await Venta.findByPk(req.params.id as string, { transaction: t });
+    if (!venta) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (!belongsToTenant(venta, req.tenantId!)) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Venta no encontrada' });
+    }
+    if (venta.estado !== 'abierta') {
+      await t.rollback();
+      return res.status(400).json({ error: 'Solo se puede modificar una venta abierta' });
+    }
 
-    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId as string);
-    if (!detalle) return res.status(404).json({ error: 'Detalle no encontrado' });
-    if (!belongsToTenant(detalle, req.tenantId!)) return res.status(404).json({ error: 'Detalle no encontrado' });
-    if (detalle.VentaId !== venta.id) return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
+    const detalle: any = await DetalleVenta.findByPk(req.params.detalleId as string, { transaction: t });
+    if (!detalle) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Detalle no encontrado' });
+    }
+    if (!belongsToTenant(detalle, req.tenantId!)) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Detalle no encontrado' });
+    }
+    if (detalle.VentaId !== venta.id) {
+      await t.rollback();
+      return res.status(400).json({ error: 'El detalle no pertenece a esta venta' });
+    }
 
-    const count = await DetalleVenta.count({ where: { VentaId: venta.id } });
-    if (count <= 1) return res.status(400).json({ error: 'No se puede eliminar el último detalle de la venta' });
+    const count = await DetalleVenta.count({ where: { VentaId: venta.id }, transaction: t });
+    if (count <= 1) {
+      await t.rollback();
+      return res.status(400).json({ error: 'No se puede eliminar el último detalle de la venta' });
+    }
 
     const datosAnteriores = { cantidad: detalle.cantidad, subtotal: Number(detalle.subtotal), ProductoId: detalle.ProductoId };
 
-    await detalle.destroy();
+    await detalle.destroy({ transaction: t });
 
-    const detalles: any = await DetalleVenta.findAll({ where: { VentaId: venta.id } });
+    const detalles: any = await DetalleVenta.findAll({ where: { VentaId: venta.id }, transaction: t });
     const nuevoTotal = detalles.reduce((sum: number, d: any) => sum + Number(d.subtotal), 0);
-    await venta.update({ total: nuevoTotal });
+    await venta.update({ total: nuevoTotal }, { transaction: t });
+
+    await t.commit();
 
     await registrarAuditoria({
       req,
@@ -716,6 +904,7 @@ export const eliminarDetalle = async (req: Request, res: Response) => {
 
     return res.json(ventaCompleta);
   } catch (error: any) {
+    await t.rollback();
     return res.status(500).json({ error: 'Error al eliminar detalle' });
   }
 };

@@ -11,7 +11,7 @@ const busqueda = ref('')
 
 onMounted(async () => {
   const { data } = await api.get('/proveedores')
-  proveedores.value = data
+  proveedores.value = data.data
 })
 
 const filtrados = computed(() => {
