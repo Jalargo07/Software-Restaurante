@@ -6,6 +6,10 @@ const DetalleCompra = sequelize.define('DetalleCompra', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  sucursal_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

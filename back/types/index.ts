@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string;
   rol: 'admin' | 'mesero' | 'cajero' | 'cocinero' | 'super-admin';
   tenantId?: number;
+  sucursalId?: number;
   [key: string]: any;
 }
 
@@ -14,6 +15,7 @@ declare global {
       user?: AuthUser;
       tenantId?: number;
       tenant?: any;
+      sucursalId?: number;
     }
   }
 }

@@ -475,6 +475,16 @@ export interface DeliveryConfig {
   createdAt: string
 }
 
+export interface Sucursal {
+  id: number
+  tenant_id: number
+  nombre: string
+  direccion?: string
+  telefono?: string
+  activo: boolean
+  createdAt?: string
+}
+
 export interface DeliverySimularPayload {
   app: DeliveryApp
   productos: Array<{ nombre: string; cantidad: number; precio?: number }>

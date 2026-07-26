@@ -117,6 +117,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
+      path: '/sucursales',
+      name: 'sucursales',
+      component: () => import('../views/admin/SucursalesView.vue'),
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
       path: '/super-admin',
       name: 'super-admin',
       component: () => import('../views/admin/SuperAdminView.vue'),

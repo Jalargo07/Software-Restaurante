@@ -11,6 +11,7 @@ import sequelize from './config/database';
 dns.setDefaultResultOrder('ipv4first');
 import { connectRedis, disconnectRedis } from './config/redis';
 import tenantContext from './middleware/tenantContext';
+import sucursalContext from './middleware/sucursalContext';
 import { generalLimiter } from './middleware/rateLimit';
 import mesasRoutes from './routes/mesas';
 import productosRoutes from './routes/productos';
@@ -31,8 +32,9 @@ import facturasRoutes from './routes/facturas';
 import pagosRoutes from './routes/pagos';
 import landingRoutes, { landingPublicRouter } from './routes/landing';
 import deliveryRoutes, { deliveryPublicRouter } from './routes/delivery';
+import sucursalRoutes from './routes/sucursales';
 import { setSocketIO } from './utils/cacheInvalidation';
-import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin } from './models';
+import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin, Sucursal } from './models';
 import superAdminAuthRoutes from './routes/superAdminAuth';
 import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
@@ -73,6 +75,7 @@ app.use('/api/delivery', deliveryPublicRouter);
 app.use('/api/super-admin', superAdminAuthRoutes);
 
 app.use('/api', tenantContext);
+app.use('/api', sucursalContext);
 
 app.use('/api/mesas', mesasRoutes);
 app.use('/api/productos', productosRoutes);
@@ -91,6 +94,7 @@ app.use('/api/facturas', facturasRoutes);
 app.use('/api/pagos', pagosRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/sucursales', sucursalRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
@@ -167,6 +171,12 @@ const startServer = async () => {
         },
       });
       console.log('TenantConfig por defecto creada');
+
+      const sucursalCount = await Sucursal.count({ where: { tenant_id: defaultTenant.id } });
+      if (sucursalCount === 0) {
+        await Sucursal.create({ tenant_id: defaultTenant.id, nombre: 'Sucursal Principal', direccion: 'Dirección principal', telefono: '555-0000' });
+        console.log('Sucursal Principal creada');
+      }
 
       // Seed landing content por defecto
       const landingCount = await LandingContent.count();

@@ -3,11 +3,13 @@ import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 import { useSuperAdminAuthStore } from './stores/superAdminAuth'
 import { useBrandingStore } from './stores/branding'
+import { useSucursalStore } from './stores/sucursales'
 import { ref, onMounted, computed, watch } from 'vue'
 import ToastContainer from './components/common/ToastContainer.vue'
 import Sidebar from './components/common/Sidebar.vue'
 
 const authStore = useAuthStore()
+const sucursalStore = useSucursalStore()
 const saAuthStore = useSuperAdminAuthStore()
 const brandingStore = useBrandingStore()
 const router = useRouter()
@@ -21,7 +23,7 @@ const isPublicRoute = computed(() => {
   return route.path === '/' || route.name === 'login' || route.name === 'tenant-login' || route.name === 'menu-qr' || route.name === 'super-admin-login'
 })
 
-const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/inventario', '/reportes', '/super-admin', '/cms']
+const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/sucursales', '/inventario', '/reportes', '/super-admin', '/cms']
 
 const isAdministrationRoute = computed(() => {
   return adminRoutes.includes(route.path) || adminRoutes.some(r => r !== '/' && route.path.startsWith(r))
@@ -47,6 +49,7 @@ onMounted(async () => {
   try {
     if (authStore.isAuthenticated) {
       await brandingStore.fetchBranding()
+      await sucursalStore.fetchSucursales()
     }
     const b = brandingStore.branding
     if (b) {
@@ -78,6 +81,10 @@ function salir() {
   authStore.logout()
   saAuthStore.logout()
   router.push('/admin/login')
+}
+
+function cambiarSucursal() {
+  window.location.reload()
 }
 
 const navItems = computed(() => {
@@ -135,6 +142,10 @@ function isActive(path: string) {
         <span v-if="brandingStore.branding?.nombreCompleto" class="text-lg font-semibold text-gray-900 dark:text-white">
           {{ brandingStore.branding.nombreCompleto }}
         </span>
+        <select v-if="sucursalStore.hasSucursales" v-model="sucursalStore.selectedId" @change="cambiarSucursal"
+          class="ml-auto text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200">
+          <option v-for="s in sucursalStore.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+        </select>
       </header>
 
       <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 pb-24">

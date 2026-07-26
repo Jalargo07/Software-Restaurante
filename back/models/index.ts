@@ -1,4 +1,5 @@
 import Tenant from './Tenant';
+import Sucursal from './Sucursal';
 import Mesa from './Mesa';
 import Producto from './Producto';
 import Compra from './Compra';
@@ -17,6 +18,24 @@ import Transaccion from './Transaccion';
 import LandingContent from './LandingContent';
 import SuperAdmin from './SuperAdmin';
 import DeliveryConfig from './DeliveryConfig';
+
+// Sucursal -> Models
+Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+Tenant.hasMany(Sucursal, { foreignKey: 'tenant_id' });
+Sucursal.hasMany(Mesa, { foreignKey: 'sucursal_id' });
+Mesa.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
+Sucursal.hasMany(Venta, { foreignKey: 'sucursal_id' });
+Venta.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
+Sucursal.hasMany(DetalleVenta, { foreignKey: 'sucursal_id' });
+DetalleVenta.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
+Sucursal.hasMany(Compra, { foreignKey: 'sucursal_id' });
+Compra.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
+Sucursal.hasMany(DetalleCompra, { foreignKey: 'sucursal_id' });
+DetalleCompra.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
+Sucursal.hasMany(Usuario, { foreignKey: 'sucursal_id' });
+Usuario.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
+Sucursal.hasMany(CorteCaja, { foreignKey: 'sucursal_id' });
+CorteCaja.belongsTo(Sucursal, { foreignKey: 'sucursal_id' });
 
 // Tenant -> Models
 Tenant.hasMany(Usuario, { foreignKey: 'tenant_id' });
@@ -128,6 +147,7 @@ DeliveryConfig.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
 export {
   Tenant,
+  Sucursal,
   Mesa,
   Producto,
   Compra,

@@ -46,6 +46,7 @@ const administracionItems = [
   { path: '/usuarios', icon: '👥', label: 'Usuarios', roles: ['admin'] },
   { path: '/auditoria', icon: '📋', label: 'Auditoría', roles: ['admin'] },
   { path: '/branding', icon: '🎨', label: 'Branding', roles: ['admin'] },
+  { path: '/sucursales', icon: '🏪', label: 'Sucursales', roles: ['admin'] },
   { path: '/super-admin', icon: '⚡', label: 'Super Admin', roles: ['super-admin'] },
   { path: '/super-admin/settings', icon: '🔒', label: 'Seguridad', roles: ['super-admin'] },
   { path: '/cms', icon: '📝', label: 'CMS Landing', roles: ['super-admin'] },
