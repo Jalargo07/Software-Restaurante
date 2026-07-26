@@ -3,11 +3,25 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+import type { Plugin } from 'vite'
+
+function deferCSS(): Plugin {
+  return {
+    name: 'defer-css',
+    transformIndexHtml(html) {
+      return html.replace(
+        /<link rel="stylesheet" crossorigin href="(.*?)">/g,
+        `<link rel="stylesheet" href="$1" media="print" onload="this.onload=null;this.media='all'"><noscript><link rel="stylesheet" href="$1"></noscript>`
+      )
+    }
+  }
+}
 
 export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
+    deferCSS(),
     ViteImageOptimizer({
       png: { quality: 80 },
       webp: { quality: 85 },
