@@ -218,16 +218,16 @@ export const cobrar = async (req: Request, res: Response) => {
 
         if (producto.tipo === 'compuesto') {
           const ingredientes: any = await DetalleReceta.findAll({
-            where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-            transaction: t,
-          });
+              where: scopeTenant({ productoId: producto.id }, req.tenantId!),
+              transaction: t,
+            });
 
-          if (!ingredientes || ingredientes.length === 0) {
-            await t.rollback();
-            return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
-          }
+            if (!ingredientes || ingredientes.length === 0) {
+              await t.rollback();
+              return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
+            }
 
-          for (const ingrediente of ingredientes) {
+            for (const ingrediente of ingredientes) {
             const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
             if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
               await t.rollback();

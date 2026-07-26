@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { usePedidoStore } from '../../stores/pedidos'
 import { useToastStore } from '../../stores/toast'
+import { io } from 'socket.io-client'
 import api from '../../services/api'
 import ModalBase from '../../components/common/ModalBase.vue'
 import PedidoFormModal from '../../components/pedidos/PedidoFormModal.vue'
@@ -32,7 +33,18 @@ async function cargarDatos() {
   }
 }
 
-onMounted(cargarDatos)
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000')
+
+onMounted(() => {
+  cargarDatos()
+  socket.on('nueva-comanda', () => cargarDatos())
+  socket.on('venta-cerrada', () => cargarDatos())
+  socket.on('venta-cancelada', () => cargarDatos())
+})
+
+onUnmounted(() => { socket.disconnect() })
+
+const pedidosSinDelivery = computed(() => pedidoStore.pedidos.filter((p: any) => p.tipo !== 'delivery'))
 
 const filtrados = computed(() => {
   let resultado = productos.value.filter((p: any) => p.tipo !== 'insumo')
@@ -177,7 +189,7 @@ async function eliminarProducto(ventaId: number, detalle: any) {
     </div>
 
     <template v-else>
-      <div v-for="v in pedidoStore.pedidos" :key="v.id" class="mt-3 space-y-3">
+      <div v-for="v in pedidosSinDelivery" :key="v.id" class="mt-3 space-y-3">
       <div class="rounded-xl shadow-sm overflow-hidden border" :class="v.estado === 'cerrada' ? 'border-green-500' : v.estado === 'cancelada' ? 'border-gray-400' : 'border-red-500'">
         <div class="px-4 py-3 flex items-center justify-between text-white" :class="v.estado === 'cerrada' ? 'bg-green-600' : v.estado === 'cancelada' ? 'bg-gray-500' : 'bg-red-600'">
           <strong class="text-sm">Mesa #{{ v.Mesa?.numero || 'Fast Food' }}</strong>

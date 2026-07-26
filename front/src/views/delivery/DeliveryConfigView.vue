@@ -48,7 +48,10 @@ async function simular() {
     toast.success('Pedido de prueba enviado a cocina')
     simProd.value = ''
     simCant.value = 1
-  } catch { toast.error('Error al simular') }
+  } catch (e: any) {
+    const msg = e.response?.data?.message || e.response?.data?.error || 'Error al simular'
+    toast.error(msg)
+  }
   finally { simulando.value = false }
 }
 </script>

@@ -25,6 +25,24 @@ export const webhookDelivery = async (req: Request, res: Response) => {
 
     const { pedidoId, cliente, productos, direccion, telefono, total } = req.body;
 
+    // Validar stock antes de crear
+    if (productos && Array.isArray(productos)) {
+      for (const item of productos) {
+        const prod: any = await Producto.findOne({
+          where: { tenant_id: config.tenant_id, nombre: { [Op.iLike]: item.nombre } },
+        });
+        if (prod) {
+          const cantidad = item.cantidad || 1;
+          if (Number(prod.stock) < cantidad) {
+            return res.status(400).json({
+              message: `Stock insuficiente para ${prod.nombre}. Disponible: ${prod.stock}`,
+            });
+          }
+        }
+      }
+    }
+
+    // Crear venta
     const venta: any = await Venta.create({
       tenant_id: config.tenant_id,
       tipo: 'delivery',
@@ -36,6 +54,7 @@ export const webhookDelivery = async (req: Request, res: Response) => {
       total: total || 0,
     });
 
+    // Crear DetalleVenta y calcular total
     if (productos && Array.isArray(productos)) {
       let totalCalculado = 0;
       for (const item of productos) {
@@ -63,11 +82,10 @@ export const webhookDelivery = async (req: Request, res: Response) => {
       }
     }
 
-    const io = req.app.get('io');
     // Emitir Socket.IO
+    const io = req.app.get('io');
     if (io) {
       io.emit('nuevo-pedido-delivery', { ventaId: venta.id, app });
-      // Emitir 'nueva-comanda' para que aparezca en Cocina
       const ventaCompleta = await Venta.findByPk(venta.id, {
         include: [{ model: DetalleVenta, include: [Producto] }],
       });

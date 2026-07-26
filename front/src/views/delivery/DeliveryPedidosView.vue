@@ -30,6 +30,15 @@ function badgeEstado(estado: string) {
   const map: Record<string, string> = { pendiente: 'bg-yellow-100 text-yellow-700', en_preparacion: 'bg-blue-100 text-blue-700', listo: 'bg-green-100 text-green-700' }
   return map[estado] || 'bg-gray-100 text-gray-700'
 }
+
+async function entregar(v: any) {
+  try {
+    await pedidoStore.cobrarVenta(v.id, 'efectivo' as any)
+    toast.success('Pedido marcado como entregado')
+    await pedidoStore.fetchPedidos()
+    pedidosDelivery.value = pedidoStore.pedidos.filter((p: any) => p.tipo === 'delivery')
+  } catch { toast.error('Error al marcar como entregado') }
+}
 </script>
 
 <template>
@@ -55,6 +64,10 @@ function badgeEstado(estado: string) {
         <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
           <span class="text-xs font-medium" :class="badgeEstado(v.estado)">{{ v.estado }}</span>
           <span class="text-lg font-bold text-gray-900 dark:text-white">${{ (v.total || 0).toLocaleString() }}</span>
+          <button v-if="v.estado === 'abierta'" @click="entregar(v)"
+            class="ml-2 px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors">
+            Entregado
+          </button>
         </div>
       </div>
     </div>
