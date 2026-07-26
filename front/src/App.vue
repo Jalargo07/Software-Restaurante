@@ -165,10 +165,6 @@ function isActive(path: string) {
     v-else
     :class="['flex flex-col', (authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : 'min-h-screen']"
   >
-    <div v-if="authStore.licenseWarning || saAuthStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
-      ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
-    </div>
-
     <Sidebar
       v-if="(authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute)"
       v-model="mobileMenuOpen"
@@ -197,6 +193,10 @@ function isActive(path: string) {
           <option v-for="s in sucursalStore.sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
         </select>
       </header>
+
+      <div v-if="(authStore.licenseWarning || saAuthStore.licenseWarning) && !(currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute)" class="bg-red-600 text-white text-center text-xs py-1 px-4 font-medium">
+        ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
+      </div>
 
       <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 pb-24">
         <RouterView />

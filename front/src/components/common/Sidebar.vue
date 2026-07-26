@@ -117,6 +117,10 @@ function isActive(path: string) {
       </div>
     </div>
 
+    <div v-if="authStore.licenseWarning || saAuthStore.licenseWarning" class="mx-3 mt-2 bg-red-600/90 text-white text-center text-xs py-1.5 px-3 rounded-lg font-medium">
+      ⚠️ Licencia inválida
+    </div>
+
     <nav class="flex-1 overflow-y-auto p-3 space-y-1">
       <router-link
         v-for="item in visibleItems"
