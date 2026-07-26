@@ -55,6 +55,7 @@ function agregarProducto(producto: any) {
     detalles.value.push({
       productoId: producto.id,
       nombre: producto.nombre,
+      merma: Number(producto.merma) || 0,
       cantidad: 1,
       precioUnitario: Number(producto.precioCompra),
       subtotal: Number(producto.precioCompra),
@@ -135,6 +136,7 @@ async function guardar() {
           <input v-model.number="d.precioUnitario" type="number" step="0.01" class="w-1/4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 text-xs focus:ring-2 focus:ring-[var(--color-primario)] focus:border-blue-500"
             @input="d.subtotal = d.cantidad * d.precioUnitario">
           <span class="text-sm text-gray-900 dark:text-gray-100">${{ Number(d.subtotal).toFixed(2) }}</span>
+          <span v-if="d.merma > 0" class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" title="Se aplicará al recibir la compra">merma {{ d.merma }}%</span>
           <button type="button" class="inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" @click="quitarDetalle(i)">X</button>
         </div>
       </div>

@@ -16,7 +16,7 @@ const Kardex = sequelize.define('Kardex', {
     allowNull: false,
   },
   tipo: {
-    type: DataTypes.ENUM('entrada', 'salida'),
+    type: DataTypes.ENUM('entrada', 'salida', 'merma'),
     allowNull: false,
   },
   cantidad: {

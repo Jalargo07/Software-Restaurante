@@ -1,14 +1,48 @@
-Creative Commons Attribution-ShareAlike 4.0 International
+# BiteOps License — Source-Available Noncommercial
 
-This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
-To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0/
+Copyright © 2026 Jalargo07
 
-You are free to:
-- Share — copy and redistribute the material in any medium or format
-- Adapt — remix, transform, and build upon the material for any purpose, even commercially
+## Términos y Condiciones
 
-Under the following terms:
-- Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
-- ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+### 1. Definiciones
+"Software" se refiere al código fuente, documentación, assets y archivos de configuración
+de BiteOps Restaurant Management System. "Uso Comercial" significa el uso del Software
+para generar ingresos directos o indirectos, incluyendo pero no limitado a: operación como
+SaaS, venta de licencias, consultoría remunerada, o despliegue en producción para una
+entidad con fines de lucro.
 
-Full license: https://creativecommons.org/licenses/by-sa/4.0/legalcode
+### 2. Concesión de Licencia
+Se concede permiso para:
+
+- **Visualización y Estudio**: Acceder, revisar, analizar y estudiar el código fuente.
+- **Uso Personal y Educativo**: Instalar y ejecutar el Software para fines personales,
+  educativos, académicos o de evaluación no comercial.
+- **Contribuciones**: Enviar parches, mejoras o correcciones (pull requests) bajo los
+  mismos términos de esta licencia.
+
+### 3. Restricciones
+
+**Queda PROHIBIDO sin autorización escrita explícita del titular del copyright:**
+
+- **Uso Comercial**: Operar el Software como servicio (SaaS), producto comercial,
+  o cualquier actividad que genere ingresos.
+- **Redistribución**: Publicar, distribuir, sublicenciar o poner a disposición del público
+  copias modificadas o no del Software.
+- **Uso en Producción Comercial**: Desplegar el Software en servidores de producción
+  de cualquier entidad con fines de lucro.
+
+### 4. Excepciones
+El titular del copyright se reserva el derecho de otorgar licencias comerciales
+individuales. Para solicitar una licencia comercial, contactar al propietario
+del repositorio.
+
+### 5. Atribución
+Cualquier uso permitido del Software debe mantener visible el aviso de copyright
+y atribución al autor original.
+
+### 6. Disclaimer
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD
+PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES O
+TITULARES DEL COPYRIGHT SERÁN RESPONSABLES POR CUALQUIER RECLAMO, DAÑO U OTRA
+RESPONSABILIDAD.

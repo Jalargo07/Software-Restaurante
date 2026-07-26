@@ -148,7 +148,8 @@ pnpm run test:watch  # Ejecuta en modo watch
 - **2FA con Google Authenticator:** Autenticación de dos factores para Super Admin con setup/verify/disable y refresh sin reloguear.
 - **Menú QR:** Branding público con QR code en 3 estilos (grid, lista, compacto) para clientes.
 - **Planes y Pagos PayPal:** Planes Básico/Pro/Enterprise con landing de precios reales e integración PayPal Sandbox.
-- **Kardex FIFO/PEPS:** Control de inventario valuado con costo histórico, ganancia bruta por período.
+- **Kardex FIFO/PEPS + Merma:** Control de inventario valuado con costo histórico, ganancia bruta por período. Registro de merma con tipo `'merma'` en Kardex para trazabilidad contable (PUC 6135).
+- **Stock Físico Virtual:** Columna calculada en inventario que muestra el stock real en almacén incluyendo merma.
 - **SEO Completo:** Meta tags, Open Graph, JSON-LD, robots.txt, sitemap.xml para landing pública.
 
 ---
@@ -182,3 +183,5 @@ pnpm run test:watch  # Ejecuta en modo watch
 | **Sprint 29** | ✅ Completado | Planes y Pagos: Plan en UI, landing con precios reales, PayPal sandbox, checkout |
 | **Sprint 30** | ✅ Completado | CMS Landing + Super Admin UI refinado |
 | **Sprint 31** | ✅ Completado | 2FA Google Authenticator: otplib, login con 2FA, setup/verify/disable, JWT 25min |
+| **Sprint 32** | ✅ Completado | Validación stock temprana, endpoint crear-con-productos unificado, transacciones, UI deshabilitada para sin stock |
+| **Sprint 33** | ✅ Completado | Merma en compras: al recibir compra descuenta merma automáticamente, Kardex tipo "merma" para trazabilidad PUC, columna Stock Físico virtual en inventario |

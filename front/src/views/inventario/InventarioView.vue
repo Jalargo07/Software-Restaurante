@@ -111,6 +111,7 @@ async function eliminar(id: number) {
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Precio Compra</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Precio Venta</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Stock Físico</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
             </tr>
@@ -132,6 +133,7 @@ async function eliminar(id: number) {
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">${{ p.precioCompra }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden lg:table-cell">${{ p.precioVenta }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ p.stock }} {{ p.unidad }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 hidden md:table-cell">{{ p.tipo === 'insumo' && p.merma > 0 && p.merma < 100 ? Math.ceil(p.stock / (1 - p.merma / 100)) : p.stock }} {{ p.unidad }}</td>
               <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                 <span :class="p.stock <= p.stockMinimo ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'">
                   {{ p.stock <= p.stockMinimo ? 'Bajo' : 'OK' }}
@@ -143,7 +145,7 @@ async function eliminar(id: number) {
               </td>
             </tr>
             <tr v-if="productosPaginados.length === 0">
-              <td colspan="9" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No se encontraron productos</td>
+              <td colspan="10" class="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400">No se encontraron productos</td>
             </tr>
           </tbody>
         </table>

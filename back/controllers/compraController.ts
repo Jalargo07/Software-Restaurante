@@ -120,18 +120,50 @@ export const recibir = async (req: Request, res: Response) => {
         await t.rollback();
         return res.status(400).json({ error: `Producto ${detalle.ProductoId} no encontrado o no pertenece al tenant` });
       }
-      await producto.update(
-        { stock: producto.stock + detalle.cantidad },
-        { transaction: t }
-      );
 
-      await Kardex.create(withTenant({
-        productoId: detalle.ProductoId,
-        tipo: 'entrada',
-        cantidad: detalle.cantidad,
-        precioUnitario: detalle.precioUnitario,
-        compraId: compra.id,
-      }, req.tenantId!), { transaction: t });
+      const cantidadComprada = Number(detalle.cantidad);
+
+      if (producto.tipo === 'insumo' && Number(producto.merma) > 0) {
+        const mermaPorcentaje = Number(producto.merma);
+        const stockASumar = Math.floor(cantidadComprada * (1 - mermaPorcentaje / 100));
+        const cantidadMerma = cantidadComprada - stockASumar;
+
+        await producto.update(
+          { stock: producto.stock + stockASumar },
+          { transaction: t }
+        );
+
+        await Kardex.create(withTenant({
+          productoId: detalle.ProductoId,
+          tipo: 'entrada',
+          cantidad: stockASumar,
+          precioUnitario: detalle.precioUnitario,
+          compraId: compra.id,
+        }, req.tenantId!), { transaction: t });
+
+        if (cantidadMerma > 0) {
+          await Kardex.create(withTenant({
+            productoId: detalle.ProductoId,
+            tipo: 'merma',
+            cantidad: cantidadMerma,
+            precioUnitario: detalle.precioUnitario,
+            compraId: compra.id,
+          }, req.tenantId!), { transaction: t });
+        }
+      } else {
+        await producto.update(
+          { stock: producto.stock + cantidadComprada },
+          { transaction: t }
+        );
+
+        await Kardex.create(withTenant({
+          productoId: detalle.ProductoId,
+          tipo: 'entrada',
+          cantidad: cantidadComprada,
+          precioUnitario: detalle.precioUnitario,
+          compraId: compra.id,
+        }, req.tenantId!), { transaction: t });
+      }
     }
 
     await t.commit();
