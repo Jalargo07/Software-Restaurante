@@ -9,14 +9,14 @@ import FooterSection from '../../components/landing/FooterSection.vue'
 
     <main>
       <section class="relative py-24 bg-gradient-to-br from-emerald-600 to-teal-700 text-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Términos y Condiciones</h1>
           <p class="mt-4 text-lg text-emerald-100">Última actualización: 26 de julio de 2026</p>
         </div>
       </section>
 
       <section class="py-20">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 prose prose-gray dark:prose-invert max-w-none space-y-10">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 prose prose-gray dark:prose-invert max-w-none space-y-10">
 
           <div>
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Aceptación de los Términos</h2>

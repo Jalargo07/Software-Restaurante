@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<{ data?: LandingFooter }>(), {
     grupos: [
       { titulo: 'Producto', links: [
         { label: 'Demo', href: '/menu/demo' },
-        { label: 'Precios', href: '#precios' },
+        { label: 'Precios', href: '/' },
         { label: 'Sobre nosotros', href: '/sobre-nosotros' },
       ]},
       { titulo: 'Recursos', links: [

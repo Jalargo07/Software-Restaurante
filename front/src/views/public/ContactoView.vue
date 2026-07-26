@@ -21,7 +21,7 @@ function enviarMensaje() {
 
     <main>
       <section class="relative py-24 bg-gradient-to-br from-emerald-600 to-teal-700 text-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Contacto</h1>
           <p class="mt-4 text-lg sm:text-xl text-emerald-100 max-w-2xl mx-auto">
             ¿Tenés preguntas? Estamos para ayudarte.
@@ -30,7 +30,7 @@ function enviarMensaje() {
       </section>
 
       <section class="py-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Envianos un mensaje</h2>

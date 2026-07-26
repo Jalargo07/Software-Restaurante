@@ -21,7 +21,8 @@ const currentMode = ref<'produccion' | 'administracion' | 'cms'>('produccion')
 const mobileMenuOpen = ref(false)
 
 const isPublicRoute = computed(() => {
-  return route.path === '/' || route.name === 'login' || route.name === 'tenant-login' || route.name === 'menu-qr' || route.name === 'super-admin-login'
+  const publicNames = ['login', 'tenant-login', 'menu-qr', 'super-admin-login', 'sobre-nosotros', 'contacto', 'privacidad', 'terminos']
+  return route.path === '/' || publicNames.includes(route.name as string)
 })
 
 const adminRoutes = ['/dashboard', '/admin', '/proveedores', '/compras', '/recetas', '/usuarios', '/auditoria', '/branding', '/sucursales', '/inventario', '/reportes', '/super-admin', '/cms', '/delivery/config']

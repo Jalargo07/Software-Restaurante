@@ -9,7 +9,7 @@ import FooterSection from '../../components/landing/FooterSection.vue'
 
     <main>
       <section class="relative py-24 bg-gradient-to-br from-emerald-600 to-teal-700 text-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Sobre BiteOps</h1>
           <p class="mt-4 text-lg sm:text-xl text-emerald-100 max-w-2xl mx-auto">
             El sistema operativo inteligente diseñado para transformar la gestión de restaurantes.
@@ -18,7 +18,7 @@ import FooterSection from '../../components/landing/FooterSection.vue'
       </section>
 
       <section class="py-20">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           <div>
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6">Nuestra Historia</h2>
             <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
