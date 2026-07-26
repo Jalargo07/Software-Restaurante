@@ -2,11 +2,17 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 
 export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
+    ViteImageOptimizer({
+      png: { quality: 80 },
+      webp: { quality: 85 },
+      avif: { quality: 70 },
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo-biteops.png', 'logo-biteops.webp', 'banner-biteops.webp'],
