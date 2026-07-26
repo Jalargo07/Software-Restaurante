@@ -16,7 +16,7 @@ function scrollTo(selector: string) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2">
-          <img src="/banner-biteops.png" alt="BiteOps" class="h-8 w-auto">
+          <img src="/banner-biteops.webp" alt="BiteOps" width="179" height="56" loading="eager" class="h-8 w-auto">
         </RouterLink>
 
         <nav class="hidden md:flex items-center gap-8">

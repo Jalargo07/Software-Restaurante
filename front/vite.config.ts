@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo-biteops.png'],
+      includeAssets: ['logo-biteops.png', 'logo-biteops.webp', 'banner-biteops.webp'],
       manifest: {
         name: 'BiteOps — Sistema de gestión para restaurantes',
         short_name: 'BiteOps',

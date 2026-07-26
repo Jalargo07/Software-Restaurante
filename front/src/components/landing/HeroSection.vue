@@ -20,7 +20,7 @@ function onLogoClickeado() {
 
 const props = withDefaults(defineProps<{ data?: LandingHero }>(), {
   data: () => ({
-    logo: '/logo-biteops.png',
+    logo: '/logo-biteops.webp',
     titulo: 'El sistema operativo',
     tituloGradiente: 'de tu restaurante',
     subtitulo: 'Gestioná tu restaurante desde un solo lugar: POS, inventario, comandas, reportes y menú digital.',
@@ -40,7 +40,7 @@ const props = withDefaults(defineProps<{ data?: LandingHero }>(), {
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
       <div class="text-center max-w-4xl mx-auto">
         <div class="flex justify-center mb-8">
-          <img :src="data.logo" alt="BiteOps - Logo principal" loading="lazy" @click="onLogoClickeado" style="cursor: pointer" class="w-24 h-24 sm:w-32 sm:h-32 drop-shadow-2xl">
+          <img :src="data.logo" alt="BiteOps - Logo principal" fetchpriority="high" width="168" height="168" @click="onLogoClickeado" style="cursor: pointer" class="w-24 h-24 sm:w-32 sm:h-32 drop-shadow-2xl">
         </div>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
           {{ data.titulo }}
