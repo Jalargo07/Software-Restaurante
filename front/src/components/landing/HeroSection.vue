@@ -43,7 +43,7 @@ const props = withDefaults(defineProps<{ data?: LandingHero }>(), {
           <img :src="data.logo" alt="BiteOps - Logo principal" loading="lazy" @click="onLogoClickeado" style="cursor: pointer" class="w-24 h-24 sm:w-32 sm:h-32 drop-shadow-2xl">
         </div>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
-          {{ data.titulo }} de
+          {{ data.titulo }}
           <span class="bg-gradient-to-r from-emerald-600 to-orange-500 bg-clip-text text-transparent">{{ data.tituloGradiente }}</span>
         </h1>
         <p class="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
