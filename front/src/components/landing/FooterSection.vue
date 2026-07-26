@@ -19,7 +19,6 @@ const props = withDefaults(defineProps<{ data?: LandingFooter }>(), {
       { titulo: 'Legal', links: [
         { label: 'Privacidad', href: '/privacidad' },
         { label: 'Términos', href: '/terminos' },
-        { label: 'Admin', href: '/login' },
       ]},
     ],
     copyright: '© 2026 BiteOps. Todos los derechos reservados.',
