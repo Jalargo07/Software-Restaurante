@@ -5,6 +5,7 @@ import { verifySync } from 'otplib';
 import SuperAdmin from '../models/SuperAdmin';
 import { loginLimiter } from '../middleware/rateLimit';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
+import { checkLicense } from '../utils/licenseGuard';
 
 const router = Router();
 
@@ -32,7 +33,13 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       process.env.JWT_SECRET!,
       { expiresIn: '25m' }
     );
-    res.json({ token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
+    const loginResponse: any = { token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } };
+    const licencia = checkLicense();
+    if (!licencia.ok) {
+      loginResponse.licenseWarning = licencia.warning || 'Licencia inválida o ausente';
+    }
+    res.json(loginResponse);
+
   } catch (error: any) {
     console.error('Error en super-admin login:', error);
     res.status(500).json({ error: 'Error al iniciar sesión' });
@@ -59,7 +66,13 @@ router.post('/login-2fa', async (req: Request, res: Response) => {
       process.env.JWT_SECRET!,
       { expiresIn: '25m' }
     );
-    res.json({ token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
+    const loginResponse: any = { token, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } };
+    const licencia = checkLicense();
+    if (!licencia.ok) {
+      loginResponse.licenseWarning = licencia.warning || 'Licencia inválida o ausente';
+    }
+    res.json(loginResponse);
+
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') return res.status(401).json({ error: 'Token expirado, reiniciá el login' });
     console.error('Error en login-2fa:', error);
@@ -89,7 +102,13 @@ router.post('/refresh-2fa', async (req: Request, res: Response) => {
       { expiresIn: '25m' }
     );
 
-    res.json({ token: newToken, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } });
+    const loginResponse: any = { token: newToken, usuario: { id: sa.id, nombre: sa.nombre, email: sa.email, rol: 'super-admin', twoFactorEnabled: sa.twoFactorEnabled } };
+    const licencia = checkLicense();
+    if (!licencia.ok) {
+      loginResponse.licenseWarning = licencia.warning || 'Licencia inválida o ausente';
+    }
+    res.json(loginResponse);
+
   } catch (error: any) {
     console.error('Error en refresh-2fa:', error);
     res.status(500).json({ error: 'Error al renovar sesión' });

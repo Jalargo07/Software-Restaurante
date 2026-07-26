@@ -78,6 +78,11 @@ onMounted(async () => {
       authStore.licenseWarning = null
       localStorage.removeItem('licenseWarning')
     }
+    if (saAuthStore.isAuthenticated) {
+      saAuthStore.licenseWarning = data.ok ? null : (data.warning || 'Licencia inválida')
+      if (saAuthStore.licenseWarning) localStorage.setItem('sa_licenseWarning', saAuthStore.licenseWarning)
+      else localStorage.removeItem('sa_licenseWarning')
+    }
   }).catch(() => {})
 
   // Check periódico de licencia (cada hora)
@@ -89,6 +94,11 @@ onMounted(async () => {
       } else if (authStore.licenseWarning && data.ok) {
         authStore.licenseWarning = null
         localStorage.removeItem('licenseWarning')
+      }
+      if (saAuthStore.isAuthenticated) {
+        saAuthStore.licenseWarning = data.ok ? null : (data.warning || 'Licencia inválida')
+        if (saAuthStore.licenseWarning) localStorage.setItem('sa_licenseWarning', saAuthStore.licenseWarning)
+        else localStorage.removeItem('sa_licenseWarning')
       }
     }).catch(() => {})
   }, 60 * 60 * 1000)
@@ -144,8 +154,8 @@ function isActive(path: string) {
     v-if="isPublicRoute"
     class="min-h-screen"
   >
-    <div v-if="authStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
-      ⚠️ {{ authStore.licenseWarning }} — Contacte: soporte@biteops.app
+    <div v-if="authStore.licenseWarning || saAuthStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
+      ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
     </div>
     <RouterView />
     <ToastContainer />
@@ -155,8 +165,8 @@ function isActive(path: string) {
     v-else
     :class="['flex flex-col', (authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute) ? 'md:grid md:grid-cols-[260px_1fr] min-h-screen' : 'min-h-screen']"
   >
-    <div v-if="authStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
-      ⚠️ {{ authStore.licenseWarning }} — Contacte: soporte@biteops.app
+    <div v-if="authStore.licenseWarning || saAuthStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
+      ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
     </div>
 
     <Sidebar
