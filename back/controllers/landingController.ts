@@ -46,7 +46,7 @@ export const updateLanding = async (req: Request, res: Response) => {
 export function getDefaultData() {
   return {
     hero: {
-      logo: '/logo-biteops.png',
+      logo: '/logo-biteops.webp',
       titulo: 'El sistema operativo',
       tituloGradiente: 'de tu restaurante',
       subtitulo: 'Gestioná tu restaurante desde un solo lugar: POS, inventario, comandas, reportes y menú digital.',
