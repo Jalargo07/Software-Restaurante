@@ -41,6 +41,7 @@ const administracionItems = [
   { path: '/', icon: '📊', label: 'Dashboard', roles: ['admin', 'mesero', 'cajero', 'cocinero'] },
   { path: '/inventario', icon: '📦', label: 'Inventario', roles: ['admin'] },
   { path: '/proveedores', icon: '🏢', label: 'Proveedores', roles: ['admin'] },
+  { path: '/delivery/config', icon: '📡', label: 'Delivery Apps', roles: ['admin'] },
   { path: '/compras', icon: '🛒', label: 'Compras', roles: ['admin'] },
   { path: '/recetas', icon: '📖', label: 'Recetas', roles: ['admin'] },
   { path: '/usuarios', icon: '👥', label: 'Usuarios', roles: ['admin'] },

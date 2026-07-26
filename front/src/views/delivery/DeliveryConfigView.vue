@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useDeliveryStore } from '../../stores/delivery'
 import { useToastStore } from '../../stores/toast'
 import type { DeliveryApp } from '../../types'
+import api from '../../services/api'
 
 const store = useDeliveryStore()
 const toast = useToastStore()
@@ -10,11 +11,18 @@ const simulando = ref(false)
 const simApp = ref<DeliveryApp>('rappi')
 const simProd = ref('')
 const simCant = ref(1)
+const productos = ref<any[]>([])
 
 const apps: DeliveryApp[] = ['rappi', 'uber', 'pedidosya']
 const labels: Record<string, string> = { rappi: 'Rappi', uber: 'Uber Eats', pedidosya: 'PedidosYa' }
 
-onMounted(() => store.fetchConfigs())
+onMounted(async () => {
+  await store.fetchConfigs()
+  try {
+    const { data } = await api.get('/productos')
+    productos.value = data.filter((p: any) => p.tipo !== 'insumo')
+  } catch { /* ignore */ }
+})
 
 function getConfig(app: DeliveryApp) {
   return store.configs.find(c => c.app === app)
@@ -31,10 +39,11 @@ async function toggleApp(app: DeliveryApp) {
 async function simular() {
   if (!simProd.value) return
   simulando.value = true
+  const prod = productos.value.find(p => p.nombre === simProd.value)
   try {
     await store.simularPedido({
       app: simApp.value,
-      productos: [{ nombre: simProd.value, cantidad: simCant.value }],
+      productos: [{ nombre: simProd.value, cantidad: simCant.value, precio: prod?.precioVenta }],
     })
     toast.success('Pedido de prueba enviado a cocina')
     simProd.value = ''
@@ -83,7 +92,10 @@ async function simular() {
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
-          <input v-model="simProd" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm w-40" placeholder="Ej: Pizza" />
+          <select v-model="simProd" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm w-44">
+            <option value="" disabled>Seleccionar</option>
+            <option v-for="p in productos" :key="p.id" :value="p.nombre">{{ p.nombre }} - ${{ Number(p.precioVenta).toLocaleString() }}</option>
+          </select>
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Cantidad</label>

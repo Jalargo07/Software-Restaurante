@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
+import { Op } from 'sequelize';
 import { Venta, DetalleVenta, Producto, DeliveryConfig, Tenant } from '../models';
 
 export const webhookDelivery = async (req: Request, res: Response) => {
@@ -36,13 +37,14 @@ export const webhookDelivery = async (req: Request, res: Response) => {
     });
 
     if (productos && Array.isArray(productos)) {
+      let totalCalculado = 0;
       for (const item of productos) {
         const producto: any = await Producto.findOne({
-          where: { tenant_id: config.tenant_id, nombre: item.nombre },
+          where: { tenant_id: config.tenant_id, nombre: { [Op.iLike]: item.nombre } },
         });
         if (producto) {
           const cantidad = item.cantidad || 1;
-          const precio = item.precio || producto.precioVenta;
+          const precio = Number(item.precio || producto.precioVenta);
           await DetalleVenta.create({
             tenant_id: config.tenant_id,
             VentaId: venta.id,
@@ -52,15 +54,24 @@ export const webhookDelivery = async (req: Request, res: Response) => {
             subtotal: cantidad * precio,
             estadoComanda: 'pendiente',
           });
-          if (venta.total === 0) venta.total += cantidad * precio;
+          totalCalculado += cantidad * precio;
         }
       }
-      if (venta.total > 0) await venta.save();
+      if (totalCalculado > 0) {
+        venta.total = totalCalculado;
+        await venta.save();
+      }
     }
 
     const io = req.app.get('io');
+    // Emitir Socket.IO
     if (io) {
-      io.to(`tenant:${config.tenant_id}`).emit('nuevo-pedido-delivery', { ventaId: venta.id, app });
+      io.emit('nuevo-pedido-delivery', { ventaId: venta.id, app });
+      // Emitir 'nueva-comanda' para que aparezca en Cocina
+      const ventaCompleta = await Venta.findByPk(venta.id, {
+        include: [{ model: DetalleVenta, include: [Producto] }],
+      });
+      if (ventaCompleta) io.emit('nueva-comanda', ventaCompleta);
     }
 
     res.status(201).json({ message: 'Pedido recibido', ventaId: venta.id });

@@ -1,3 +1,4 @@
+import { useToastStore } from './toast'
 import { defineStore } from 'pinia'
 import api from '../services/api'
 import type { Venta, VentaProductoPayload, MetodoPago } from '../types'
@@ -50,6 +51,18 @@ export const usePedidoStore = defineStore('pedidos', {
       const index = this.pedidos.findIndex((p) => p.id === ventaId)
       if (index !== -1) this.pedidos[index] = data
       return data
+    },
+    async cobrarVenta(ventaId: number, metodoPago: MetodoPago) {
+      const toast = useToastStore()
+      try {
+        const { data } = await api.put(`/ventas/${ventaId}/cobrar`, { metodoPago })
+        const index = this.pedidos.findIndex((p) => p.id === ventaId)
+        if (index !== -1) this.pedidos[index] = data
+        return data
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || error.response?.data?.error || `Error 400: metodoPago="${metodoPago}" no válido`)
+        throw error
+      }
     },
     async cobrarVentaDividida(ventaId: number, pagos: Array<{ metodo: MetodoPago; monto: number }>) {
       const { data } = await api.put(`/ventas/${ventaId}/cobrar`, { pagos })

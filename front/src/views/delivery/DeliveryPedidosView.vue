@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useVentaStore } from '../../stores/ventas'
+import { usePedidoStore } from '../../stores/pedidos'
 import { useToastStore } from '../../stores/toast'
 import { io } from 'socket.io-client'
 
-const ventaStore = useVentaStore()
+const pedidoStore = usePedidoStore()
 const toast = useToastStore()
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000')
 
 const pedidosDelivery = ref<any[]>([])
 
 onMounted(async () => {
-  await ventaStore.fetchVentasAbiertas()
-  pedidosDelivery.value = ventaStore.ventasAbiertas.filter((v: any) => v.tipo === 'delivery')
+  await pedidoStore.fetchPedidos()
+  pedidosDelivery.value = pedidoStore.pedidos.filter((v: any) => v.tipo === 'delivery')
 
-  socket.on('nuevo-pedido-delivery', () => {
-    ventaStore.fetchVentasAbiertas()
+  socket.on('nuevo-pedido-delivery', async () => {
+    await pedidoStore.fetchPedidos()
+    pedidosDelivery.value = pedidoStore.pedidos.filter((v: any) => v.tipo === 'delivery')
     toast.info('¡Nuevo pedido de delivery!')
   })
 })

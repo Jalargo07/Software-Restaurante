@@ -92,14 +92,16 @@ function abrirCobro(venta: any) {
 
 async function confirmarCobro() {
   if (!cobrandoVenta.value) return
+  if (!metodoPago.value) {
+    toast.error('Seleccioná un método de pago')
+    return
+  }
   try {
-    await api.put(`/ventas/${cobrandoVenta.value.id}/cobrar`, { metodoPago: metodoPago.value })
+    await pedidoStore.cobrarVenta(cobrandoVenta.value.id, metodoPago.value as any)
     toast.success('Venta cobrada')
     cobrandoVenta.value = null
     await cargarDatos()
-  } catch {
-    toast.error('Error al cobrar venta')
-  }
+  } catch { /* error ya mostrado por el store */ }
 }
 
 async function cancelarPedido(id: number) {

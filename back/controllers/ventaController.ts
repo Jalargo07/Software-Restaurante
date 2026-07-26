@@ -93,16 +93,30 @@ export const agregarProductos = async (req: Request, res: Response) => {
       }
 
       const precio = item.precioUnitario || Number(producto.precioVenta);
-      const subtotal = item.cantidad * precio;
-      totalAgregado += subtotal;
+      const cantidad = item.cantidad;
 
-      await DetalleVenta.create(withTenant({
-        VentaId: venta.id,
-        ProductoId: item.productoId,
-        cantidad: item.cantidad,
-        precioUnitario: precio,
-        subtotal,
-      }, req.tenantId!));
+      // Buscar si el producto ya existe en la venta
+      const detalleExistente: any = await DetalleVenta.findOne({
+        where: { VentaId: venta.id, ProductoId: item.productoId, tenant_id: req.tenantId! }
+      });
+
+      if (detalleExistente) {
+        const nuevaCantidad = Number(detalleExistente.cantidad) + cantidad;
+        detalleExistente.cantidad = nuevaCantidad;
+        detalleExistente.subtotal = nuevaCantidad * Number(detalleExistente.precioUnitario);
+        await detalleExistente.save();
+        totalAgregado += cantidad * Number(detalleExistente.precioUnitario);
+      } else {
+        const subtotal = cantidad * precio;
+        totalAgregado += subtotal;
+        await DetalleVenta.create(withTenant({
+          VentaId: venta.id,
+          ProductoId: item.productoId,
+          cantidad,
+          precioUnitario: precio,
+          subtotal,
+        }, req.tenantId!));
+      }
     }
 
     await venta.update({ total: Number(venta.total) + totalAgregado });

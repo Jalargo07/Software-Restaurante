@@ -25,7 +25,7 @@ async function guardar() {
       await store.crear(form.value)
       toast.success('Sucursal creada')
     }
-    editando.value = null
+    editando.value = undefined
   } catch { toast.error('Error al guardar') }
 }
 
