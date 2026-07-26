@@ -176,7 +176,7 @@ function isActive(path: string) {
 
     <div class="flex flex-col flex-1 min-w-0">
       <header v-if="authStore.isAuthenticated || saAuthStore.isAuthenticated" class="flex items-center gap-3 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <button v-if="currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" @click="mobileMenuOpen = !mobileMenuOpen">
+        <button v-if="currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" aria-label="Menú de navegación" @click="mobileMenuOpen = !mobileMenuOpen">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <img

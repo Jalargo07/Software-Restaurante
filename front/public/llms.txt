@@ -1,0 +1,31 @@
+# BiteOps
+
+Sistema de gestión integral para restaurantes con inventario, ventas, compras, comandas, recetas, caja y branding dinámico. Arquitectura multi-tenant para SaaS.
+
+## Enlaces
+
+- [Landing Page](https://biteops-blush.vercel.app/)
+- [Iniciar Sesión](https://biteops-blush.vercel.app/login)
+- [Menú QR](https://biteops-blush.vercel.app/menu/restaurant-principal)
+- [Documentación / README](https://github.com/Jalargo07/Software-Restaurante)
+
+## Funcionalidades
+
+- Gestión de mesas y pedidos en tiempo real
+- Inventario con tipos (insumo, compuesto, directo) y stock mínimo
+- Recetas con descuento automático de ingredientes y cálculo de merma
+- Compras a proveedores con recepción y Kardex FIFO/PEPS
+- Ventas directa y por mesa con split bill
+- Caja y corte de caja por método de pago
+- Comandas de cocina con WebSockets (Socket.IO)
+- Dashboard estadístico con gráficos Chart.js
+- Branding dinámico por tenant (colores, logo, dark mode)
+- Planes de suscripción (Básico, Pro, Enterprise) con pagos PayPal
+- Menú QR público con 3 estilos de cards
+- PWA offline-ready
+- 2FA con Google Authenticator para Super Admin
+- Exportación a Excel de ventas, compras y auditoría
+
+## Stack
+
+Vue 3, TypeScript, Pinia, Tailwind CSS, Express 5, Sequelize, PostgreSQL, Redis, Socket.IO, Docker, Vercel

@@ -27,7 +27,7 @@ function scrollTo(selector: string) {
           </RouterLink>
         </nav>
 
-        <button class="md:hidden p-2 text-gray-600 dark:text-gray-300" @click="mobileOpen = !mobileOpen">
+        <button class="md:hidden p-2 text-gray-600 dark:text-gray-300" aria-label="Menú de navegación" @click="mobileOpen = !mobileOpen">
           <svg v-if="!mobileOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
