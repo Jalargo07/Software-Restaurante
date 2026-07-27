@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { LandingPlan } from '../../types'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import type { LandingPlan, ModulosSeleccionados } from '../../types'
+import { calcularPrecio } from '../../composables/useCalculadoraPrecios'
+
+const router = useRouter()
 
 const props = withDefaults(defineProps<{ data?: { titulo: string; subtitulo: string; planes: LandingPlan[] } }>(), {
   data: () => ({
@@ -13,12 +18,30 @@ const props = withDefaults(defineProps<{ data?: { titulo: string; subtitulo: str
   }),
 })
 
+const showCustom = ref(false)
+const modulos = ref<ModulosSeleccionados>({
+  pos: 'rapido',
+  mesas: '0',
+  usuarios: '1',
+  inventario: 'basico',
+  delivery: 'no',
+  menuQr: 'no',
+  reportes: 'basico',
+  multiSucursal: 'no',
+})
+const precioCustom = computed(() => calcularPrecio(modulos.value))
+
 function formatPrecio(n: number) {
   return '$' + n.toLocaleString('es-CL')
 }
 
 function contratar(planId: string) {
   window.location.href = `/checkout/${planId}`
+}
+
+function contratarCustom() {
+  const encoded = encodeURIComponent(JSON.stringify(modulos.value))
+  router.push('/checkout/custom?modulos=' + encoded + '&precio=' + precioCustom.value)
 }
 </script>
 
@@ -50,6 +73,124 @@ function contratar(planId: string) {
             class="w-full py-3 rounded-xl font-semibold text-sm transition-all"
             :class="plan.destacado ? 'bg-[var(--color-primario)] text-white hover:brightness-90' : 'border-2 border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white'">
             Adquirir {{ plan.nombre }}
+          </button>
+        </div>
+      </div>
+
+      <div class="text-center mt-12 mb-6">
+        <button @click="showCustom = !showCustom" class="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold text-lg">
+          {{ showCustom ? 'Ocultar' : 'O armá tu plan personalizado →' }}
+        </button>
+      </div>
+
+      <div v-if="showCustom" class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Armá tu plan</h3>
+
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Punto de Venta (POS)</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'rapido',l:'Solo rápido'},{v:'mesas',l:'Solo mesas'},{v:'ambos',l:'Rápido + Mesas'}]" :key="opt.v"
+                @click="modulos.pos = opt.v"
+                :class="modulos.pos === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mesas</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'0',l:'0'},{v:'5',l:'5'},{v:'10',l:'10'},{v:'20',l:'20'},{v:'ilimitado',l:'∞'}]" :key="opt.v"
+                @click="modulos.mesas = opt.v"
+                :class="modulos.mesas === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Usuarios</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'1',l:'1'},{v:'3',l:'3'},{v:'5',l:'5'},{v:'10',l:'10'},{v:'ilimitado',l:'∞'}]" :key="opt.v"
+                @click="modulos.usuarios = opt.v"
+                :class="modulos.usuarios === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Inventario</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'basico',l:'Básico'},{v:'avanzado',l:'Avanzado (+Kardex)'}]" :key="opt.v"
+                @click="modulos.inventario = opt.v"
+                :class="modulos.inventario === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Delivery</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'no',l:'No'},{v:'si',l:'Sí'}]" :key="opt.v"
+                @click="modulos.delivery = opt.v"
+                :class="modulos.delivery === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Menú QR Digital</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'no',l:'No'},{v:'si',l:'Sí'}]" :key="opt.v"
+                @click="modulos.menuQr = opt.v"
+                :class="modulos.menuQr === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Reportes</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'basico',l:'Básico'},{v:'avanzado',l:'Avanzado (+P&L)'}]" :key="opt.v"
+                @click="modulos.reportes = opt.v"
+                :class="modulos.reportes === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Multi-sucursal</label>
+            <div class="flex gap-2 flex-wrap">
+              <button v-for="opt in [{v:'no',l:'No'},{v:'si',l:'Sí'}]" :key="opt.v"
+                @click="modulos.multiSucursal = opt.v"
+                :class="modulos.multiSucursal === opt.v ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+          <p class="text-sm text-gray-500 dark:text-gray-400">Precio mensual estimado</p>
+          <p class="text-4xl font-extrabold text-gray-900 dark:text-white mt-1">${{ precioCustom.toLocaleString('es-CL') }}</p>
+          <p class="text-xs text-gray-400 mt-1">+ impuestos aplicables</p>
+          <button @click="contratarCustom"
+            class="mt-4 w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors text-lg">
+            Contratar plan personalizado
           </button>
         </div>
       </div>

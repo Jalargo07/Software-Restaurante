@@ -1,6 +1,28 @@
 import { Request, Response } from 'express';
 import { Transaccion, Tenant } from '../models';
 
+export const PRECIOS_MODULOS = {
+  pos: { rapido: 0, mesas: 5000, ambos: 10000 },
+  mesas: { '0': 0, '5': 10000, '10': 15000, '20': 25000, ilimitado: 40000 },
+  usuarios: { '1': 0, '3': 5000, '5': 10000, '10': 20000, ilimitado: 35000 },
+  inventario: { basico: 0, avanzado: 8000 },
+  delivery: { no: 0, si: 10000 },
+  menuQr: { no: 0, si: 5000 },
+  reportes: { basico: 0, avanzado: 5000 },
+  multiSucursal: { no: 0, si: 10000 },
+}
+
+export function calcularPrecioCustom(modulos: any): number {
+  let total = 0
+  for (const [modulo, valor] of Object.entries(modulos)) {
+    const precios = (PRECIOS_MODULOS as any)[modulo]
+    if (precios && (precios as any)[valor as string] !== undefined) {
+      total += (precios as any)[valor as string]
+    }
+  }
+  return total + 15000
+}
+
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || '';
 const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || '';
 const PAYPAL_API = process.env.PAYPAL_MODE === 'live'
@@ -28,11 +50,20 @@ async function getAccessToken(): Promise<string> {
 
 export const crearOrden = async (req: Request, res: Response) => {
   try {
-    const { plan } = req.body;
-    if (!plan || !PRECIOS[plan]) return res.status(400).json({ error: 'Plan inválido' });
+    const { plan, modulos } = req.body;
+    let monto: number;
+
+    if (plan === 'custom') {
+      if (!modulos || typeof modulos !== 'object') {
+        return res.status(400).json({ error: 'Módulos requeridos para plan custom' });
+      }
+      monto = calcularPrecioCustom(modulos);
+    } else {
+      if (!plan || !PRECIOS[plan]) return res.status(400).json({ error: 'Plan inválido' });
+      monto = PRECIOS[plan];
+    }
 
     const accessToken = await getAccessToken();
-    const monto = PRECIOS[plan];
 
     const response = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: 'POST',
@@ -44,7 +75,7 @@ export const crearOrden = async (req: Request, res: Response) => {
         intent: 'CAPTURE',
         purchase_units: [{
           amount: { currency_code: 'USD', value: (monto / 1000).toFixed(2) },
-          description: `Plan ${plan.toUpperCase()} - BiteOps`,
+          description: plan === 'custom' ? 'Plan CUSTOM - BiteOps' : `Plan ${plan.toUpperCase()} - BiteOps`,
         }],
       }),
     });
@@ -59,6 +90,7 @@ export const crearOrden = async (req: Request, res: Response) => {
     const transaccion: any = await Transaccion.create({
       tenant_id: req.tenantId,
       plan,
+      modulos: plan === 'custom' ? modulos : null,
       monto,
       moneda: 'CLP',
       estado: 'pendiente',
@@ -108,6 +140,9 @@ export const capturarOrden = async (req: Request, res: Response) => {
         const tenant: any = await Tenant.findByPk(transaccion.tenant_id);
         if (tenant) {
           tenant.plan = transaccion.plan;
+          if (transaccion.plan === 'custom' && transaccion.modulos) {
+            tenant.modulos = transaccion.modulos;
+          }
           await tenant.save();
         }
       }

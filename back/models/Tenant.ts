@@ -26,9 +26,13 @@ const Tenant = sequelize.define('Tenant', {
     allowNull: false,
   },
   plan: {
-    type: DataTypes.ENUM('basico', 'pro', 'enterprise'),
+    type: DataTypes.STRING,
     defaultValue: 'basico',
     allowNull: false,
+  },
+  modulos: {
+    type: DataTypes.JSON,
+    allowNull: true,
   },
 }, {
   tableName: 'Tenants',

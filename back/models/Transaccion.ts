@@ -4,7 +4,8 @@ import sequelize from '../config/database';
 const Transaccion = sequelize.define('Transaccion', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   tenant_id: { type: DataTypes.INTEGER, allowNull: false },
-  plan: { type: DataTypes.ENUM('basico', 'pro', 'enterprise'), allowNull: false },
+  plan: { type: DataTypes.STRING, allowNull: false },
+  modulos: { type: DataTypes.JSON, allowNull: true },
   monto: { type: DataTypes.FLOAT, allowNull: false },
   moneda: { type: DataTypes.STRING, defaultValue: 'CLP' },
   estado: { type: DataTypes.ENUM('pendiente', 'completado', 'fallido', 'reembolsado'), defaultValue: 'pendiente' },

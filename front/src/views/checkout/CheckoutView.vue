@@ -13,6 +13,8 @@ const toast = useToastStore()
 const planId = route.params.plan as string
 const loading = ref(false)
 const orderId = ref('')
+const customModulos = ref('')
+const customPrecio = ref(0)
 
 const planes: Record<string, { nombre: string; precio: number; comision: string; features: string[] }> = {
   basico: { nombre: 'Básico', precio: 39900, comision: '0,7%', features: ['POS en la nube', 'Menú QR Digital', 'Dashboard', 'Control de stock básico'] },
@@ -20,10 +22,19 @@ const planes: Record<string, { nombre: string; precio: number; comision: string;
   enterprise: { nombre: 'Enterprise', precio: 179900, comision: '0,35%', features: ['Todo lo de Pro', 'Usuarios ilimitados', 'API Ventas/Compras', 'Multi-sucursal', 'Soporte prioritario'] },
 }
 
-const plan = computed(() => planes[planId])
+const plan = computed(() => {
+  if (planId === 'custom') {
+    return { nombre: 'Plan Personalizado', precio: customPrecio.value, comision: '0,5%', features: ['Módulos seleccionados a medida'] }
+  }
+  return planes[planId]
+})
 const paypalReady = ref(false)
 
 onMounted(() => {
+  if (planId === 'custom') {
+    customModulos.value = route.query.modulos as string || '{}'
+    customPrecio.value = Number(route.query.precio) || 0
+  }
   if (!plan.value) return
   if (!authStore.isAuthenticated) {
     router.push('/login')

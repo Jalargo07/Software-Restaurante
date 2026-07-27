@@ -522,3 +522,21 @@ export interface DeliverySimularPayload {
   app: DeliveryApp
   productos: Array<{ nombre: string; cantidad: number; precio?: number }>
 }
+
+// ─── Arma tu plan Types ────────────────────────────────
+
+export type ModuloPOS = 'rapido' | 'mesas' | 'ambos'
+export type ModuloCantidad = '0' | '1' | '3' | '5' | '10' | '20' | 'ilimitado'
+export type ModuloSiNo = 'si' | 'no'
+export type ModuloNivel = 'basico' | 'avanzado'
+
+export interface ModulosSeleccionados {
+  pos: ModuloPOS
+  mesas: ModuloCantidad
+  usuarios: ModuloCantidad
+  inventario: ModuloNivel
+  delivery: ModuloSiNo
+  menuQr: ModuloSiNo
+  reportes: ModuloNivel
+  multiSucursal: ModuloSiNo
+}
