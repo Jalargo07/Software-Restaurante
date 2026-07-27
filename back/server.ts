@@ -263,6 +263,9 @@ if (require.main === module) {
   };
   process.on('SIGTERM', shutdown);
   process.on('SIGINT', shutdown);
+  process.on('unhandledRejection', (err) => {
+    console.error('Unhandled rejection (no fatal):', err);
+  });
 }
 
 export default app;
