@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useCompraStore } from '../../stores/compras'
 import ProductoSelector from '../common/ProductoSelector.vue'
 import ProveedorSelector from '../common/ProveedorSelector.vue'
+import EscanerFacturaModal from './EscanerFacturaModal.vue'
+import type { EscaneoFacturaResult } from '../../types'
 
 const props = defineProps<{
   compra?: any
@@ -21,6 +23,7 @@ const observaciones = ref('')
 const detalles = ref<any[]>([])
 const mostrarSelector = ref(false)
 const mostrarProveedorSelector = ref(false)
+const mostrarEscaner = ref(false)
 
 const esEdicion = computed(() => !!props.compra)
 
@@ -68,6 +71,23 @@ function quitarDetalle(index: number) {
   detalles.value.splice(index, 1)
 }
 
+function onEscaneoConfirmado(data: EscaneoFacturaResult) {
+  if (data.proveedor.id) {
+    proveedorId.value = data.proveedor.id
+  }
+  if (data.proveedor.nombre) {
+    proveedorNombre.value = data.proveedor.nombre
+  }
+  detalles.value = data.items.map(item => ({
+    productoId: item.productoId || null,
+    nombre: item.nombre,
+    cantidad: item.cantidad,
+    precioUnitario: item.precioUnitario,
+    subtotal: item.cantidad * item.precioUnitario,
+  }))
+  mostrarEscaner.value = false
+}
+
 const total = computed(() => detalles.value.reduce((s, d) => s + d.subtotal, 0))
 
 async function guardar() {
@@ -104,6 +124,11 @@ async function guardar() {
 
 <template>
   <form @submit.prevent="guardar">
+    <div class="flex justify-end mb-2">
+      <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-colors" @click="mostrarEscaner = true">
+        🧾 Escanear factura
+      </button>
+    </div>
     <div class="mb-2">
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proveedor</label>
       <div v-if="!proveedorNombre">
@@ -148,5 +173,6 @@ async function guardar() {
       {{ guardando ? 'Guardando...' : esEdicion ? 'Actualizar Compra' : 'Registrar Compra' }}
     </button>
   </form>
+  <EscanerFacturaModal :visible="mostrarEscaner" @confirmar="onEscaneoConfirmado" @cerrar="mostrarEscaner = false" />
 </template>
 

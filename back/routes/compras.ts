@@ -3,6 +3,7 @@ import * as compraController from '../controllers/compraController';
 import validarCompra from '../middleware/validarCompra';
 import validar from '../middleware/validar';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
+import { uploadFactura } from '../middleware/multerUpload';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.post('/', authenticateToken, authorizeRole('admin'), validarCompra, valid
 router.put('/:id/recibir', authenticateToken, authorizeRole('admin'), compraController.recibir);
 router.put('/:id', authenticateToken, authorizeRole('admin'), compraController.actualizar);
 router.delete('/:id', authenticateToken, authorizeRole('admin'), compraController.cancelar);
+router.post('/escanear', authenticateToken, authorizeRole('admin'), uploadFactura.single('factura'), compraController.escanearFactura);
 
 export default router;

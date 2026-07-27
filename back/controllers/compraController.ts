@@ -5,6 +5,8 @@ import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 import { invalidarCache } from '../utils/cacheInvalidation';
 import { checkLicense } from '../utils/licenseGuard';
+import { escanearOCR } from '../utils/ocrScanner';
+import { parsearFactura } from '../utils/parserIA';
 
 export const obtenerTodas = async (req: Request, res: Response) => {
   try {
@@ -260,6 +262,29 @@ export const actualizar = async (req: Request, res: Response) => {
   } catch (error: any) {
     await t.rollback();
     return res.status(500).json({ error: 'Error al actualizar compra' });
+  }
+};
+
+export const escanearFactura = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Archivo requerido' });
+    }
+
+    const textoOCR = await escanearOCR(req.file.buffer, req.file.mimetype);
+    if (!textoOCR.trim()) {
+      return res.status(422).json({ error: 'No se pudo extraer texto de la factura' });
+    }
+
+    const proveedores = await Proveedor.findAll({ where: { activo: true } });
+    const productos = await Producto.findAll({ where: { activo: true } });
+
+    const resultado = await parsearFactura(textoOCR, proveedores as any, productos as any);
+
+    return res.json(resultado);
+  } catch (error: any) {
+    console.error('Error escaneando factura:', error);
+    return res.status(500).json({ error: error.message || 'Error al escanear factura' });
   }
 };
 

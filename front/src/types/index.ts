@@ -472,6 +472,28 @@ export interface ContactoMensaje {
   createdAt: string
 }
 
+// ─── Escaneo Factura Types ──────────────────────────────
+
+export interface EscaneoItemFactura {
+  nombre: string
+  cantidad: number
+  precioUnitario: number
+  unidad?: string
+  productoId?: number | null
+}
+
+export interface EscaneoProveedorFactura {
+  nombre: string
+  id?: number | null
+  rut?: string
+}
+
+export interface EscaneoFacturaResult {
+  proveedor: EscaneoProveedorFactura
+  fecha: string
+  items: EscaneoItemFactura[]
+}
+
 // ─── Delivery Types ────────────────────────────────────
 
 export type DeliveryApp = 'rappi' | 'uber' | 'pedidosya'
