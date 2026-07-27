@@ -1,5 +1,5 @@
 import Tesseract from 'tesseract.js';
-import * as pdfjs from 'pdfjs-dist';
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 async function extraerTextoPDF(buffer: Buffer): Promise<string> {
   const doc = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
