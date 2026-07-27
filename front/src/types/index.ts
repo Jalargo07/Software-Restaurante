@@ -461,6 +461,17 @@ export interface LandingData {
   footer: LandingFooter
 }
 
+// ─── Contacto Types ────────────────────────────────────
+
+export interface ContactoMensaje {
+  id: number
+  nombre: string
+  email: string
+  mensaje: string
+  leido: boolean
+  createdAt: string
+}
+
 // ─── Delivery Types ────────────────────────────────────
 
 export type DeliveryApp = 'rappi' | 'uber' | 'pedidosya'

@@ -15,6 +15,7 @@ const menuItems = [
   { title: 'Usuarios', desc: 'Gestión de usuarios y accesos', path: '/usuarios', icon: '👥', roles: ['admin'] },
   { title: 'Auditoría', desc: 'Logs y registros del sistema', path: '/auditoria', icon: '📋', roles: ['admin'] },
   { title: 'Branding', desc: 'Configuración de marca y logo', path: '/branding', icon: '🎨', roles: ['admin'] },
+  { title: 'Mensajes', desc: 'Mensajes de contacto recibidos', path: '/admin/mensajes', icon: '✉️', roles: ['admin'] },
 ]
 
 const itemsVisibles = computed(() => {

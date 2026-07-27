@@ -33,6 +33,7 @@ import pagosRoutes from './routes/pagos';
 import landingRoutes, { landingPublicRouter } from './routes/landing';
 import deliveryRoutes, { deliveryPublicRouter } from './routes/delivery';
 import sucursalRoutes from './routes/sucursales';
+import contactoRoutes from './routes/contacto';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin, Sucursal } from './models';
 import superAdminAuthRoutes from './routes/superAdminAuth';
@@ -73,6 +74,8 @@ app.use('/api/public', publicBrandingRoutes);
 app.use('/api/public', menuRoutes);
 app.use('/api/public', landingPublicRouter);
 app.use('/api/delivery', deliveryPublicRouter);
+
+app.use('/api/contacto', contactoRoutes);
 
 app.use('/api/super-admin', superAdminAuthRoutes);
 

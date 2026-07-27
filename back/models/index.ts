@@ -18,6 +18,7 @@ import Transaccion from './Transaccion';
 import LandingContent from './LandingContent';
 import SuperAdmin from './SuperAdmin';
 import DeliveryConfig from './DeliveryConfig';
+import ContactoMensaje from './ContactoMensaje';
 
 // Sucursal -> Models
 Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
@@ -166,4 +167,5 @@ export {
   LandingContent,
   SuperAdmin,
   DeliveryConfig,
+  ContactoMensaje,
 };

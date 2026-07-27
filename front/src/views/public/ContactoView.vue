@@ -2,16 +2,28 @@
 import { ref } from 'vue'
 import PublicHeader from '../../components/public/PublicHeader.vue'
 import FooterSection from '../../components/landing/FooterSection.vue'
+import api from '../../services/api'
+import { useToastStore } from '../../stores/toast'
 
 const nombre = ref('')
 const email = ref('')
 const mensaje = ref('')
+const enviando = ref(false)
+const toast = useToastStore()
 
-function enviarMensaje() {
-  alert('Mensaje enviado correctamente. Te contactaremos pronto.')
-  nombre.value = ''
-  email.value = ''
-  mensaje.value = ''
+async function enviarMensaje() {
+  enviando.value = true
+  try {
+    await api.post('/contacto', { nombre: nombre.value, email: email.value, mensaje: mensaje.value })
+    toast.success('Mensaje enviado correctamente. Te contactaremos pronto.')
+    nombre.value = ''
+    email.value = ''
+    mensaje.value = ''
+  } catch {
+    toast.error('Error al enviar el mensaje. Intentalo de nuevo.')
+  } finally {
+    enviando.value = false
+  }
 }
 </script>
 
@@ -53,9 +65,9 @@ function enviarMensaje() {
                     class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-colors resize-none"
                     placeholder="¿En qué podemos ayudarte?" />
                 </div>
-                <button type="submit"
-                  class="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors">
-                  Enviar Mensaje
+                <button type="submit" :disabled="enviando"
+                  class="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors">
+                  {{ enviando ? 'Enviando...' : 'Enviar Mensaje' }}
                 </button>
               </form>
             </div>
