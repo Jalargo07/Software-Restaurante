@@ -50,3 +50,6 @@ IMAGENES*/
 
 # Generador de licencias (tool dev-only, no subir)
 back/utils/generateLicense.ts
+
+# Imagenes de prueba
+IMAGENES ESTA CARPETA/
