@@ -60,6 +60,23 @@ export const crear = async (req: Request, res: Response) => {
     );
 
     for (const detalle of detalles) {
+      // Si no hay productoId, crear producto automáticamente
+      if (!detalle.productoId) {
+        const nuevoProducto = await Producto.create(
+          withTenant({
+            nombre: detalle.nombre || 'Producto',
+            tipo: 'insumo',
+            precioCompra: detalle.precioUnitario || 0,
+            precioVenta: (detalle.precioUnitario || 0) * 1.3,
+            stock: 0,
+            stockMinimo: 0,
+            unidad: 'unidad',
+            activo: true,
+          }, req.tenantId!),
+          { transaction: t }
+        );
+        detalle.productoId = (nuevoProducto as any).id;
+      }
       await DetalleCompra.create(
         withTenant({
           CompraId: compra.id,

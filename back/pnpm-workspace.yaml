@@ -1,5 +1,6 @@
 allowBuilds:
   esbuild: true
   sqlite3: true
+  tesseract.js: true
 minimumReleaseAgeExclude:
   - '@aws-sdk/client-s3@3.1094.0'
