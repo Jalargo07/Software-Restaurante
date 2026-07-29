@@ -34,21 +34,25 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Frontend (Vercel)                        │
-│  Vue 3 + TypeScript + Pinia + Tailwind CSS + Socket.IO     │
-│  PWA · Vue Router · Chart.js · Axios                       │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ REST API + WebSocket
-┌──────────────────────▼──────────────────────────────────────┐
-│                    Backend (Render)                         │
-│  Node.js + Express 5 + TypeScript + Socket.IO              │
-│  JWT Auth · Roles · Redis Cache · Multer                   │
-└──────┬──────────────┬──────────────┬────────────────────────┘
-       │              │              │
-┌──────▼──────┐ ┌─────▼──────┐ ┌────▼──────────┐
-│ PostgreSQL  │ │   Redis    │ │ Cloudflare R2 │
-│ (Supabase)  │ │ (Upstash)  │ │ (S3 Images)   │
-└─────────────┘ └────────────┘ └───────────────┘
+  │                    FRONTEND (Vercel)                        │
+  │  Vue 3 · TypeScript · Pinia · Tailwind CSS · Socket.io      │
+  │  PWA · Vue Router · Chart.js · Axios                        │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │ REST API & WebSockets
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                    BACKEND (Render)                         │
+  │  Node.js · Express 5 · TypeScript · Socket.io               │
+  │  JWT Auth · RBAC · Redis Cache · Multer                     │
+  └──────┬───────────────────────┼───────────────────────┬──────┘
+         │                       │                       │
+         │ PostgreSQL            │ Caching               │ S3 / Storage
+         ▼                       ▼                       ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│    DATABASE     │     │      CACHE      │     │  MEDIA STORAGE  │
+│    Supabase     │     │     Upstash     │     │  Cloudflare R2  │
+│  (PostgreSQL)   │     │     (Redis)     │     │   (S3 Images)   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
 ### Multi-tenant Design
