@@ -50,7 +50,19 @@ export const obtenerPorId = async (req: Request, res: Response) => {
 export const crear = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
-    const { proveedorId, observaciones, detalles } = req.body;
+    let { proveedorId, observaciones, detalles } = req.body;
+
+    // Si no hay proveedorId pero hay nombre, crear proveedor automáticamente
+    if (!proveedorId && req.body.proveedorNombre) {
+      const nuevoProveedor = await Proveedor.create(
+        withTenant({
+          nombre: req.body.proveedorNombre,
+          activo: true,
+        }, req.tenantId!),
+        { transaction: t }
+      );
+      proveedorId = (nuevoProveedor as any).id;
+    }
 
     const total = detalles.reduce((sum: number, d: any) => sum + d.cantidad * d.precioUnitario, 0);
 

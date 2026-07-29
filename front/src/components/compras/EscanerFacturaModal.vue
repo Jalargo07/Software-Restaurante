@@ -13,7 +13,6 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const productosDB = ref<{ id: number; nombre: string; tipo: string }[]>([])
 const searchText = ref<Record<number, string>>({})
 const showDropdown = ref<Record<number, boolean>>({})
-const activeIndex = ref<number | null>(null)
 
 onMounted(async () => {
   try {
@@ -35,11 +34,8 @@ function seleccionarProducto(item: any, prod: { id: number; nombre: string }) {
   showDropdown.value[resultado.value.items.indexOf(item)] = false
 }
 
-function editarProducto(item: any, i: number) {
-  item.nombre = item.nombre
-  item.productoId = null
-  searchText.value[i] = item.nombre
-  showDropdown.value[i] = true
+function cerrarDropdown(i: number) {
+  setTimeout(() => { showDropdown.value[i] = false }, 300)
 }
 
 async function subirArchivo(e: Event) {
@@ -123,7 +119,7 @@ function confirmar() {
                   <tr v-for="(item, i) in resultado.items" :key="i" class="border-b border-gray-100 dark:border-gray-800 relative">
                     <td class="py-1 px-2 relative">
                       <div class="flex items-center gap-1">
-                        <input v-model="item.nombre" @input="item.productoId = null; searchText[i] = item.nombre" @focus="showDropdown[i] = true" @blur="setTimeout(() => showDropdown[i] = false, 300)"
+                        <input v-model="item.nombre" @input="item.productoId = null; searchText[i] = item.nombre" @focus="showDropdown[i] = true" @blur="cerrarDropdown(i)"
                           class="flex-1 px-2 py-1 rounded border text-sm"
                           :class="item.productoId ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-orange-300 bg-orange-50 dark:bg-orange-900/20'">
                         <span v-if="!item.productoId && item.nombre" class="text-[10px] font-semibold text-orange-600 dark:text-orange-400 whitespace-nowrap bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded">Nuevo</span>

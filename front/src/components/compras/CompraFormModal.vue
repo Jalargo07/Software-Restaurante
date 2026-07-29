@@ -105,7 +105,8 @@ async function guardar() {
       })
     } else {
       await compraStore.createCompra({
-        proveedorId: proveedorId.value!,
+        proveedorId: proveedorId.value || undefined,
+        proveedorNombre: proveedorNombre.value || undefined,
         observaciones: observaciones.value || undefined,
         detalles: detalles.value.map((d) => ({
           productoId: d.productoId,
