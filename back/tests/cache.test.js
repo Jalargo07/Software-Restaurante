@@ -36,7 +36,7 @@ require.cache[redisPath] = {
 delete require.cache[cachePath];
 delete require.cache[invalidationPath];
 
-const cacheMiddleware = require('../dist/middleware/cache');
+const { cacheMiddleware } = require('../dist/middleware/cache');
 const { invalidarCache } = require('../dist/utils/cacheInvalidation');
 const redisExports = require('../dist/config/redis');
 

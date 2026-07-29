@@ -23,9 +23,10 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const tenant: any = await Tenant.findByPk(usuario.tenant_id, { attributes: ['plan'] });
     const plan = tenant?.plan || 'basico';
 
+    const jwtSecret = process.env.JWT_SECRET || 'dev-secret';
     const token = jwt.sign(
       { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan },
-      process.env.JWT_SECRET!,
+      jwtSecret,
       { expiresIn: '24h' }
     );
 

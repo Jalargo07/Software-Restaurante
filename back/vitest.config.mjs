@@ -8,6 +8,7 @@ export default defineConfig({
     fileParallelism: false,
     env: {
       NODE_ENV: 'test',
+      JWT_SECRET: 'dev-secret',
     },
   },
 });
