@@ -8,6 +8,7 @@
   <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/github/actions/workflow/status/Jalargo07/Software-Restaurante/ci.yml?branch=main&label=CI&logo=github" alt="CI" />
 </p>
 
 **Full-stack SaaS restaurant management system.** Built with Vue 3, Node.js, TypeScript, and PostgreSQL. Architecture designed for multi-tenancy with modular sprint-based development.
