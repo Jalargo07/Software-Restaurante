@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import path from 'path';
 import fs from 'fs';
+import settings from './settings';
 
 let sequelize: Sequelize;
 
@@ -24,10 +25,10 @@ if (process.env.NODE_ENV === 'test') {
       ssl: process.env.NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
     },
     pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
+      max: settings.db.pool.max,
+      min: settings.db.pool.min,
+      acquire: settings.db.pool.acquire,
+      idle: settings.db.pool.idle,
     },
   });
 } else if (process.env.DB_DIALECT === 'postgres') {
@@ -47,10 +48,10 @@ if (process.env.NODE_ENV === 'test') {
         ssl: process.env.NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
       },
       pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
+        max: settings.db.pool.max,
+        min: settings.db.pool.min,
+        acquire: settings.db.pool.acquire,
+        idle: settings.db.pool.idle,
       },
     }
   );

@@ -20,6 +20,12 @@ const settings = {
   db: {
     synchronize: env !== 'production', // sync({ alter: true }) solo en dev/test
     logging: env === 'development',
+    pool: {
+      max: parseInt(process.env.DB_POOL_MAX || (env === 'production' ? '20' : '5'), 10),
+      min: parseInt(process.env.DB_POOL_MIN || '2', 10),
+      acquire: parseInt(process.env.DB_POOL_ACQUIRE || '30000', 10),
+      idle: parseInt(process.env.DB_POOL_IDLE || '10000', 10),
+    },
   },
 
   seed: {
