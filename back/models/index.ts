@@ -27,6 +27,7 @@ import OnboardingProgress from './OnboardingProgress';
 import { PagoMercadoPago } from './PagoMercadoPago';
 import WhatsAppTemplate from './WhatsAppTemplate';
 import NotificationLog from './NotificationLog';
+import { CogsConfig } from './CogsConfig';
 
 // Sucursal -> Models
 Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
@@ -83,6 +84,10 @@ Auditoria.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 // Tenant -> TenantConfig (1:1)
 Tenant.hasOne(TenantConfig, { foreignKey: 'tenant_id', onDelete: 'CASCADE' });
 TenantConfig.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
+// Tenant -> CogsConfig (1:1)
+Tenant.hasOne(CogsConfig, { foreignKey: 'tenantId', onDelete: 'CASCADE' });
+CogsConfig.belongsTo(Tenant, { foreignKey: 'tenantId' });
 
 // Compra -> DetalleCompra
 Compra.hasMany(DetalleCompra, { foreignKey: 'CompraId' });
@@ -226,4 +231,5 @@ export {
   PagoMercadoPago,
   WhatsAppTemplate,
   NotificationLog,
+  CogsConfig,
 };
