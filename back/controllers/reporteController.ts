@@ -356,3 +356,50 @@ export const obtenerForecastHandler = async (req: Request, res: Response, next: 
     next(error);
   }
 };
+
+export const obtenerHeatmap = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { productoId } = req.query;
+
+    const { DetalleVenta, Venta } = await import('../models');
+
+    const where: any = {
+      tenantId: req.tenantId
+    };
+
+    if (productoId) {
+      where.productoId = parseInt(productoId as string);
+    }
+
+    const detalles = await DetalleVenta.findAll({
+      where,
+      include: [{
+        model: Venta,
+        where: { estado: 'cerrada', tenantId: req.tenantId },
+        required: true
+      }]
+    });
+
+    const matrix: number[][] = Array.from({ length: 7 }, () => Array(17).fill(0));
+
+    for (const detalle of detalles) {
+      const d = detalle as any;
+      const venta = d.Venta;
+      const hora = new Date(venta.createdAt).getHours();
+      const dia = new Date(venta.createdAt).getDay();
+
+      if (hora >= 6 && hora <= 22) {
+        matrix[dia][hora - 6] += d.cantidad;
+      }
+    }
+
+    res.json({
+      ok: true,
+      horas: Array.from({ length: 17 }, (_, i) => i + 6),
+      dias: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+      matrix
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -10,7 +10,20 @@ export const useReporteStore = defineStore('reportes', {
     gananciaBruta: [] as GananciaBruta[],
     productosMasVendidos: [] as ProductoMasVendido[],
     comprasMes: { total: 0, cantidad: 0 } as ResumenCaja,
+    cogs: {
+      totalVentas: 0,
+      totalCostos: 0,
+      cogsPorcentaje: 0,
+      gananciaBruta: 0,
+      margenPorcentaje: 0,
+    },
+    heatmap: {
+      horas: [] as number[],
+      dias: [] as string[],
+      matrix: [] as number[][],
+    },
     loading: false,
+    error: null as string | null,
     exportando: false,
     filtroPeriodo: 'hoy' as 'hoy' | '7dias' | '30dias' | 'mes' | 'personalizado',
     fechaDesde: '',
@@ -43,6 +56,7 @@ export const useReporteStore = defineStore('reportes', {
         this.productosMasVendidos = pmv.data
         this.comprasMes = cm.data
         this.gananciaBruta = gb.data
+        this.fetchCOGS(params?.fechaDesde, params?.fechaHasta)
       } finally {
         this.loading = false
       }
@@ -60,6 +74,30 @@ export const useReporteStore = defineStore('reportes', {
         this.gananciaBruta = data
       } catch (error) {
         console.error('Error fetching ganancia bruta:', error)
+      }
+    },
+    async fetchCOGS(fechaDesde?: string, fechaHasta?: string) {
+      this.loading = true
+      try {
+        const params = new URLSearchParams()
+        if (fechaDesde) params.append('fechaDesde', fechaDesde)
+        if (fechaHasta) params.append('fechaHasta', fechaHasta)
+        const { data } = await api.get(`/reportes/cogs?${params.toString()}`)
+        this.cogs = data
+      } catch (error: any) {
+        this.error = error.message
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchHeatmap(productoId?: string | number) {
+      try {
+        const params = new URLSearchParams()
+        if (productoId) params.append('productoId', productoId.toString())
+        const { data } = await api.get(`/reportes/heatmap?${params.toString()}`)
+        this.heatmap = data
+      } catch (error: any) {
+        this.error = error.message
       }
     },
     async exportarVentasExcel(fechaDesde?: string, fechaHasta?: string) {

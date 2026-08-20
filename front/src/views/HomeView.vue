@@ -9,6 +9,8 @@ import VentasPorDiaChart from '../components/common/chart-VentasPorDia.vue'
 import GananciaBrutaChart from '../components/common/chart-GananciaBruta.vue'
 import MesasChart from '../components/common/chart-Mesas.vue'
 import TopProductosChart from '../components/common/chart-TopProductos.vue'
+import ChartCOGS from '../components/common/chart-COGS.vue'
+import ProductHeatmap from '../components/dashboard/ProductHeatmap.vue'
 import PeriodoFilterButton from '../components/dashboard/PeriodoFilterButton.vue'
 import StatCard from '../components/dashboard/StatCard.vue'
 import MiniStatCard from '../components/dashboard/MiniStatCard.vue'
@@ -144,6 +146,8 @@ async function cargarDatos() {
   } else {
     cambiarPeriodo('hoy')
   }
+
+  reporteStore.fetchHeatmap()
   } finally {
     cargandoDatos = false
   }
@@ -386,6 +390,23 @@ function irAInventario() {
             <div class="h-[300px]">
               <TopProductosChart :data="reporteStore.productosMasVendidos" />
             </div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+          <div class="pt-4 px-4 flex justify-between items-center">
+            <ChartHeader icon-color="red" titulo="COGS Real-Time" descripcion="Costo de Goods Sold y margen de ganancia">
+              <template #icon><BarChart3 :size="18" /></template>
+            </ChartHeader>
+          </div>
+          <div class="px-4 pb-4">
+            <ChartCOGS :data="reporteStore.cogs" />
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm xl:col-span-2">
+          <div class="px-4 pb-4">
+            <ProductHeatmap :data="reporteStore.heatmap" />
           </div>
         </div>
       </div>

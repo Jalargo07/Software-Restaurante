@@ -584,7 +584,7 @@ Mes 5 (Sprint 50-52):
 | 20 | ✅ Completada | 19/08/2026 |
 | 21 | ⬜ Pendiente | - |
 | 22 | ⬜ Pendiente | - |
-| 23 | ⬜ Pendiente | - |
+| 23 | ✅ Completada | 19/08/2026 |
 | 24 | ⬜ Pendiente | - |
 
 **Completado:** 20/24 (83%)
