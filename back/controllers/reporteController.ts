@@ -292,7 +292,7 @@ export const obtenerCOGS = async (req: Request, res: Response, next: NextFunctio
     const { fechaDesde, fechaHasta } = req.query;
 
     const whereVenta: any = {
-      tenantId: req.tenantId,
+      tenant_id: req.tenantId,
       estado: 'cerrada'
     };
 
@@ -366,7 +366,7 @@ export const obtenerHeatmap = async (req: Request, res: Response, next: NextFunc
     const { DetalleVenta, Venta } = await import('../models');
 
     const where: any = {
-      tenantId: req.tenantId
+      tenant_id: req.tenantId
     };
 
     if (productoId) {
