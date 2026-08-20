@@ -12,16 +12,24 @@ import TestimonialsSection from '../../components/landing/TestimonialsSection.vu
 import CtaSection from '../../components/landing/CtaSection.vue'
 import FooterSection from '../../components/landing/FooterSection.vue'
 import { useScrollAnimation } from '../../composables/useScrollAnimation'
+import { useToastStore } from '../../stores/toast'
 
 const data = ref<LandingData | null>(null)
 const loading = ref(true)
+const toast = useToastStore()
 
 useScrollAnimation()
 
 onMounted(async () => {
   document.documentElement.setAttribute('data-theme', 'light')
+
+  const timeout = setTimeout(() => {
+    toast.warning('El servidor está iniciando, por favor espere 15s antes de recargar la página')
+  }, 3000)
+
   try {
     const resp = await api.get('/public/landing')
+    clearTimeout(timeout)
     if (resp.data?.hero) {
       data.value = resp.data as LandingData
     }
