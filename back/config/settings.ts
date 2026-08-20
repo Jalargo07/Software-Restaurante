@@ -56,4 +56,10 @@ export const settings = {
     accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '',
     webhookSecret: process.env.MERCADOPAGO_WEBHOOK_SECRET || ''
   },
+
+  whatsapp: {
+    accessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
+    businessPhone: process.env.WHATSAPP_BUSINESS_PHONE || '',
+    apiVersion: process.env.WHATSAPP_API_VERSION || 'v18.0'
+  },
 } as const;

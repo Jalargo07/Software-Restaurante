@@ -23,6 +23,8 @@ import SessionActiva from './SessionActiva';
 import RefreshToken from './RefreshToken';
 import OnboardingProgress from './OnboardingProgress';
 import { PagoMercadoPago } from './PagoMercadoPago';
+import WhatsAppTemplate from './WhatsAppTemplate';
+import NotificationLog from './NotificationLog';
 
 // Sucursal -> Models
 Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
@@ -170,6 +172,14 @@ PagoMercadoPago.belongsTo(Tenant, { foreignKey: 'tenantId' });
 Venta.hasMany(PagoMercadoPago, { foreignKey: 'ventaId' });
 PagoMercadoPago.belongsTo(Venta, { foreignKey: 'ventaId' });
 
+// WhatsAppTemplate -> Tenant
+Tenant.hasMany(WhatsAppTemplate, { foreignKey: 'tenantId' });
+WhatsAppTemplate.belongsTo(Tenant, { foreignKey: 'tenantId' });
+
+// NotificationLog -> Tenant
+Tenant.hasMany(NotificationLog, { foreignKey: 'tenantId' });
+NotificationLog.belongsTo(Tenant, { foreignKey: 'tenantId' });
+
 export {
   Tenant,
   Sucursal,
@@ -196,4 +206,6 @@ export {
   RefreshToken,
   OnboardingProgress,
   PagoMercadoPago,
+  WhatsAppTemplate,
+  NotificationLog,
 };

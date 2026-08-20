@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Venta, DetalleVenta, Producto, Mesa } from '../models';
 import { Op } from 'sequelize';
 import { scopeTenant, belongsToTenant } from '../utils/tenantScope';
+import { enviarNotificacionPedidoListo } from '../services/whatsappClient';
 
 export const obtenerComandas = async (req: Request, res: Response) => {
   try {
@@ -53,6 +54,10 @@ export const actualizarEstado = async (req: Request, res: Response) => {
 
     const io = req.app.get('io');
     if (io) io.to(`tenant:${req.tenantId}`).emit('comanda-actualizada', venta);
+
+    if (estadoComanda === 'listo' && venta.clienteTelefono) {
+      enviarNotificacionPedidoListo(req.tenantId!, venta.clienteTelefono, venta.id.toString()).catch(() => {});
+    }
   } catch (error: any) {
     return res.status(500).json({ error: 'Error al actualizar comanda' });
   }
