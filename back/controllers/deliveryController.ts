@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { Op } from 'sequelize';
-import { Venta, DetalleVenta, Producto, DeliveryConfig, Tenant } from '../models';
+import { Venta, DetalleVenta, Producto, DeliveryConfig, Tenant, DeliveryOrder } from '../models';
+import { parseRappiWebhook, parseUberEatsWebhook, crearDeliveryOrder } from '../services/deliveryWebhookParser';
 
 export const webhookDelivery = async (req: Request, res: Response) => {
   try {
@@ -23,11 +24,25 @@ export const webhookDelivery = async (req: Request, res: Response) => {
       if (signature !== expected) return res.status(401).json({ error: 'Firma inválida' });
     }
 
+    let normalized: any;
+    if (app === 'rappi') {
+      normalized = await parseRappiWebhook(req.body);
+    } else if (app === 'uber') {
+      normalized = await parseUberEatsWebhook(req.body);
+    }
+
     const { pedidoId, cliente, productos, direccion, telefono, total } = req.body;
 
+    // Crear DeliveryOrder si tenemos parsing normalizado
+    let deliveryOrder: any = null;
+    if (normalized) {
+      deliveryOrder = await crearDeliveryOrder(config.tenant_id, normalized);
+    }
+
     // Validar stock antes de crear
-    if (productos && Array.isArray(productos)) {
-      for (const item of productos) {
+    const itemsToValidate = productos || (normalized?.items?.map((i: any) => ({ nombre: i.name, cantidad: i.quantity })) || []);
+    if (itemsToValidate.length > 0) {
+      for (const item of itemsToValidate) {
         const prod: any = await Producto.findOne({
           where: { tenant_id: config.tenant_id, nombre: { [Op.iLike]: item.nombre } },
         });
@@ -50,17 +65,24 @@ export const webhookDelivery = async (req: Request, res: Response) => {
       tenant_id: config.tenant_id,
       tipo: 'delivery',
       deliveryApp: app,
-      deliveryPedidoId: pedidoId || null,
-      direccionEntrega: direccion || null,
-      clienteTelefono: telefono || null,
+      deliveryPedidoId: pedidoId || normalized?.partnerOrderId || null,
+      direccionEntrega: direccion || normalized?.deliveryAddress || null,
+      clienteTelefono: telefono || normalized?.customerPhone || null,
       estado: 'abierta',
-      total: total || 0,
+      total: total || normalized?.total || 0,
     });
 
+    // Vincular DeliveryOrder con Venta si existe
+    if (deliveryOrder) {
+      deliveryOrder.ventaId = venta.id;
+      await deliveryOrder.save();
+    }
+
     // Crear DetalleVenta y calcular total
-    if (productos && Array.isArray(productos)) {
+    const productosToProcess = productos || (normalized?.items?.map((i: any) => ({ nombre: i.name, cantidad: i.quantity, precio: i.price })) || []);
+    if (productosToProcess.length > 0) {
       let totalCalculado = 0;
-      for (const item of productos) {
+      for (const item of productosToProcess) {
         const producto: any = await Producto.findOne({
           where: { tenant_id: config.tenant_id, nombre: { [Op.iLike]: item.nombre } },
         });
@@ -95,7 +117,7 @@ export const webhookDelivery = async (req: Request, res: Response) => {
       if (ventaCompleta) io.to(`tenant:${config.tenant_id}`).emit('nueva-comanda', ventaCompleta);
     }
 
-    res.status(201).json({ message: 'Pedido recibido', ventaId: venta.id });
+    res.status(201).json({ message: 'Pedido recibido', ventaId: venta.id, deliveryOrderId: deliveryOrder?.id });
   } catch (error: any) {
     console.error('Error en webhookDelivery:', error);
     res.status(500).json({ error: 'Error al procesar webhook' });
@@ -132,3 +154,49 @@ export const simularPedido = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al simular pedido' });
   }
 };
+
+export async function actualizarEstadoDelivery(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const order: any = await DeliveryOrder.findByPk(orderId as string);
+    if (!order) {
+      return res.status(404).json({ error: 'Orden de delivery no encontrada' });
+    }
+
+    order.status = status;
+    await order.save();
+
+    if (order.ventaId) {
+      await Venta.update(
+        { estado: status === 'delivered' ? 'cerrada' : 'abierta' },
+        { where: { id: order.ventaId } }
+      );
+    }
+
+    res.json({ ok: true, order });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function listarDeliveryOrders(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { tenantId } = req as any;
+    const { status, partner } = req.query;
+
+    const where: any = { tenantId };
+    if (status) where.status = status;
+    if (partner) where.partner = partner;
+
+    const orders = await DeliveryOrder.findAll({
+      where,
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+}

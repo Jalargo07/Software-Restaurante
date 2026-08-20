@@ -18,6 +18,8 @@ import Transaccion from './Transaccion';
 import LandingContent from './LandingContent';
 import SuperAdmin from './SuperAdmin';
 import DeliveryConfig from './DeliveryConfig';
+import DeliveryPartner from './DeliveryPartner';
+import DeliveryOrder from './DeliveryOrder';
 import ContactoMensaje from './ContactoMensaje';
 import SessionActiva from './SessionActiva';
 import RefreshToken from './RefreshToken';
@@ -152,6 +154,20 @@ Transaccion.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 Tenant.hasMany(DeliveryConfig, { foreignKey: 'tenant_id' });
 DeliveryConfig.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
+// DeliveryPartner
+Tenant.hasMany(DeliveryPartner, { foreignKey: 'tenantId' });
+DeliveryPartner.belongsTo(Tenant, { foreignKey: 'tenantId' });
+
+// DeliveryOrder
+Tenant.hasMany(DeliveryOrder, { foreignKey: 'tenantId' });
+DeliveryOrder.belongsTo(Tenant, { foreignKey: 'tenantId' });
+
+DeliveryPartner.hasMany(DeliveryOrder, { foreignKey: 'partner', sourceKey: 'nombre' });
+DeliveryOrder.belongsTo(DeliveryPartner, { foreignKey: 'partner', targetKey: 'nombre' });
+
+Venta.hasOne(DeliveryOrder, { foreignKey: 'ventaId' });
+DeliveryOrder.belongsTo(Venta, { foreignKey: 'ventaId' });
+
 // SessionActiva -> Usuario
 Usuario.hasMany(SessionActiva, { foreignKey: 'usuarioId', as: 'sesiones' });
 SessionActiva.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
@@ -201,6 +217,8 @@ export {
   LandingContent,
   SuperAdmin,
   DeliveryConfig,
+  DeliveryPartner,
+  DeliveryOrder,
   ContactoMensaje,
   SessionActiva,
   RefreshToken,
