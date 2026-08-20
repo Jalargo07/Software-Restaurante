@@ -175,6 +175,12 @@ const router = createRouter({
       component: () => import('../views/auth/SuperAdminTwoFactorView.vue'),
     },
     {
+      path: '/onboarding',
+      name: 'onboarding',
+      component: () => import('../views/auth/OnboardingView.vue'),
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
       path: '/super-admin/settings',
       name: 'super-admin-settings',
       component: () => import('../views/admin/SuperAdminSettingsView.vue'),
@@ -211,11 +217,13 @@ router.beforeEach((to, _from, next) => {
   const saAuthStore = useSuperAdminAuthStore()
   const token = authStore.token || saAuthStore.token
   const user = authStore.user || saAuthStore.user
+  const onboardingCompleted = localStorage.getItem('onboardingCompleted')
 
   if (saAuthStore.token && to.path === '/') return next('/super-admin')
   if (to.name === 'super-admin-login') return next()
   if (to.name === 'super-admin-2fa') return next()
   if (to.name === 'super-admin-refresh') return next()
+  if (to.name === 'onboarding') return next()
   if (to.meta.publico) return next()
 
   if (to.meta.requiresAuth && !token) return next('/login')
@@ -225,6 +233,10 @@ router.beforeEach((to, _from, next) => {
   if (to.name === 'login' && authStore.token) return next('/dashboard')
   if (to.name === 'landing' && authStore.token) return next('/dashboard')
   if (to.name === 'tenant-login' && authStore.token) return next('/dashboard')
+
+  if (user?.rol === 'admin' && !onboardingCompleted && to.name !== 'onboarding') {
+    return next('/onboarding')
+  }
 
   if (to.meta.roles && user && !(to.meta.roles as string[]).includes(user.rol)) {
     return next(saAuthStore.token ? '/super-admin' : '/dashboard')
