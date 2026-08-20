@@ -39,6 +39,7 @@ import contactoRoutes from './routes/contacto';
 import { initializeSocketHandlers } from './services/socketHandler';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin, Sucursal } from './models';
+import { agregarTenantScopeHook } from './models/tenantHook';
 import superAdminAuthRoutes from './routes/superAdminAuth';
 import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
@@ -161,6 +162,8 @@ const startServer = async () => {
     } else {
       console.log('Producción: sincronización de modelos omitida (usar migraciones)');
     }
+
+    agregarTenantScopeHook(sequelize);
 
     await ensureBucket();
 

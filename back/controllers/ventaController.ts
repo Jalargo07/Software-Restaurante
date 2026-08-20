@@ -15,15 +15,14 @@ export const obtenerTodas = async (req: Request, res: Response) => {
     const where: any = {};
     if (req.query.estado) where.estado = req.query.estado;
 
-    const scopedWhere = scopeTenant(where, req.tenantId!);
-
     const { count, rows } = await Venta.findAndCountAll({
-      where: scopedWhere,
+      where,
+      tenantId: req.tenantId!,
       include: [{ model: DetalleVenta, include: [Producto] }, Mesa],
       limit,
       offset,
       order: [['createdAt', 'DESC']],
-    });
+    } as any);
 
     return res.json({
       data: rows,
