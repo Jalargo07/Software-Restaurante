@@ -24,6 +24,14 @@ const route = useRoute()
 const currentMode = ref<'produccion' | 'administracion' | 'cms'>('produccion')
 const mobileMenuOpen = ref(false)
 
+watch(() => authStore.user, (user) => {
+  syncQueueStore.setTenant(user?.tenantId ?? null)
+}, { immediate: true })
+
+watch(() => saAuthStore.user, (user) => {
+  syncQueueStore.setTenant(user?.tenantId ?? null)
+}, { immediate: true })
+
 const isPublicRoute = computed(() => {
   const publicNames = ['login', 'tenant-login', 'menu-qr', 'super-admin-login', 'sobre-nosotros', 'contacto', 'privacidad', 'terminos']
   return route.path === '/' || publicNames.includes(route.name as string)
@@ -128,6 +136,7 @@ function salir() {
   const wasSuperAdmin = !!saAuthStore.token
   authStore.logout()
   saAuthStore.logout()
+  syncQueueStore.clearQueue()
   router.push(wasSuperAdmin ? '/admin/login' : '/login')
 }
 

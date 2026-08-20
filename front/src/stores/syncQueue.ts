@@ -4,6 +4,7 @@ import api from '../services/api'
 
 export interface QueuedRequest {
   id: string
+  tenantId?: number
   method: string
   url: string
   data?: any
@@ -17,9 +18,14 @@ const MAX_RETRIES = 3
 export const useSyncQueueStore = defineStore('syncQueue', () => {
   const queue = ref<QueuedRequest[]>([])
   const isSyncing = ref(false)
+  const currentTenantId = ref<number | null>(null)
 
-  const pendingCount = computed(() => queue.value.length)
-  const hasPending = computed(() => queue.value.length > 0)
+  const pendingCount = computed(() => {
+    if (currentTenantId.value === null) return queue.value.length
+    return queue.value.filter(r => r.tenantId === currentTenantId.value).length
+  })
+
+  const hasPending = computed(() => pendingCount.value > 0)
 
   function loadFromStorage() {
     try {
@@ -36,6 +42,10 @@ export const useSyncQueueStore = defineStore('syncQueue', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(queue.value))
   }
 
+  function setTenant(tenantId: number | null) {
+    currentTenantId.value = tenantId
+  }
+
   function generateId(): string {
     return `sync_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
   }
@@ -44,6 +54,7 @@ export const useSyncQueueStore = defineStore('syncQueue', () => {
     const id = generateId()
     queue.value.push({
       id,
+      tenantId: currentTenantId.value ?? undefined,
       method,
       url,
       data,
@@ -59,13 +70,18 @@ export const useSyncQueueStore = defineStore('syncQueue', () => {
     saveToStorage()
   }
 
+  function getQueueForCurrentTenant(): QueuedRequest[] {
+    if (currentTenantId.value === null) return queue.value
+    return queue.value.filter(r => r.tenantId === currentTenantId.value)
+  }
+
   async function syncQueue() {
-    if (isSyncing.value || queue.value.length === 0) return
+    if (isSyncing.value || pendingCount.value === 0) return
 
     isSyncing.value = true
     const toast = await import('./toast')
 
-    const itemsToSync = [...queue.value]
+    const itemsToSync = [...getQueueForCurrentTenant()]
     const failedIds: string[] = []
 
     for (const item of itemsToSync) {
@@ -106,7 +122,11 @@ export const useSyncQueueStore = defineStore('syncQueue', () => {
   }
 
   function clearQueue() {
-    queue.value = []
+    if (currentTenantId.value === null) {
+      queue.value = []
+    } else {
+      queue.value = queue.value.filter(r => r.tenantId !== currentTenantId.value)
+    }
     saveToStorage()
   }
 
@@ -115,8 +135,10 @@ export const useSyncQueueStore = defineStore('syncQueue', () => {
   return {
     queue,
     isSyncing,
+    currentTenantId,
     pendingCount,
     hasPending,
+    setTenant,
     addToQueue,
     removeFromQueue,
     syncQueue,

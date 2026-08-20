@@ -27,6 +27,33 @@ export const LICENSE_MODULE_HASH = crypto
   .digest('hex');
 
 export function checkLicense(): LicenseGuardResult {
-  // FIXME: Temporal - siempre retorna ok para development local
-  return { ok: true };
+  try {
+    const now = Date.now();
+
+    if (cachedResult && (now - cacheTimestamp) < CACHE_TTL_MS) {
+      return cachedResult;
+    }
+
+    const licenseKey = process.env.LICENSE_KEY;
+
+    if (!licenseKey) {
+      cachedResult = { ok: false, warning: 'No LICENSE_KEY configurada' };
+      cacheTimestamp = now;
+      return cachedResult;
+    }
+
+    const result = validateLicense(licenseKey);
+
+    if (result.valid) {
+      cachedResult = { ok: true };
+    } else {
+      cachedResult = { ok: false, warning: result.error || 'Licencia inválida' };
+    }
+
+    cacheTimestamp = now;
+    return cachedResult;
+  } catch (error) {
+    cachedResult = { ok: false, warning: 'Error interno de licencia' };
+    return cachedResult;
+  }
 }
