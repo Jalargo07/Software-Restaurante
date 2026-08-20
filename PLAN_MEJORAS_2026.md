@@ -3,7 +3,7 @@
 ## Resumen
 Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para competir en 2026.
 **Última actualización:** 19/08/2026
-**Estado general:** EN PROGRESO (1/24 completadas)
+**Estado general:** EN PROGRESO (12/24 completadas)
 
 ---
 
@@ -194,7 +194,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 5. Crear endpoint DELETE `/api/auth/sessions` para revoke global de sesiones
 6. Crear endpoint GET `/api/auth/sessions` para listar sesiones activas del usuario
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -219,7 +219,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 5. En `auth.ts` frontend: interceptor que detecta 401 y llama refresh antes de retry
 6. Agregar `logout` global que revoca todos los refresh tokens del usuario
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -258,7 +258,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 3. Mover validaciones de env al archivo correspondiente
 4. Crear `back/config/index.ts` que re-exporta todo
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -279,7 +279,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 3. Integrar llamada a `tenantLimits` en POST producto, POST venta, POST usuario
 4. Crear endpoint GET `/api/tenant/usage` que devuelve uso actual vs límites
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -573,11 +573,11 @@ Mes 5 (Sprint 50-52):
 | 5 | ✅ Completada | 19/08/2026 |
 | 6 | ✅ Completada | 19/08/2026 |
 | 7 | ✅ Completada | 19/08/2026 |
-| 8 | ⬜ Pendiente | - |
-| 9 | ⬜ Pendiente | - |
-| 10 | ⬜ Pendiente | - |
-| 11 | ⬜ Pendiente | - |
-| 12 | ⬜ Pendiente | - |
+| 8 | ✅ Completada | 19/08/2026 |
+| 9 | ✅ Completada | 19/08/2026 |
+| 10 | ✅ Completada | 19/08/2026 (ya estaba en T7) |
+| 11 | ✅ Completada | 19/08/2026 |
+| 12 | ✅ Completada | 19/08/2026 |
 | 13 | ⬜ Pendiente | - |
 | 14 | ⬜ Pendiente | - |
 | 15 | ⬜ Pendiente | - |
@@ -591,4 +591,4 @@ Mes 5 (Sprint 50-52):
 | 23 | ⬜ Pendiente | - |
 | 24 | ⬜ Pendiente | - |
 
-**Completado:** 7/24 (29%)
+**Completado:** 12/24 (50%)
