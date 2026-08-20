@@ -3,7 +3,7 @@
 ## Resumen
 Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para competir en 2026.
 **Última actualización:** 19/08/2026
-**Estado general:** EN PROGRESO (12/24 completadas)
+**Estado general:** EN PROGRESO (17/24 completadas)
 
 ---
 
@@ -301,7 +301,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 
 **Descripción:** Admin primer login no tiene guía. Wizard de 3 pasos: 1) Configurar mesas, 2) Cargar productos iniciales, 3) Invitar staff.
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -362,7 +362,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 4. Service worker escucha `online` event y replay cola
 5. UI muestra banner "X acciones pendientes de sincronizar"
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -387,7 +387,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 6. ProductoFormModal: preview de imagen con fade-in al seleccionar
 7. ToastContainer: slide-in desde arriba derecha, auto-dismiss con progress bar
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -574,11 +574,11 @@ Mes 5 (Sprint 50-52):
 | 10 | ✅ Completada | 19/08/2026 (ya estaba en T7) |
 | 11 | ✅ Completada | 19/08/2026 |
 | 12 | ✅ Completada | 19/08/2026 |
-| 13 | ⬜ Pendiente | - |
-| 14 | ⬜ Pendiente | - |
-| 15 | ⬜ Pendiente | - |
-| 16 | ⬜ Pendiente | - |
-| 17 | ⬜ Pendiente | - |
+| 13 | ✅ Completada | 19/08/2026 |
+| 14 | ✅ Completada | 19/08/2026 |
+| 15 | ✅ Completada | 19/08/2026 |
+| 16 | ✅ Completada | 19/08/2026 |
+| 17 | ✅ Completada | 19/08/2026 |
 | 18 | ⬜ Pendiente | - |
 | 19 | ⬜ Pendiente | - |
 | 20 | ⬜ Pendiente | - |
@@ -587,4 +587,4 @@ Mes 5 (Sprint 50-52):
 | 23 | ⬜ Pendiente | - |
 | 24 | ⬜ Pendiente | - |
 
-**Completado:** 12/24 (50%)
+**Completado:** 17/24 (71%)
