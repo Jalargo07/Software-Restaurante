@@ -149,7 +149,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 4. Eliminar todos los `scopeTenant({...}, req.tenantId!)` repetidos en controllers
 5. Mantener `belongsToTenant` para validaciones de ownership (GET by id, DELETE)
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -571,7 +571,7 @@ Mes 5 (Sprint 50-52):
 | 3 | ✅ Completada | 19/08/2026 |
 | 4 | ✅ Completada | 19/08/2026 |
 | 5 | ✅ Completada | 19/08/2026 |
-| 6 | ⬜ Pendiente | - |
+| 6 | ✅ Completada | 19/08/2026 |
 | 7 | ⬜ Pendiente | - |
 | 8 | ⬜ Pendiente | - |
 | 9 | ⬜ Pendiente | - |
@@ -591,4 +591,4 @@ Mes 5 (Sprint 50-52):
 | 23 | ⬜ Pendiente | - |
 | 24 | ⬜ Pendiente | - |
 
-**Completado:** 5/24 (21%)
+**Completado:** 6/24 (25%)
