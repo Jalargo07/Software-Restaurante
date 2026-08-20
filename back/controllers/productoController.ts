@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Producto, DetalleReceta } from '../models';
 import sequelize from '../config/database';
 import { Op } from 'sequelize';
@@ -6,8 +6,9 @@ import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 import { invalidarCache } from '../utils/cacheInvalidation';
 import { checkLicense } from '../utils/licenseGuard';
+import { AppError } from '../utils/errors';
 
-export const obtenerTodos = async (req: Request, res: Response) => {
+export const obtenerTodos = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { categoria, buscar, activo, tipo } = req.query;
     const where: any = {};
@@ -30,8 +31,8 @@ export const obtenerTodos = async (req: Request, res: Response) => {
       }],
     });
     return res.json(productos);
-  } catch (error: any) {
-    return res.status(500).json({ error: 'Error al obtener productos' });
+  } catch (error) {
+    return next(new AppError('Error al obtener productos', 500));
   }
 };
 

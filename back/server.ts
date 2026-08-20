@@ -44,6 +44,7 @@ import { getDefaultData } from './controllers/landingController';
 import { ensureBucket } from './config/s3';
 import { validateLicense } from './utils/licenseValidator';
 import { checkLicense } from './utils/licenseGuard';
+import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -103,6 +104,8 @@ app.use('/api/pagos', pagosRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/sucursales', sucursalRoutes);
+
+app.use(errorHandler);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Restaurant API running' });
