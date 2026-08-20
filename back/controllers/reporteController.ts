@@ -445,7 +445,7 @@ export const exportarStockBajoPDF = async (req: Request, res: Response, next: Ne
     for (const producto of productosBajoStock) {
       const prod = producto as any;
       const ultimaCompra = await Compra.findOne({
-        where: { tenantId: req.tenantId, estado: 'recibida' },
+        where: { tenant_id: req.tenantId, estado: 'recibida' },
         include: [{
           model: DetalleCompra,
           where: { productoId: prod.id },

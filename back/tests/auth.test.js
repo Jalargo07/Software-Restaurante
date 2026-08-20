@@ -18,7 +18,7 @@ describe('Auth - Login', () => {
       .send({ email: 'admin@restaurant.com', password: 'admin123' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('accessToken');
     expect(res.body).toHaveProperty('usuario');
     expect(res.body.usuario.email).toBe('admin@restaurant.com');
     expect(res.body.usuario.rol).toBe('admin');

@@ -45,7 +45,7 @@ export async function obtenerCostoUnitario(
 ): Promise<number> {
   const entradas: any = await Kardex.findAll({
     where: {
-      tenantId,
+      tenant_id: tenantId,
       productoId,
       tipo: 'entrada',
     },
@@ -55,7 +55,7 @@ export async function obtenerCostoUnitario(
 
   if (entradas.length === 0) {
     const producto: any = await Producto.findOne({
-      where: { id: productoId, tenantId },
+      where: { id: productoId, tenant_id: tenantId },
       transaction
     });
     return producto ? Number(producto.precioCompra) : 0;

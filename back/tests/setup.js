@@ -47,7 +47,7 @@ async function getAdminToken() {
   const res = await request(app)
     .post('/api/usuarios/login')
     .send({ email: 'admin@restaurant.com', password: 'admin123' });
-  adminToken = res.body.token;
+  adminToken = res.body.accessToken;
   return adminToken;
 }
 

@@ -192,7 +192,7 @@ export async function parsearFactura(
 
 export async function parsearConIA(textoOCR: string, tenantId: number): Promise<EscaneoFacturaResult> {
   const { Proveedor, Producto } = await import('../models');
-  const proveedores = await Proveedor.findAll({ where: { activo: true, tenantId } });
-  const productos = await Producto.findAll({ where: { activo: true, tenantId } });
+  const proveedores = await Proveedor.findAll({ where: { activo: true, tenant_id: tenantId } });
+  const productos = await Producto.findAll({ where: { activo: true, tenant_id: tenantId } });
   return parsearFactura(textoOCR, proveedores, productos);
 }

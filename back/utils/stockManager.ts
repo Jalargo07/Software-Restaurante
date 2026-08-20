@@ -16,7 +16,7 @@ export async function validarStock(
   transaction?: Transaction
 ): Promise<StockValidation> {
   const producto: any = await Producto.findOne({
-    where: { id: productoId, tenantId },
+    where: { id: productoId, tenant_id: tenantId },
     transaction
   });
 
@@ -39,7 +39,7 @@ export async function validarStock(
     let stockMinimo = Infinity;
     for (const ing of ingredientes) {
       const insumo: any = await Producto.findOne({
-        where: { id: ing.insumoId, tenantId },
+        where: { id: ing.insumoId, tenant_id: tenantId },
         transaction
       });
       if (!insumo) {
@@ -77,7 +77,7 @@ export async function descontarStock(
   transaction: Transaction
 ): Promise<void> {
   const producto: any = await Producto.findOne({
-    where: { id: productoId, tenantId },
+    where: { id: productoId, tenant_id: tenantId },
     transaction,
     lock: true
   });
@@ -95,13 +95,13 @@ export async function descontarStock(
     for (const ing of ingredientes) {
       await Producto.decrement(
         { stock: ing.cantidad * cantidad },
-        { where: { id: ing.insumoId, tenantId }, transaction }
+        { where: { id: ing.insumoId, tenant_id: tenantId }, transaction }
       );
     }
   } else {
     await Producto.decrement(
       { stock: cantidad },
-      { where: { id: productoId, tenantId }, transaction }
+      { where: { id: productoId, tenant_id: tenantId }, transaction }
     );
   }
 }
