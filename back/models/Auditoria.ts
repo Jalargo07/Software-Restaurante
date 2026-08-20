@@ -57,7 +57,8 @@ const Auditoria = sequelize.define('Auditoria', {
 }, {
   indexes: [
     { fields: ['tenant_id', 'id'] },
-    { fields: ['tenant_id', 'usuarioId'] }
+    { fields: ['tenant_id', 'usuarioId'] },
+    { fields: ['tenant_id', 'createdAt', 'accion'] }
   ]
 });
 

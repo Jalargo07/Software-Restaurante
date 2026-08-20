@@ -35,7 +35,8 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
   indexes: [
     { fields: ['tenant_id', 'id'] },
     { fields: ['tenant_id', 'VentaId'] },
-    { fields: ['tenant_id', 'ProductoId'] }
+    { fields: ['tenant_id', 'ProductoId'] },
+    { fields: ['tenant_id', 'createdAt'] }
   ]
 });
 

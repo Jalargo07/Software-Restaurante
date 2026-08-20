@@ -58,7 +58,8 @@ const Venta = sequelize.define('Venta', {
 }, {
   indexes: [
     { fields: ['tenant_id', 'id'] },
-    { fields: ['tenant_id', 'mesaId'] }
+    { fields: ['tenant_id', 'mesaId'] },
+    { fields: ['tenant_id', 'estado', 'createdAt'] }
   ]
 });
 

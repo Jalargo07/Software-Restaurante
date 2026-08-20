@@ -64,7 +64,8 @@ const Producto = sequelize.define('Producto', {
 }, {
   indexes: [
     { fields: ['tenant_id', 'id'] },
-    { fields: ['tenant_id', 'categoria'] }
+    { fields: ['tenant_id', 'categoria'] },
+    { fields: ['tenant_id', 'tipo', 'categoria'] }
   ]
 });
 

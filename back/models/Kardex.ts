@@ -44,6 +44,7 @@ const Kardex = sequelize.define('Kardex', {
     { fields: ['tenant_id', 'id'] },
     { fields: ['tenant_id', 'productoId'] },
     { fields: ['tenant_id', 'fecha'] },
+    { fields: ['tenant_id', 'productoId', 'fecha'] },
   ],
 });
 
