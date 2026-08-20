@@ -12,14 +12,15 @@ function fechaHace(dias: number): Date {
 }
 
 async function seed() {
-  const dialect = sequelize.getDialect();
-
-  if (dialect === 'postgres') {
-    await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
-    await sequelize.sync();
-  } else {
-    await sequelize.sync({ force: true });
+  // Solo crear datos si las tablas están vacías
+  const tenantCount = await Tenant.count();
+  if (tenantCount > 0) {
+    console.log('Seed ya existe, omitiendo...');
+    return;
   }
+
+  // Sincronizar modelos sin destruir datos existentes
+  await sequelize.sync({ alter: true });
 
   const tenant = (await Tenant.create({
     id: 1,
