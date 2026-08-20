@@ -2,13 +2,16 @@ import { Router, Request, Response } from 'express';
 import Usuario from '../models/Usuario';
 import Tenant from '../models/Tenant';
 import SessionActiva from '../models/SessionActiva';
+import RefreshToken from '../models/RefreshToken';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { authenticateToken, authorizeRole } from '../middleware/auth';
+import crypto from 'crypto';
+import { authenticateToken, authorizeRole, generateAccessToken, generateRefreshToken, hashToken } from '../middleware/auth';
 import { checkTenantLimit } from '../middleware/tenantLimits';
 import { loginLimiter } from '../middleware/rateLimit';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 import { checkLicense } from '../utils/licenseGuard';
+import settings from '../config/settings';
 
 const router = Router();
 
@@ -24,22 +27,39 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const tenant: any = await Tenant.findByPk(usuario.tenant_id, { attributes: ['plan'] });
     const plan = tenant?.plan || 'basico';
 
-    const jwtSecret = process.env.JWT_SECRET || 'dev-secret';
-    const token = jwt.sign(
-      { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan },
-      jwtSecret,
-      { expiresIn: '24h' }
-    );
+    const accessToken = generateAccessToken({
+      usuarioId: usuario.id,
+      tenantId: usuario.tenant_id,
+      rol: usuario.rol,
+      plan
+    });
+    const refreshToken = generateRefreshToken({
+      usuarioId: usuario.id,
+      tenantId: usuario.tenant_id
+    });
+
+    const refreshTokenHash = hashToken(refreshToken);
+    await RefreshToken.create({
+      token: refreshTokenHash,
+      usuarioId: usuario.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
 
     await SessionActiva.create({
-      tokenId: token.substring(0, 20),
+      tokenId: accessToken.substring(0, 20),
       usuarioId: usuario.id,
       tenantId: usuario.tenant_id,
       ipAddress: req.ip,
       userAgent: req.headers['user-agent']
     });
 
-    const loginResponse: any = { token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan } };
+    const loginResponse: any = {
+      ok: true,
+      accessToken,
+      refreshToken,
+      usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan },
+      expiresIn: 15 * 60
+    };
 
     const licencia = checkLicense();
     if (!licencia.ok) {
@@ -49,6 +69,78 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     res.json(loginResponse);
   } catch (error) {
     res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+});
+
+router.post('/refresh', async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({ ok: false, error: 'Refresh token requerido' });
+    }
+
+    const payload = jwt.verify(refreshToken, settings.jwt.secret) as { usuarioId: number; tenantId: number };
+
+    const tokenHash = hashToken(refreshToken);
+    const storedToken = await RefreshToken.findOne({
+      where: { token: tokenHash, revokedAt: null }
+    });
+
+    if (!storedToken) {
+      return res.status(401).json({ ok: false, error: 'Refresh token inválido o revocado' });
+    }
+
+    await RefreshToken.update(
+      { revokedAt: new Date(), replacedByToken: tokenHash },
+      { where: { id: (storedToken as any).id } }
+    );
+
+    const usuario = await Usuario.findByPk(payload.usuarioId);
+    if (!usuario) {
+      return res.status(401).json({ ok: false, error: 'Usuario no encontrado' });
+    }
+
+    const tenant: any = await Tenant.findByPk(usuario.tenant_id, { attributes: ['plan'] });
+    const plan = tenant?.plan || 'basico';
+
+    const newAccessToken = generateAccessToken({
+      usuarioId: usuario.id,
+      tenantId: usuario.tenant_id,
+      rol: usuario.rol,
+      plan
+    });
+    const newRefreshToken = generateRefreshToken({
+      usuarioId: usuario.id,
+      tenantId: usuario.tenant_id
+    });
+
+    const newTokenHash = hashToken(newRefreshToken);
+    await RefreshToken.create({
+      token: newTokenHash,
+      usuarioId: usuario.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+
+    res.json({
+      ok: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      expiresIn: 15 * 60
+    });
+  } catch (error) {
+    return res.status(401).json({ ok: false, error: 'Refresh token inválido' });
+  }
+});
+
+router.post('/logout', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    await RefreshToken.update(
+      { revokedAt: new Date() },
+      { where: { usuarioId: req.user!.usuarioId, revokedAt: null } }
+    );
+    res.json({ ok: true, mensaje: 'Logout exitoso' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al cerrar sesión' });
   }
 });
 

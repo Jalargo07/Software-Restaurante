@@ -37,6 +37,12 @@ const settings = {
     rateLimitEnabled: true,
   },
 
+  jwt: {
+    secret: process.env.JWT_SECRET || 'dev-secret',
+    accessExpiresIn: '15m',
+    refreshExpiresIn: '7d',
+  },
+
   s3: {
     forcePathStyle: process.env.S3_FORCE_PATH_STYLE !== undefined
       ? process.env.S3_FORCE_PATH_STYLE === 'true'
