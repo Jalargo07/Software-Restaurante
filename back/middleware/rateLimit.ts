@@ -3,12 +3,15 @@ import rateLimit from 'express-rate-limit';
 const windowMs = 15 * 60 * 1000;
 const maxAttempts = 5;
 
+const skipEnTest = () => process.env.NODE_ENV === 'test';
+
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
   message: { ok: false, error: 'Demasiadas peticiones, intenta de nuevo en 15 minutos', code: 'RATE_LIMIT' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipEnTest,
 });
 
 export const loginLimiter = rateLimit({
@@ -18,6 +21,7 @@ export const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
+  skip: skipEnTest,
   handler: (req, res) => {
     res.status(429).json({
       ok: false,
@@ -33,4 +37,5 @@ export const uploadLimiter = rateLimit({
   message: { ok: false, error: 'Demasiados uploads, intenta de nuevo en 1 hora', code: 'RATE_LIMIT' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipEnTest,
 });

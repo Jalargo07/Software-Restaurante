@@ -15,6 +15,13 @@ function fechaHace(dias: number): Date {
 async function seed() {
   await sequelize.sync({ alter: true });
 
+  // Idempotencia: si el admin ya existe, la BD ya fue sembrada previamente
+  const adminExistente = await Usuario.findOne({ where: { email: 'admin@restaurant.com' } });
+  if (adminExistente) {
+    console.log('Seed ya ejecutado anteriormente, omitiendo...');
+    return;
+  }
+
   // Crear tenant solo si no existe
   const [tenant, created] = await Tenant.findOrCreate({
     where: { id: 1 },

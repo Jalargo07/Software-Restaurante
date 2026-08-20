@@ -23,7 +23,7 @@ export function generateAccessToken(payload: TokenPayload): string {
 }
 
 export function generateRefreshToken(payload: { usuarioId: number; tenantId: number }): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN, jwtid: crypto.randomUUID() });
 }
 
 export function hashToken(token: string): string {

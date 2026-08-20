@@ -60,6 +60,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     res.json(loginResponse);
   } catch (error) {
+    console.error('Error en login:', (error as any)?.message || error, (error as any)?.original?.detail || '');
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
 });
