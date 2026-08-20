@@ -60,64 +60,13 @@ export const webhookDelivery = async (req: Request, res: Response) => {
       }
     }
 
-    // Crear venta
-    const venta: any = await Venta.create({
-      tenant_id: config.tenant_id,
-      tipo: 'delivery',
-      deliveryApp: app,
-      deliveryPedidoId: pedidoId || normalized?.partnerOrderId || null,
-      direccionEntrega: direccion || normalized?.deliveryAddress || null,
-      clienteTelefono: telefono || normalized?.customerPhone || null,
-      estado: 'abierta',
-      total: total || normalized?.total || 0,
-    });
-
-    // Vincular DeliveryOrder con Venta si existe
-    if (deliveryOrder) {
-      deliveryOrder.ventaId = venta.id;
-      await deliveryOrder.save();
-    }
-
-    // Crear DetalleVenta y calcular total
-    const productosToProcess = productos || (normalized?.items?.map((i: any) => ({ nombre: i.name, cantidad: i.quantity, precio: i.price })) || []);
-    if (productosToProcess.length > 0) {
-      let totalCalculado = 0;
-      for (const item of productosToProcess) {
-        const producto: any = await Producto.findOne({
-          where: { tenant_id: config.tenant_id, nombre: { [Op.iLike]: item.nombre } },
-        });
-        if (producto) {
-          const cantidad = item.cantidad || 1;
-          const precio = Number(item.precio || producto.precioVenta);
-          await DetalleVenta.create({
-            tenant_id: config.tenant_id,
-            VentaId: venta.id,
-            ProductoId: producto.id,
-            cantidad,
-            precioUnitario: precio,
-            subtotal: cantidad * precio,
-            estadoComanda: 'pendiente',
-          });
-          totalCalculado += cantidad * precio;
-        }
-      }
-      if (totalCalculado > 0) {
-        venta.total = totalCalculado;
-        await venta.save();
-      }
-    }
-
     // Emitir Socket.IO
     const io = req.app.get('io');
     if (io) {
-      io.to(`tenant:${config.tenant_id}`).emit('nuevo-pedido-delivery', { ventaId: venta.id, app });
-      const ventaCompleta = await Venta.findByPk(venta.id, {
-        include: [{ model: DetalleVenta, include: [Producto] }],
-      });
-      if (ventaCompleta) io.to(`tenant:${config.tenant_id}`).emit('nueva-comanda', ventaCompleta);
+      io.to(`tenant:${config.tenant_id}`).emit('nuevo-pedido-delivery', { deliveryOrderId: deliveryOrder?.id, app });
     }
 
-    res.status(201).json({ message: 'Pedido recibido', ventaId: venta.id, deliveryOrderId: deliveryOrder?.id });
+    res.status(201).json({ message: 'Pedido recibido', deliveryOrderId: deliveryOrder?.id });
   } catch (error: any) {
     console.error('Error en webhookDelivery:', error);
     res.status(500).json({ error: 'Error al procesar webhook' });

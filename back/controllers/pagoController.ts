@@ -206,8 +206,24 @@ export const crearPreferenciaMercadoPago = async (req: Request, res: Response, n
   }
 };
 
+function verificarFirmaMercadoPago(body: string, signature: string): boolean {
+  const crypto = require('crypto');
+  const hash = crypto
+    .createHmac('sha256', settings.mercadopago.webhookSecret)
+    .update(body)
+    .digest('hex');
+  return hash === signature;
+}
+
 export const webhookMercadoPago = async (req: Request, res: Response, next: Function) => {
   try {
+    const signature = req.headers['x-signature'] as string;
+    if (settings.mercadopago.webhookSecret && signature) {
+      if (!verificarFirmaMercadoPago(JSON.stringify(req.body), signature)) {
+        return res.status(401).json({ error: 'Firma inválida' });
+      }
+    }
+
     const { id, status, payment_id } = req.body;
 
     if (!id) {
