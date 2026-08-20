@@ -5,7 +5,7 @@ export function getBullMQConnection(): ConnectionOptions {
   const token = process.env.REDIS_TOKEN;
 
   const config: ConnectionOptions = {
-    maxRetriesPerRequest: 3,
+    maxRetriesPerRequest: null,
   };
 
   if (token && url.startsWith('https://')) {

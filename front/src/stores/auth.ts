@@ -21,9 +21,9 @@ export const useAuthStore = defineStore('auth', {
     async login(email: string, password: string) {
       try {
         const { data } = await api.post('/usuarios/login', { email, password })
-        this.token = data.token
+        this.token = data.accessToken
         this.user = data.usuario
-        localStorage.setItem('token', data.token)
+        localStorage.setItem('token', data.accessToken)
         localStorage.setItem('user', JSON.stringify(data.usuario))
         this.licenseWarning = (data as any).licenseWarning || null
         if (this.licenseWarning) {
