@@ -408,7 +408,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 
 **Descripción:** Solo tiene PayPal. Agregar MercadoPago para usuarios Latam con soporte de Webhook.
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -446,7 +446,7 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 
 **Descripción:** Integration basica con Rappi/Uber Eats via webhooks. Parsear orders externas y mostrarlas en la misma vista de delivery.
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (19/08/2026)
 
 ---
 
@@ -579,12 +579,12 @@ Mes 5 (Sprint 50-52):
 | 15 | ✅ Completada | 19/08/2026 |
 | 16 | ✅ Completada | 19/08/2026 |
 | 17 | ✅ Completada | 19/08/2026 |
-| 18 | ⬜ Pendiente | - |
-| 19 | ⬜ Pendiente | - |
-| 20 | ⬜ Pendiente | - |
+| 18 | ✅ Completada | 19/08/2026 |
+| 19 | ✅ Completada | 19/08/2026 |
+| 20 | ✅ Completada | 19/08/2026 |
 | 21 | ⬜ Pendiente | - |
 | 22 | ⬜ Pendiente | - |
 | 23 | ⬜ Pendiente | - |
 | 24 | ⬜ Pendiente | - |
 
-**Completado:** 17/24 (71%)
+**Completado:** 20/24 (83%)
