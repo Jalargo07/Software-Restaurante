@@ -21,12 +21,12 @@ if [ -n "$DATABASE_URL" ]; then
   fi
 fi
 
-# Solo ejecutar seed en desarrollo o si se fuerza explicitamente
-if [ "$RUN_SEED" = "true" ] || [ "$NODE_ENV" != "production" ]; then
+# Seed script solo con RUN_SEED=explicit
+if [ "$RUN_SEED" = "true" ]; then
   echo "Ejecutando seed..."
   node dist/scripts/seed.js
 else
-  echo "Seed omitido (produccion). Usando base de datos existente."
+  echo "Seed omitido. Usando server seed para datos iniciales."
 fi
 
 echo "Arrancando servidor..."

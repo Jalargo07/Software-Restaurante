@@ -45,14 +45,6 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     });
 
-    await SessionActiva.create({
-      tokenId: accessToken.substring(0, 20),
-      usuarioId: usuario.id,
-      tenantId: usuario.tenant_id,
-      ipAddress: req.ip,
-      userAgent: req.headers['user-agent']
-    });
-
     const loginResponse: any = {
       ok: true,
       accessToken,

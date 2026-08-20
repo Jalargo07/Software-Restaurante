@@ -12,25 +12,25 @@ function fechaHace(dias: number): Date {
 }
 
 async function seed() {
-  // Solo crear datos si las tablas están vacías
-  const tenantCount = await Tenant.count();
-  if (tenantCount > 0) {
-    console.log('Seed ya existe, omitiendo...');
-    return;
-  }
-
-  // Sincronizar modelos sin destruir datos existentes
+  // No destruir tablas - solo crear datos si no existen
   await sequelize.sync({ alter: true });
 
-  const tenant = (await Tenant.create({
-    id: 1,
-    nombre: 'Restaurante Principal',
-    slug: 'restaurante-principal',
-    activo: true,
-  })) as any;
+  // Crear tenant solo si no existe
+  const [tenant, created] = await Tenant.findOrCreate({
+    where: { id: 1 },
+    defaults: {
+      nombre: 'Restaurante Principal',
+      slug: 'restaurante-principal',
+      activo: true,
+    }
+  });
+  if (created) console.log('Tenant creado');
+  else console.log('Tenant ya existe');
+
+  const tenantId = (tenant as any).id;
 
   await TenantConfig.create({
-    tenant_id: tenant.id,
+    tenant_id: tenantId,
     nombreCompleto: 'Restaurante Principal S.A.',
     colorPrimario: '#0d6efd',
     colorSecundario: '#6c757d',
@@ -39,7 +39,7 @@ async function seed() {
   });
 
   await Usuario.create({
-    tenant_id: tenant.id,
+    tenant_id: tenantId,
     nombre: 'Admin',
     email: 'admin@restaurant.com',
     password: 'admin123',
@@ -47,68 +47,68 @@ async function seed() {
     activo: true,
   });
 
-  const harina = (await Producto.create({ tenant_id: tenant.id, nombre: 'Harina 000', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.50, precioVenta: 0, stock: 0, stockMinimo: 20, unidad: 'kg', merma: 0 })) as any;
-  const queso = (await Producto.create({ tenant_id: tenant.id, nombre: 'Queso Muzzarella', tipo: 'insumo', categoria: 'insumo', precioCompra: 8.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 0 })) as any;
-  const salsaTomate = (await Producto.create({ tenant_id: tenant.id, nombre: 'Salsa de Tomate', tipo: 'insumo', categoria: 'insumo', precioCompra: 3.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'litro', merma: 0 })) as any;
-  const carneMolida = (await Producto.create({ tenant_id: tenant.id, nombre: 'Carne Molida', tipo: 'insumo', categoria: 'insumo', precioCompra: 12.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 2 })) as any;
-  const pan = (await Producto.create({ tenant_id: tenant.id, nombre: 'Pan de Hamburguesa', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.80, precioVenta: 0, stock: 0, stockMinimo: 50, unidad: 'unidad', merma: 0 })) as any;
-  const lechuga = (await Producto.create({ tenant_id: tenant.id, nombre: 'Lechuga', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.20, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 8 })) as any;
-  const tomate = (await Producto.create({ tenant_id: tenant.id, nombre: 'Tomate', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.50, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 3 })) as any;
-  const papasCongeladas = (await Producto.create({ tenant_id: tenant.id, nombre: 'Papas Fritas Congeladas', tipo: 'insumo', categoria: 'insumo', precioCompra: 4.00, precioVenta: 0, stock: 0, stockMinimo: 15, unidad: 'kg', merma: 5 })) as any;
-  const milanesa = (await Producto.create({ tenant_id: tenant.id, nombre: 'Milanesa de Pollo', tipo: 'insumo', categoria: 'insumo', precioCompra: 10.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 3 })) as any;
+  const harina = (await Producto.create({ tenant_id: tenantId, nombre: 'Harina 000', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.50, precioVenta: 0, stock: 0, stockMinimo: 20, unidad: 'kg', merma: 0 })) as any;
+  const queso = (await Producto.create({ tenant_id: tenantId, nombre: 'Queso Muzzarella', tipo: 'insumo', categoria: 'insumo', precioCompra: 8.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 0 })) as any;
+  const salsaTomate = (await Producto.create({ tenant_id: tenantId, nombre: 'Salsa de Tomate', tipo: 'insumo', categoria: 'insumo', precioCompra: 3.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'litro', merma: 0 })) as any;
+  const carneMolida = (await Producto.create({ tenant_id: tenantId, nombre: 'Carne Molida', tipo: 'insumo', categoria: 'insumo', precioCompra: 12.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 2 })) as any;
+  const pan = (await Producto.create({ tenant_id: tenantId, nombre: 'Pan de Hamburguesa', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.80, precioVenta: 0, stock: 0, stockMinimo: 50, unidad: 'unidad', merma: 0 })) as any;
+  const lechuga = (await Producto.create({ tenant_id: tenantId, nombre: 'Lechuga', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.20, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 8 })) as any;
+  const tomate = (await Producto.create({ tenant_id: tenantId, nombre: 'Tomate', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.50, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 3 })) as any;
+  const papasCongeladas = (await Producto.create({ tenant_id: tenantId, nombre: 'Papas Fritas Congeladas', tipo: 'insumo', categoria: 'insumo', precioCompra: 4.00, precioVenta: 0, stock: 0, stockMinimo: 15, unidad: 'kg', merma: 5 })) as any;
+  const milanesa = (await Producto.create({ tenant_id: tenantId, nombre: 'Milanesa de Pollo', tipo: 'insumo', categoria: 'insumo', precioCompra: 10.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 3 })) as any;
 
-  const cocaCola = (await Producto.create({ tenant_id: tenant.id, nombre: 'Coca-Cola 500ml', tipo: 'directo', categoria: 'bebida', precioCompra: 1.20, precioVenta: 3.00, stock: 0, stockMinimo: 20, unidad: 'unidad', merma: 0 })) as any;
-  const agua = (await Producto.create({ tenant_id: tenant.id, nombre: 'Agua Mineral 500ml', tipo: 'directo', categoria: 'bebida', precioCompra: 0.80, precioVenta: 2.00, stock: 0, stockMinimo: 20, unidad: 'unidad', merma: 0 })) as any;
-  const heladoChocolate = (await Producto.create({ tenant_id: tenant.id, nombre: 'Helado de Chocolate', tipo: 'directo', categoria: 'postre', precioCompra: 2.50, precioVenta: 5.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
-  const papasPorcion = (await Producto.create({ tenant_id: tenant.id, nombre: 'Papas Fritas (porción)', tipo: 'directo', categoria: 'comida', precioCompra: 1.50, precioVenta: 4.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
+  const cocaCola = (await Producto.create({ tenant_id: tenantId, nombre: 'Coca-Cola 500ml', tipo: 'directo', categoria: 'bebida', precioCompra: 1.20, precioVenta: 3.00, stock: 0, stockMinimo: 20, unidad: 'unidad', merma: 0 })) as any;
+  const agua = (await Producto.create({ tenant_id: tenantId, nombre: 'Agua Mineral 500ml', tipo: 'directo', categoria: 'bebida', precioCompra: 0.80, precioVenta: 2.00, stock: 0, stockMinimo: 20, unidad: 'unidad', merma: 0 })) as any;
+  const heladoChocolate = (await Producto.create({ tenant_id: tenantId, nombre: 'Helado de Chocolate', tipo: 'directo', categoria: 'postre', precioCompra: 2.50, precioVenta: 5.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
+  const papasPorcion = (await Producto.create({ tenant_id: tenantId, nombre: 'Papas Fritas (porción)', tipo: 'directo', categoria: 'comida', precioCompra: 1.50, precioVenta: 4.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
 
-  const aceiteOliva = (await Producto.create({ tenant_id: tenant.id, nombre: 'Aceite de Oliva', tipo: 'insumo', categoria: 'insumo', precioCompra: 5.00, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'litro', merma: 0 })) as any;
-  const cebolla = (await Producto.create({ tenant_id: tenant.id, nombre: 'Cebolla', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.80, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 3 })) as any;
-  const pimientoRojo = (await Producto.create({ tenant_id: tenant.id, nombre: 'Pimiento Rojo', tipo: 'insumo', categoria: 'insumo', precioCompra: 2.00, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'kg', merma: 5 })) as any;
-  const leche = (await Producto.create({ tenant_id: tenant.id, nombre: 'Leche', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'litro', merma: 0 })) as any;
-  const azucar = (await Producto.create({ tenant_id: tenant.id, nombre: 'Azúcar', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.60, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 0 })) as any;
-  const huevo = (await Producto.create({ tenant_id: tenant.id, nombre: 'Huevo', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.15, precioVenta: 0, stock: 0, stockMinimo: 50, unidad: 'unidad', merma: 2 })) as any;
+  const aceiteOliva = (await Producto.create({ tenant_id: tenantId, nombre: 'Aceite de Oliva', tipo: 'insumo', categoria: 'insumo', precioCompra: 5.00, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'litro', merma: 0 })) as any;
+  const cebolla = (await Producto.create({ tenant_id: tenantId, nombre: 'Cebolla', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.80, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 3 })) as any;
+  const pimientoRojo = (await Producto.create({ tenant_id: tenantId, nombre: 'Pimiento Rojo', tipo: 'insumo', categoria: 'insumo', precioCompra: 2.00, precioVenta: 0, stock: 0, stockMinimo: 5, unidad: 'kg', merma: 5 })) as any;
+  const leche = (await Producto.create({ tenant_id: tenantId, nombre: 'Leche', tipo: 'insumo', categoria: 'insumo', precioCompra: 1.00, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'litro', merma: 0 })) as any;
+  const azucar = (await Producto.create({ tenant_id: tenantId, nombre: 'Azúcar', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.60, precioVenta: 0, stock: 0, stockMinimo: 10, unidad: 'kg', merma: 0 })) as any;
+  const huevo = (await Producto.create({ tenant_id: tenantId, nombre: 'Huevo', tipo: 'insumo', categoria: 'insumo', precioCompra: 0.15, precioVenta: 0, stock: 0, stockMinimo: 50, unidad: 'unidad', merma: 2 })) as any;
 
-  const cerveza = (await Producto.create({ tenant_id: tenant.id, nombre: 'Cerveza Artesanal', tipo: 'directo', categoria: 'bebida', precioCompra: 2.50, precioVenta: 6.00, stock: 0, stockMinimo: 20, unidad: 'unidad', merma: 0 })) as any;
-  const vinoTinto = (await Producto.create({ tenant_id: tenant.id, nombre: 'Vino Tinto', tipo: 'directo', categoria: 'bebida', precioCompra: 4.00, precioVenta: 12.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
-  const jugoNaranja = (await Producto.create({ tenant_id: tenant.id, nombre: 'Jugo de Naranja', tipo: 'directo', categoria: 'bebida', precioCompra: 1.00, precioVenta: 3.50, stock: 0, stockMinimo: 15, unidad: 'unidad', merma: 0 })) as any;
+  const cerveza = (await Producto.create({ tenant_id: tenantId, nombre: 'Cerveza Artesanal', tipo: 'directo', categoria: 'bebida', precioCompra: 2.50, precioVenta: 6.00, stock: 0, stockMinimo: 20, unidad: 'unidad', merma: 0 })) as any;
+  const vinoTinto = (await Producto.create({ tenant_id: tenantId, nombre: 'Vino Tinto', tipo: 'directo', categoria: 'bebida', precioCompra: 4.00, precioVenta: 12.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
+  const jugoNaranja = (await Producto.create({ tenant_id: tenantId, nombre: 'Jugo de Naranja', tipo: 'directo', categoria: 'bebida', precioCompra: 1.00, precioVenta: 3.50, stock: 0, stockMinimo: 15, unidad: 'unidad', merma: 0 })) as any;
 
-  const empanadaCarne = (await Producto.create({ tenant_id: tenant.id, nombre: 'Empanada de Carne', tipo: 'directo', categoria: 'comida', precioCompra: 0.80, precioVenta: 2.50, stock: 0, stockMinimo: 30, unidad: 'unidad', merma: 0 })) as any;
-  const sandwichMilanesa = (await Producto.create({ tenant_id: tenant.id, nombre: 'Sándwich de Milanesa', tipo: 'compuesto', categoria: 'comida', precioCompra: 3.50, precioVenta: 9.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
+  const empanadaCarne = (await Producto.create({ tenant_id: tenantId, nombre: 'Empanada de Carne', tipo: 'directo', categoria: 'comida', precioCompra: 0.80, precioVenta: 2.50, stock: 0, stockMinimo: 30, unidad: 'unidad', merma: 0 })) as any;
+  const sandwichMilanesa = (await Producto.create({ tenant_id: tenantId, nombre: 'Sándwich de Milanesa', tipo: 'compuesto', categoria: 'comida', precioCompra: 3.50, precioVenta: 9.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
 
-  const tiramisu = (await Producto.create({ tenant_id: tenant.id, nombre: 'Tiramisú', tipo: 'directo', categoria: 'postre', precioCompra: 3.00, precioVenta: 7.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
-  const brownie = (await Producto.create({ tenant_id: tenant.id, nombre: 'Brownie', tipo: 'directo', categoria: 'postre', precioCompra: 1.50, precioVenta: 4.50, stock: 0, stockMinimo: 15, unidad: 'unidad', merma: 0 })) as any;
-  const flan = (await Producto.create({ tenant_id: tenant.id, nombre: 'Flan', tipo: 'directo', categoria: 'postre', precioCompra: 1.00, precioVenta: 3.50, stock: 0, stockMinimo: 15, unidad: 'unidad', merma: 0 })) as any;
+  const tiramisu = (await Producto.create({ tenant_id: tenantId, nombre: 'Tiramisú', tipo: 'directo', categoria: 'postre', precioCompra: 3.00, precioVenta: 7.00, stock: 0, stockMinimo: 10, unidad: 'unidad', merma: 0 })) as any;
+  const brownie = (await Producto.create({ tenant_id: tenantId, nombre: 'Brownie', tipo: 'directo', categoria: 'postre', precioCompra: 1.50, precioVenta: 4.50, stock: 0, stockMinimo: 15, unidad: 'unidad', merma: 0 })) as any;
+  const flan = (await Producto.create({ tenant_id: tenantId, nombre: 'Flan', tipo: 'directo', categoria: 'postre', precioCompra: 1.00, precioVenta: 3.50, stock: 0, stockMinimo: 15, unidad: 'unidad', merma: 0 })) as any;
 
-  const pizza = (await Producto.create({ tenant_id: tenant.id, nombre: 'Pizza Muzzarella', tipo: 'compuesto', categoria: 'comida', precioCompra: 3.50, precioVenta: 10.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
-  const hamburguesa = (await Producto.create({ tenant_id: tenant.id, nombre: 'Hamburguesa Clásica', tipo: 'compuesto', categoria: 'comida', precioCompra: 4.50, precioVenta: 12.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
-  const milanesaPapas = (await Producto.create({ tenant_id: tenant.id, nombre: 'Milanesa con Papas', tipo: 'compuesto', categoria: 'comida', precioCompra: 5.00, precioVenta: 14.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
+  const pizza = (await Producto.create({ tenant_id: tenantId, nombre: 'Pizza Muzzarella', tipo: 'compuesto', categoria: 'comida', precioCompra: 3.50, precioVenta: 10.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
+  const hamburguesa = (await Producto.create({ tenant_id: tenantId, nombre: 'Hamburguesa Clásica', tipo: 'compuesto', categoria: 'comida', precioCompra: 4.50, precioVenta: 12.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
+  const milanesaPapas = (await Producto.create({ tenant_id: tenantId, nombre: 'Milanesa con Papas', tipo: 'compuesto', categoria: 'comida', precioCompra: 5.00, precioVenta: 14.00, stock: 0, stockMinimo: 0, unidad: 'unidad', merma: 0 })) as any;
 
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: pizza.id, insumoId: harina.id, cantidad: 0.25, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: pizza.id, insumoId: queso.id, cantidad: 0.20, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: pizza.id, insumoId: salsaTomate.id, cantidad: 0.10, unidad: 'litro' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: pizza.id, insumoId: harina.id, cantidad: 0.25, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: pizza.id, insumoId: queso.id, cantidad: 0.20, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: pizza.id, insumoId: salsaTomate.id, cantidad: 0.10, unidad: 'litro' });
 
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: hamburguesa.id, insumoId: carneMolida.id, cantidad: 0.15, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: hamburguesa.id, insumoId: pan.id, cantidad: 1, unidad: 'unidad' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: hamburguesa.id, insumoId: lechuga.id, cantidad: 0.02, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: hamburguesa.id, insumoId: tomate.id, cantidad: 0.03, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: hamburguesa.id, insumoId: carneMolida.id, cantidad: 0.15, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: hamburguesa.id, insumoId: pan.id, cantidad: 1, unidad: 'unidad' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: hamburguesa.id, insumoId: lechuga.id, cantidad: 0.02, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: hamburguesa.id, insumoId: tomate.id, cantidad: 0.03, unidad: 'kg' });
 
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: milanesaPapas.id, insumoId: milanesa.id, cantidad: 0.20, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: milanesaPapas.id, insumoId: papasCongeladas.id, cantidad: 0.25, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: milanesaPapas.id, insumoId: milanesa.id, cantidad: 0.20, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: milanesaPapas.id, insumoId: papasCongeladas.id, cantidad: 0.25, unidad: 'kg' });
 
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: sandwichMilanesa.id, insumoId: milanesa.id, cantidad: 0.20, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: sandwichMilanesa.id, insumoId: pan.id, cantidad: 2, unidad: 'unidad' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: sandwichMilanesa.id, insumoId: lechuga.id, cantidad: 0.03, unidad: 'kg' });
-  await DetalleReceta.create({ tenant_id: tenant.id, productoId: sandwichMilanesa.id, insumoId: tomate.id, cantidad: 0.04, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: sandwichMilanesa.id, insumoId: milanesa.id, cantidad: 0.20, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: sandwichMilanesa.id, insumoId: pan.id, cantidad: 2, unidad: 'unidad' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: sandwichMilanesa.id, insumoId: lechuga.id, cantidad: 0.03, unidad: 'kg' });
+  await DetalleReceta.create({ tenant_id: tenantId, productoId: sandwichMilanesa.id, insumoId: tomate.id, cantidad: 0.04, unidad: 'kg' });
 
-  const proveedorDistribuidora = (await Proveedor.create({ tenant_id: tenant.id, nombre: 'Distribuidora ABC', contacto: 'Juan Pérez', telefono: '555-0100', email: 'abc@example.com', direccion: 'Av. Siempre Viva 123', activo: true })) as any;
-  const proveedorCarnes = (await Proveedor.create({ tenant_id: tenant.id, nombre: 'Carnes del Sur', contacto: 'María García', telefono: '555-0200', email: 'carnes@example.com', direccion: 'Calle Principal 456', activo: true })) as any;
-  const proveedorBebidas = (await Proveedor.create({ tenant_id: tenant.id, nombre: 'Bebidas SA', contacto: 'Carlos López', telefono: '555-0300', email: 'bebidas@example.com', direccion: 'Ruta 9 Km 50', activo: true })) as any;
-  const proveedorDulces = (await Proveedor.create({ tenant_id: tenant.id, nombre: 'Dulces del Valle', contacto: 'Laura Martínez', telefono: '555-0400', email: 'dulces@example.com', direccion: 'Calle Dulce 789', activo: true })) as any;
+  const proveedorDistribuidora = (await Proveedor.create({ tenant_id: tenantId, nombre: 'Distribuidora ABC', contacto: 'Juan Pérez', telefono: '555-0100', email: 'abc@example.com', direccion: 'Av. Siempre Viva 123', activo: true })) as any;
+  const proveedorCarnes = (await Proveedor.create({ tenant_id: tenantId, nombre: 'Carnes del Sur', contacto: 'María García', telefono: '555-0200', email: 'carnes@example.com', direccion: 'Calle Principal 456', activo: true })) as any;
+  const proveedorBebidas = (await Proveedor.create({ tenant_id: tenantId, nombre: 'Bebidas SA', contacto: 'Carlos López', telefono: '555-0300', email: 'bebidas@example.com', direccion: 'Ruta 9 Km 50', activo: true })) as any;
+  const proveedorDulces = (await Proveedor.create({ tenant_id: tenantId, nombre: 'Dulces del Valle', contacto: 'Laura Martínez', telefono: '555-0400', email: 'dulces@example.com', direccion: 'Calle Dulce 789', activo: true })) as any;
 
   for (let i = 1; i <= 6; i++) {
     await Mesa.create({
-      tenant_id: tenant.id,
+      tenant_id: tenantId,
       numero: i,
       capacidad: i <= 2 ? 2 : i <= 4 ? 4 : 6,
       estado: 'disponible',
@@ -198,7 +198,7 @@ async function seed() {
 
   for (const compraData of compras) {
     const compra = (await Compra.create({
-      tenant_id: tenant.id,
+      tenant_id: tenantId,
       proveedorId: compraData.proveedor.id,
       total: compraData.total,
       estado: 'recibida',
@@ -207,7 +207,7 @@ async function seed() {
 
     for (const det of compraData.detalles) {
       await DetalleCompra.create({
-        tenant_id: tenant.id,
+        tenant_id: tenantId,
         CompraId: compra.id,
         ProductoId: det.producto.id,
         cantidad: det.cantidad,
@@ -218,7 +218,7 @@ async function seed() {
       await det.producto.update({ stock: det.producto.stock + det.cantidad });
 
       await Kardex.create({
-        tenant_id: tenant.id,
+        tenant_id: tenantId,
         productoId: det.producto.id,
         tipo: 'entrada',
         cantidad: det.cantidad,
@@ -232,9 +232,9 @@ async function seed() {
   // === VENTAS DE PRUEBA ===
   console.log('Creando ventas de prueba...');
 
-  const adminUser = (await Usuario.findOne({ where: { tenant_id: tenant.id, rol: 'admin' } })) as any;
+  const adminUser = (await Usuario.findOne({ where: { tenant_id: tenantId, rol: 'admin' } })) as any;
 
-  const productosArray = await Producto.findAll({ where: { tenant_id: tenant.id } });
+  const productosArray = await Producto.findAll({ where: { tenant_id: tenantId } });
   const prodMap: Record<string, any> = {};
   for (const p of productosArray) prodMap[(p as any).nombre] = p;
 
@@ -264,7 +264,7 @@ async function seed() {
     if (detalles.length === 0) continue;
 
     const venta = (await Venta.create({
-      tenant_id: tenant.id,
+      tenant_id: tenantId,
       estado: 'cerrada',
       metodoPago: v.metodo,
       total,
@@ -275,7 +275,7 @@ async function seed() {
 
     for (const d of detalles) {
       const detalle = (await DetalleVenta.create({
-        tenant_id: tenant.id,
+        tenant_id: tenantId,
         VentaId: venta.id,
         ProductoId: d.ProductoId,
         cantidad: d.cantidad,
@@ -292,11 +292,11 @@ async function seed() {
       // Kardex salida para directos y compuestos
       if (producto.tipo === 'directo') {
         const entradaAnterior = await Kardex.findOne({
-          where: { productoId: d.ProductoId, tipo: 'entrada', tenant_id: tenant.id },
+          where: { productoId: d.ProductoId, tipo: 'entrada', tenant_id: tenantId },
           order: [['createdAt', 'ASC'], ['id', 'ASC']],
         });
         await Kardex.create({
-          tenant_id: tenant.id,
+          tenant_id: tenantId,
           productoId: d.ProductoId,
           tipo: 'salida',
           cantidad: d.cantidad,
@@ -309,18 +309,18 @@ async function seed() {
       }
 
       if (producto.tipo === 'compuesto') {
-        const recetas = await DetalleReceta.findAll({ where: { productoId: d.ProductoId, tenant_id: tenant.id } });
+        const recetas = await DetalleReceta.findAll({ where: { productoId: d.ProductoId, tenant_id: tenantId } });
         for (const receta of recetas) {
           const insumo: any = await Producto.findByPk((receta as any).insumoId);
           if (!insumo) continue;
           const entradaAnterior = await Kardex.findOne({
-            where: { productoId: insumo.id, tipo: 'entrada', tenant_id: tenant.id },
+            where: { productoId: insumo.id, tipo: 'entrada', tenant_id: tenantId },
             order: [['createdAt', 'ASC'], ['id', 'ASC']],
           });
           const cantReceta = Number((receta as any).cantidad) * d.cantidad;
           const totalRequerido = cantReceta;
           await Kardex.create({
-            tenant_id: tenant.id,
+            tenant_id: tenantId,
             productoId: insumo.id,
             tipo: 'salida',
             cantidad: totalRequerido,
