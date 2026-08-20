@@ -47,6 +47,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
+      mercadopago:
+        specifier: ^3.4.0
+        version: 3.4.0
       minio:
         specifier: ^8.0.7
         version: 8.0.7
@@ -1756,6 +1759,10 @@ packages:
   media-typer@1.1.0:
     resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
     engines: {node: '>= 0.8'}
+
+  mercadopago@3.4.0:
+    resolution: {integrity: sha512-oMbjrD4Y+JA8tj3Vc4BdGAMGGtL5lqqypUb5WPhIMI2X47R8JlE76W3sQ8kfq0wIROxi5gaxCHT/3Ojm4MjTOA==}
+    engines: {node: '>=18'}
 
   merge-descriptors@2.0.0:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
@@ -4203,6 +4210,8 @@ snapshots:
   media-typer@0.3.0: {}
 
   media-typer@1.1.0: {}
+
+  mercadopago@3.4.0: {}
 
   merge-descriptors@2.0.0: {}
 

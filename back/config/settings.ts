@@ -51,4 +51,9 @@ export const settings = {
       ? process.env.S3_FORCE_PATH_STYLE === 'true'
       : (process.env.S3_ENDPOINT || '').includes('localhost'),
   },
+
+  mercadopago: {
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '',
+    webhookSecret: process.env.MERCADOPAGO_WEBHOOK_SECRET || ''
+  },
 } as const;

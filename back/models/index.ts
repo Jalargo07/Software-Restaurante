@@ -22,6 +22,7 @@ import ContactoMensaje from './ContactoMensaje';
 import SessionActiva from './SessionActiva';
 import RefreshToken from './RefreshToken';
 import OnboardingProgress from './OnboardingProgress';
+import { PagoMercadoPago } from './PagoMercadoPago';
 
 // Sucursal -> Models
 Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
@@ -161,6 +162,14 @@ RefreshToken.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
 Tenant.hasOne(OnboardingProgress, { foreignKey: 'tenantId', as: 'onboarding' });
 OnboardingProgress.belongsTo(Tenant, { foreignKey: 'tenantId', as: 'tenant' });
 
+// PagoMercadoPago -> Tenant
+Tenant.hasMany(PagoMercadoPago, { foreignKey: 'tenantId' });
+PagoMercadoPago.belongsTo(Tenant, { foreignKey: 'tenantId' });
+
+// PagoMercadoPago -> Venta
+Venta.hasMany(PagoMercadoPago, { foreignKey: 'ventaId' });
+PagoMercadoPago.belongsTo(Venta, { foreignKey: 'ventaId' });
+
 export {
   Tenant,
   Sucursal,
@@ -186,4 +195,5 @@ export {
   SessionActiva,
   RefreshToken,
   OnboardingProgress,
+  PagoMercadoPago,
 };

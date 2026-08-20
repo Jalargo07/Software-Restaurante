@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import { Transaccion, Tenant } from '../models';
+import { Transaccion, Tenant, Venta, PagoMercadoPago } from '../models';
+import { settings } from '../config/settings';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 export const PRECIOS_MODULOS = {
   pos: { rapido: 0, mesas: 5000, ambos: 10000 },
@@ -154,3 +156,107 @@ export const capturarOrden = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al capturar pago' });
   }
 };
+
+export const crearPreferenciaMercadoPago = async (req: Request, res: Response, next: Function) => {
+  try {
+    const { ventaId, amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Monto inválido' });
+    }
+
+    const client = new MercadoPagoConfig({ accessToken: settings.mercadopago.accessToken });
+    const preference = new Preference(client);
+
+    const result = await preference.create({
+      body: {
+        items: [
+          {
+            id: `venta-${ventaId || Date.now()}`,
+            title: `Venta #${ventaId || 'Directa'}`,
+            unit_price: Number(amount),
+            quantity: 1
+          }
+        ],
+        back_urls: {
+          success: `${settings.cors.origins[0]}/ventas`,
+          failure: `${settings.cors.origins[0]}/ventas`
+        },
+        notification_url: `${settings.cors.origins[0]}/api/pagos/mercadopago/webhook`
+      }
+    });
+
+    const pago = await PagoMercadoPago.create({
+      preferenceId: result.id,
+      amount,
+      status: 'pending',
+      tenantId: req.tenantId!,
+      ventaId: ventaId || null
+    }) as unknown as PagoMercadoPagoModel;
+
+    res.json({
+      ok: true,
+      preferenceId: result.id,
+      init_point: result.init_point,
+      pagoId: pago.id
+    });
+  } catch (error: any) {
+    console.error('Error en crearPreferenciaMercadoPago:', error);
+    next(error);
+  }
+};
+
+export const webhookMercadoPago = async (req: Request, res: Response, next: Function) => {
+  try {
+    const { id, status, payment_id } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID de preferencia requerido' });
+    }
+
+    const pago = await PagoMercadoPago.findOne({
+      where: { preferenceId: id }
+    }) as PagoMercadoPagoModel | null;
+
+    if (!pago) {
+      return res.status(404).json({ error: 'Pago no encontrado' });
+    }
+
+    pago.paymentId = payment_id?.toString() || null;
+    pago.status = mapMercadoPagoStatus(status);
+    await pago.save();
+
+    if (pago.status === 'approved' && pago.ventaId) {
+      await Venta.update(
+        { estado: 'cerrada', metodoPago: 'mercadopago' },
+        { where: { id: pago.ventaId } }
+      );
+    }
+
+    res.json({ ok: true });
+  } catch (error: any) {
+    console.error('Error en webhookMercadoPago:', error);
+    next(error);
+  }
+};
+
+interface PagoMercadoPagoModel {
+  id: number;
+  preferenceId: string | null;
+  paymentId: string | null;
+  status: string;
+  amount: number;
+  tenantId: number;
+  ventaId: number | null;
+  save(): Promise<PagoMercadoPagoModel>;
+}
+
+function mapMercadoPagoStatus(status: string): string {
+  const map: Record<string, string> = {
+    'pending': 'pending',
+    'approved': 'approved',
+    'rejected': 'rejected',
+    'cancelled': 'cancelled'
+  };
+  return map[status] || 'pending';
+}
