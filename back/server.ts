@@ -36,6 +36,7 @@ import landingRoutes, { landingPublicRouter } from './routes/landing';
 import deliveryRoutes, { deliveryPublicRouter } from './routes/delivery';
 import sucursalRoutes from './routes/sucursales';
 import contactoRoutes from './routes/contacto';
+import onboardingRoutes from './routes/onboarding';
 import { initializeSocketHandlers } from './services/socketHandler';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin, Sucursal } from './models';
@@ -104,6 +105,7 @@ app.use('/api/pagos', pagosRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/sucursales', sucursalRoutes);
+app.use('/api/onboarding', onboardingRoutes);
 
 app.use(errorHandler);
 

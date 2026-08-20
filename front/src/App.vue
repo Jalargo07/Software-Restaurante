@@ -4,19 +4,23 @@ import { useAuthStore } from './stores/auth'
 import { useSuperAdminAuthStore } from './stores/superAdminAuth'
 import { useBrandingStore } from './stores/branding'
 import { useSucursalStore } from './stores/sucursales'
+import { useThemeStore } from './stores/theme'
+import { useSyncQueueStore } from './stores/syncQueue'
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import ToastContainer from './components/common/ToastContainer.vue'
 import Sidebar from './components/common/Sidebar.vue'
+import ErrorBoundary from './components/common/ErrorBoundary.vue'
 import api from './services/api'
 
 const authStore = useAuthStore()
 const sucursalStore = useSucursalStore()
 const saAuthStore = useSuperAdminAuthStore()
 const brandingStore = useBrandingStore()
+const themeStore = useThemeStore()
+const syncQueueStore = useSyncQueueStore()
 const router = useRouter()
 const route = useRoute()
 
-const theme = ref(localStorage.getItem('theme') || 'light')
 const currentMode = ref<'produccion' | 'administracion' | 'cms'>('produccion')
 const mobileMenuOpen = ref(false)
 
@@ -49,7 +53,13 @@ watch(
 let licenseInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(async () => {
-  document.documentElement.setAttribute('data-theme', theme.value)
+  themeStore.init()
+
+  window.addEventListener('online', () => {
+    if (syncQueueStore.hasPending) {
+      syncQueueStore.syncQueue()
+    }
+  })
 
   try {
     if (authStore.isAuthenticated) {
@@ -109,12 +119,6 @@ onUnmounted(() => {
   if (licenseInterval) clearInterval(licenseInterval)
 })
 
-function toggleTheme() {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
-  document.documentElement.setAttribute('data-theme', theme.value)
-  localStorage.setItem('theme', theme.value)
-}
-
 function labelPlan(plan: string) {
   const map: Record<string, string> = { basico: 'Básico', pro: 'Pro', enterprise: 'Enterprise' }
   return map[plan] || plan
@@ -129,6 +133,10 @@ function salir() {
 
 function cambiarSucursal() {
   window.location.reload()
+}
+
+async function sincronizarCola() {
+  await syncQueueStore.syncQueue()
 }
 
 const navItems = computed(() => {
@@ -158,8 +166,21 @@ function isActive(path: string) {
     <div v-if="authStore.licenseWarning || saAuthStore.licenseWarning" class="bg-red-600 text-white text-center text-sm py-2 px-4 font-medium">
       ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
     </div>
-    <RouterView />
-    <ToastContainer />
+    <div v-if="syncQueueStore.hasPending" class="bg-amber-500 text-white text-center text-xs py-2 px-4 font-medium flex items-center justify-center gap-3">
+      <span>📤 {{ syncQueueStore.pendingCount }} solicitud(es) pendiente(s) de sincronización</span>
+      <button
+        v-if="!syncQueueStore.isSyncing"
+        class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+        @click="sincronizarCola"
+      >
+        Sincronizar ahora
+      </button>
+      <span v-else class="text-xs opacity-80">Sincronizando...</span>
+    </div>
+    <ErrorBoundary>
+      <RouterView />
+    </ErrorBoundary>
+        <ToastContainer />
   </div>
 
   <div
@@ -170,8 +191,8 @@ function isActive(path: string) {
       v-if="(authStore.isAuthenticated || saAuthStore.isAuthenticated) && (currentMode === 'administracion' || currentMode === 'cms' || isAdministrationRoute)"
       v-model="mobileMenuOpen"
       v-model:currentMode="currentMode"
-      :theme="theme"
-      @toggle-theme="toggleTheme"
+      :theme="themeStore.theme"
+      @toggle-theme="themeStore.toggle"
       @logout="salir"
     />
 
@@ -199,8 +220,22 @@ function isActive(path: string) {
         ⚠️ {{ authStore.licenseWarning || saAuthStore.licenseWarning }} — Contacte: soporte@biteops.app
       </div>
 
+      <div v-if="syncQueueStore.hasPending" class="bg-amber-500 text-white text-center text-xs py-2 px-4 font-medium flex items-center justify-center gap-3">
+        <span>📤 {{ syncQueueStore.pendingCount }} solicitud(es) pendiente(s) de sincronización</span>
+        <button
+          v-if="!syncQueueStore.isSyncing"
+          class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+          @click="sincronizarCola"
+        >
+          Sincronizar ahora
+        </button>
+        <span v-else class="text-xs opacity-80">Sincronizando...</span>
+      </div>
+
       <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 pb-24">
-        <RouterView />
+        <ErrorBoundary>
+          <RouterView />
+        </ErrorBoundary>
       </main>
     </div>
 
@@ -216,8 +251,8 @@ function isActive(path: string) {
         <span class="text-[10px] leading-tight">{{ item.label }}</span>
       </RouterLink>
 
-      <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors min-w-[64px]" @click="toggleTheme" :title="theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
-        <span class="text-lg leading-none">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
+      <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors min-w-[64px]" @click="themeStore.toggle" :title="themeStore.theme === 'light' ? 'Modo oscuro' : 'Modo claro'">
+        <span class="text-lg leading-none">{{ themeStore.theme === 'light' ? '🌙' : '☀️' }}</span>
         <span class="text-[10px] leading-tight">Tema</span>
       </button>
 

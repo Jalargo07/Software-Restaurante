@@ -21,6 +21,7 @@ import DeliveryConfig from './DeliveryConfig';
 import ContactoMensaje from './ContactoMensaje';
 import SessionActiva from './SessionActiva';
 import RefreshToken from './RefreshToken';
+import OnboardingProgress from './OnboardingProgress';
 
 // Sucursal -> Models
 Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
@@ -156,6 +157,10 @@ SessionActiva.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
 Usuario.hasMany(RefreshToken, { foreignKey: 'usuarioId', as: 'refreshTokens' });
 RefreshToken.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
 
+// OnboardingProgress -> Tenant
+Tenant.hasOne(OnboardingProgress, { foreignKey: 'tenantId', as: 'onboarding' });
+OnboardingProgress.belongsTo(Tenant, { foreignKey: 'tenantId', as: 'tenant' });
+
 export {
   Tenant,
   Sucursal,
@@ -180,4 +185,5 @@ export {
   ContactoMensaje,
   SessionActiva,
   RefreshToken,
+  OnboardingProgress,
 };

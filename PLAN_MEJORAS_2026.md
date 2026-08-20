@@ -330,19 +330,15 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 **Archivos a modificar:**
 - front/src/components/common/ErrorBoundary.vue (nuevo)
 - front/src/App.vue
-- front/src/views/HomeView.vue
-- front/src/views/ventas/VentasView.vue
-- front/src/views/admin/AdminView.vue
 
 **Descripción:** No hay error boundary en Vue. Un componente que crashea rompe toda la app.
 
 **Pasos:**
-1. Crear componente `ErrorBoundary.vue` con `componentDidCatch` y estado de error
-2. Mostrar mensaje amigable + botón "Reintentar" + opción de reportar bug
-3. Enviar error a backend vía POST `/api/auditoria` (log de cliente)
-4. Integrar en App.vue envolviendo `<RouterView>` en `<ErrorBoundary>`
+1. Crear componente `ErrorBoundary.vue` con `onErrorCaptured` y estado de error
+2. Mostrar mensaje amigable + botón "Reintentar"
+3. Integrar en App.vue envolviendo `<RouterView>` en `<ErrorBoundary>` (public route y main app)
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado
 
 ---
 

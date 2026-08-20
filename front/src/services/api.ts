@@ -20,7 +20,24 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const isNetworkError = !error.response
+    const isOffline = !window.navigator.onLine
+
+    if (isNetworkError || isOffline) {
+      const method = error.config?.method?.toUpperCase() || 'GET'
+      const url = error.config?.url || ''
+      const data = error.config?.data ? JSON.parse(error.config.data) : undefined
+
+      try {
+        const { useSyncQueueStore } = await import('../stores/syncQueue')
+        const syncStore = useSyncQueueStore()
+        syncStore.addToQueue(method, url, data)
+      } catch {
+        // store no disponible aun
+      }
+    }
+
     if (error.response?.status === 401 || error.response?.status === 403) {
       const saToken = localStorage.getItem('sa_token')
       if (saToken) {
