@@ -5,6 +5,8 @@ import registrarAuditoria from '../utils/auditoria';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 import { invalidarCache } from '../utils/cacheInvalidation';
 import { checkLicense } from '../utils/licenseGuard';
+import { validarStock, descontarStock } from '../utils/stockManager';
+import { registrarKardexSalida, obtenerCostoUnitario } from '../utils/kardexManager';
 
 export const obtenerTodas = async (req: Request, res: Response) => {
   try {
@@ -93,46 +95,18 @@ export const agregarProductos = async (req: Request, res: Response) => {
     let totalAgregado = 0;
 
     for (const item of productos) {
+      const validacion = await validarStock(item.productoId, item.cantidad, req.tenantId!, t);
+      if (!validacion.valido) {
+        await t.rollback();
+        return res.status(400).json({
+          message: `Stock insuficiente para ${validacion.nombre || 'producto id ' + item.productoId}. Disponible: ${validacion.stockActual}`,
+        });
+      }
+
       const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
       if (!producto || !belongsToTenant(producto, req.tenantId!)) {
         await t.rollback();
         return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
-      }
-
-      if (producto.tipo === 'compuesto') {
-        const ingredientes: any = await DetalleReceta.findAll({
-          where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-          transaction: t,
-        });
-
-        if (!ingredientes || ingredientes.length === 0) {
-          await t.rollback();
-          return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
-        }
-
-        for (const ingrediente of ingredientes) {
-          const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-          if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
-            await t.rollback();
-            return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
-          }
-
-          const totalRequerido = Number(ingrediente.cantidad) * Number(item.cantidad);
-
-          if (insumo.stock < totalRequerido) {
-            await t.rollback();
-            return res.status(400).json({
-              message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
-            });
-          }
-        }
-      } else {
-        if (Number(producto.stock) < Number(item.cantidad)) {
-          await t.rollback();
-          return res.status(400).json({
-            message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
-          });
-        }
       }
 
       const precio = item.precioUnitario || Number(producto.precioVenta);
@@ -197,46 +171,12 @@ export const crearConProductos = async (req: Request, res: Response) => {
     const { mesaId, productos } = req.body;
 
     for (const item of productos) {
-      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
-      if (!producto || !belongsToTenant(producto, req.tenantId!)) {
+      const validacion = await validarStock(item.productoId, item.cantidad, req.tenantId!, t);
+      if (!validacion.valido) {
         await t.rollback();
-        return res.status(400).json({ error: `Producto ${item.productoId} no encontrado` });
-      }
-
-      if (producto.tipo === 'compuesto') {
-        const ingredientes: any = await DetalleReceta.findAll({
-          where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-          transaction: t,
+        return res.status(400).json({
+          message: `Stock insuficiente para ${validacion.nombre || 'producto id ' + item.productoId}. Disponible: ${validacion.stockActual}`,
         });
-
-        if (!ingredientes || ingredientes.length === 0) {
-          await t.rollback();
-          return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
-        }
-
-        for (const ingrediente of ingredientes) {
-          const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-          if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
-            await t.rollback();
-            return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
-          }
-
-          const totalRequerido = Number(ingrediente.cantidad) * Number(item.cantidad);
-
-          if (insumo.stock < totalRequerido) {
-            await t.rollback();
-            return res.status(400).json({
-              message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
-            });
-          }
-        }
-      } else {
-        if (Number(producto.stock) < Number(item.cantidad)) {
-          await t.rollback();
-          return res.status(400).json({
-            message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
-          });
-        }
       }
     }
 
@@ -379,108 +319,16 @@ export const cobrar = async (req: Request, res: Response) => {
     for (const detalle of detalles) {
       if (detalle.Producto) {
         const producto: any = detalle.Producto;
-
-        if (producto.tipo === 'compuesto') {
-          const ingredientes: any = await DetalleReceta.findAll({
-              where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-              transaction: t,
-            });
-
-            if (!ingredientes || ingredientes.length === 0) {
-              await t.rollback();
-              return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
-            }
-
-            for (const ingrediente of ingredientes) {
-            const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-            if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
-              await t.rollback();
-              return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
-            }
-
-            const totalRequerido = Number(ingrediente.cantidad) * Number(detalle.cantidad);
-
-            if (insumo.stock < totalRequerido) {
-              await t.rollback();
-              return res.status(400).json({
-                message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
-              });
-            }
-
-            await insumo.update({ stock: Math.floor(insumo.stock - totalRequerido) }, { transaction: t });
-          }
-        } else {
-          if (Number(producto.stock) < Number(detalle.cantidad)) {
-            await t.rollback();
-            return res.status(400).json({
-              message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
-            });
-          }
-          const nuevoStock = Math.floor(producto.stock - detalle.cantidad);
-          await producto.update({ stock: nuevoStock }, { transaction: t });
-        }
-      }
-    }
-
-    for (const detalle of detalles) {
-      if (detalle.Producto) {
-        const producto: any = detalle.Producto;
-
-        if (producto.tipo === 'compuesto') {
-          const ingredientes: any = await DetalleReceta.findAll({
-            where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-            transaction: t,
+        const validacion = await validarStock(producto.id, Number(detalle.cantidad), req.tenantId!, t);
+        if (!validacion.valido) {
+          await t.rollback();
+          return res.status(400).json({
+            message: `Stock insuficiente para ${validacion.nombre}. Disponible: ${validacion.stockActual}`,
           });
-
-          for (const ingrediente of ingredientes) {
-            const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-            const totalDescontado = Number(ingrediente.cantidad) * Number(detalle.cantidad);
-
-            const entradas = await Kardex.findAll({
-              where: scopeTenant({
-                productoId: ingrediente.insumoId,
-                tipo: 'entrada',
-              }, req.tenantId!),
-              order: [['fecha', 'ASC']],
-              transaction: t,
-            });
-
-            let costoUnitario = Number(insumo.precioCompra);
-            if (entradas.length > 0) {
-              costoUnitario = Number((entradas[0] as any).precioUnitario);
-            }
-
-            await Kardex.create(withTenant({
-              productoId: ingrediente.insumoId,
-              tipo: 'salida',
-              cantidad: totalDescontado,
-              precioUnitario: costoUnitario,
-              ventaId: venta.id,
-            }, req.tenantId!), { transaction: t });
-          }
-        } else {
-          const entradas = await Kardex.findAll({
-            where: scopeTenant({
-              productoId: producto.id,
-              tipo: 'entrada',
-            }, req.tenantId!),
-            order: [['fecha', 'ASC']],
-            transaction: t,
-          });
-
-          let costoUnitario = Number(producto.precioCompra);
-          if (entradas.length > 0) {
-            costoUnitario = Number((entradas[0] as any).precioUnitario);
-          }
-
-          await Kardex.create(withTenant({
-            productoId: producto.id,
-            tipo: 'salida',
-            cantidad: Number(detalle.cantidad),
-            precioUnitario: costoUnitario,
-            ventaId: venta.id,
-          }, req.tenantId!), { transaction: t });
         }
+        await descontarStock(producto.id, Number(detalle.cantidad), req.tenantId!, t);
+        const costoUnitario = await obtenerCostoUnitario(producto.id, req.tenantId!, t);
+        await registrarKardexSalida(producto.id, Number(detalle.cantidad), costoUnitario, venta.id, req.tenantId!, t);
       }
     }
 
@@ -545,6 +393,11 @@ export const cobrar = async (req: Request, res: Response) => {
 export const crearRapida = async (req: Request, res: Response) => {
   const t = await sequelize.transaction();
   try {
+    if (!checkLicense().ok) {
+      await t.rollback();
+      return res.status(403).json({ error: 'Licencia inválida' });
+    }
+
     const { mesaId, metodoPago, productos, cliente } = req.body;
 
     let total = 0;
@@ -556,6 +409,14 @@ export const crearRapida = async (req: Request, res: Response) => {
       }
       const precio = item.precioUnitario || Number(prod.precioVenta);
       total += item.cantidad * precio;
+
+      const validacion = await validarStock(item.productoId, item.cantidad, req.tenantId!, t);
+      if (!validacion.valido) {
+        await t.rollback();
+        return res.status(400).json({
+          message: `Stock insuficiente para ${validacion.nombre}. Disponible: ${validacion.stockActual}`,
+        });
+      }
     }
 
     const venta: any = await Venta.create(withTenant({
@@ -584,105 +445,9 @@ export const crearRapida = async (req: Request, res: Response) => {
         subtotal,
       }, req.tenantId!), { transaction: t });
 
-      if (producto.tipo === 'compuesto') {
-        const ingredientes: any = await DetalleReceta.findAll({
-          where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-          transaction: t,
-        });
-
-        if (!ingredientes || ingredientes.length === 0) {
-          await t.rollback();
-          return res.status(400).json({ error: `El producto compuesto "${producto.nombre}" no tiene receta definida` });
-        }
-
-        for (const ingrediente of ingredientes) {
-          const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-          if (!insumo || !belongsToTenant(insumo, req.tenantId!)) {
-            await t.rollback();
-            return res.status(400).json({ error: `Insumo id ${ingrediente.insumoId} no encontrado en receta` });
-          }
-
-          const totalRequerido = Number(ingrediente.cantidad) * Number(item.cantidad);
-
-          if (insumo.stock < totalRequerido) {
-            await t.rollback();
-            return res.status(400).json({
-              message: `Stock insuficiente para ${insumo.nombre}. Disponible: ${insumo.stock}`,
-            });
-          }
-
-          await insumo.update({ stock: Math.floor(insumo.stock - totalRequerido) }, { transaction: t });
-        }
-      } else {
-        if (Number(producto.stock) < Number(item.cantidad)) {
-          await t.rollback();
-          return res.status(400).json({
-            message: `Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`,
-          });
-        }
-        await producto.update({ stock: Math.floor(producto.stock - item.cantidad) }, { transaction: t });
-      }
-    }
-
-    for (const item of productos) {
-      const producto: any = await Producto.findByPk(item.productoId, { transaction: t });
-      if (producto) {
-        if (producto.tipo === 'compuesto') {
-          const ingredientes: any = await DetalleReceta.findAll({
-            where: scopeTenant({ productoId: producto.id }, req.tenantId!),
-            transaction: t,
-          });
-
-          for (const ingrediente of ingredientes) {
-            const insumo: any = await Producto.findByPk(ingrediente.insumoId, { transaction: t });
-            const totalDescontado = Number(ingrediente.cantidad) * Number(item.cantidad);
-
-            const entradas = await Kardex.findAll({
-              where: scopeTenant({
-                productoId: ingrediente.insumoId,
-                tipo: 'entrada',
-              }, req.tenantId!),
-              order: [['fecha', 'ASC']],
-              transaction: t,
-            });
-
-            let costoUnitario = Number(insumo.precioCompra);
-            if (entradas.length > 0) {
-              costoUnitario = Number((entradas[0] as any).precioUnitario);
-            }
-
-            await Kardex.create(withTenant({
-              productoId: ingrediente.insumoId,
-              tipo: 'salida',
-              cantidad: totalDescontado,
-              precioUnitario: costoUnitario,
-              ventaId: venta.id,
-            }, req.tenantId!), { transaction: t });
-          }
-        } else {
-          const entradas = await Kardex.findAll({
-            where: scopeTenant({
-              productoId: producto.id,
-              tipo: 'entrada',
-            }, req.tenantId!),
-            order: [['fecha', 'ASC']],
-            transaction: t,
-          });
-
-          let costoUnitario = Number(producto.precioCompra);
-          if (entradas.length > 0) {
-            costoUnitario = Number((entradas[0] as any).precioUnitario);
-          }
-
-          await Kardex.create(withTenant({
-            productoId: producto.id,
-            tipo: 'salida',
-            cantidad: Number(item.cantidad),
-            precioUnitario: costoUnitario,
-            ventaId: venta.id,
-          }, req.tenantId!), { transaction: t });
-        }
-      }
+      await descontarStock(item.productoId, item.cantidad, req.tenantId!, t);
+      const costoUnitario = await obtenerCostoUnitario(item.productoId, req.tenantId!, t);
+      await registrarKardexSalida(item.productoId, item.cantidad, costoUnitario, venta.id, req.tenantId!, t);
     }
 
     if (mesaId) {
