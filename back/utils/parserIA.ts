@@ -189,3 +189,10 @@ export async function parsearFactura(
 
   return parsearRespuesta(raw, proveedores, productos);
 }
+
+export async function parsearConIA(textoOCR: string, tenantId: number): Promise<EscaneoFacturaResult> {
+  const { Proveedor, Producto } = await import('../models');
+  const proveedores = await Proveedor.findAll({ where: { activo: true, tenantId } });
+  const productos = await Producto.findAll({ where: { activo: true, tenantId } });
+  return parsearFactura(textoOCR, proveedores, productos);
+}

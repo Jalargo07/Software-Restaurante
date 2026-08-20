@@ -23,3 +23,9 @@ export async function escanearOCR(buffer: Buffer, mimetype: string): Promise<str
   });
   return data.text;
 }
+
+export async function escanearConOCR(base64Image: string, mimetype: string): Promise<{ texto: string }> {
+  const buffer = Buffer.from(base64Image, 'base64');
+  const texto = await escanearOCR(buffer, mimetype);
+  return { texto };
+}

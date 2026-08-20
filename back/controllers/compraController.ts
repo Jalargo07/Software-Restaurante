@@ -7,6 +7,7 @@ import { invalidarCache } from '../utils/cacheInvalidation';
 import { checkLicense } from '../utils/licenseGuard';
 import { escanearOCR } from '../utils/ocrScanner';
 import { parsearFactura } from '../utils/parserIA';
+import { encolarEscaneoFactura, obtenerEstadoJob } from '../jobs/ocrQueue';
 
 export const obtenerTodas = async (req: Request, res: Response) => {
   try {
@@ -300,20 +301,39 @@ export const escanearFactura = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Archivo requerido' });
     }
 
-    const textoOCR = await escanearOCR(req.file.buffer, req.file.mimetype);
-    if (!textoOCR.trim()) {
-      return res.status(422).json({ error: 'No se pudo extraer texto de la factura' });
+    const imagenBase64 = req.file.buffer.toString('base64');
+
+    const job = await encolarEscaneoFactura({
+      imagenBase64,
+      tenantId: req.tenantId!,
+      mimetype: req.file.mimetype,
+      fileName: req.file.originalname,
+    });
+
+    return res.json({
+      jobId: job.id,
+      estado: 'encolado',
+      mensaje: 'El escaneo fue encolado. Consultá el estado en /api/compras/ocr/:jobId',
+    });
+  } catch (error: any) {
+    console.error('Error encolando escaneo:', error);
+    return res.status(500).json({ error: error.message || 'Error al encolar escaneo' });
+  }
+};
+
+export const obtenerEstadoEscaneo = async (req: Request, res: Response) => {
+  try {
+    const jobId = req.params.jobId as string;
+    const estado = await obtenerEstadoJob(jobId);
+
+    if (!estado) {
+      return res.status(404).json({ error: 'Job no encontrado' });
     }
 
-    const proveedores = await Proveedor.findAll({ where: { activo: true } });
-    const productos = await Producto.findAll({ where: { activo: true } });
-
-    const resultado = await parsearFactura(textoOCR, proveedores as any, productos as any);
-
-    return res.json(resultado);
+    return res.json(estado);
   } catch (error: any) {
-    console.error('Error escaneando factura:', error);
-    return res.status(500).json({ error: error.message || 'Error al escanear factura' });
+    console.error('Error consultando estado:', error);
+    return res.status(500).json({ error: error.message || 'Error al consultar estado' });
   }
 };
 

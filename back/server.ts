@@ -10,6 +10,8 @@ import sequelize from './config/database';
 // Forzar resolución DNS a IPv4 (fix para Supabase + Render)
 dns.setDefaultResultOrder('ipv4first');
 import { connectRedis, disconnectRedis } from './config/redis';
+import { setSocketIOGetter } from './utils/socketIOGetter';
+import { iniciarOcrWorker, cerrarOcrWorker } from './jobs/ocrWorker';
 import tenantContext from './middleware/tenantContext';
 import sucursalContext from './middleware/sucursalContext';
 import { generalLimiter } from './middleware/rateLimit';
@@ -116,6 +118,7 @@ const io = new Server(server, {
   cors: { origin: corsOrigins, methods: ['GET', 'POST'] },
 });
 app.set('io', io);
+setSocketIOGetter(io);
 
 setSocketIO(io);
 
@@ -218,6 +221,7 @@ const startServer = async () => {
     }
 
     connectRedis();
+    iniciarOcrWorker();
 
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
@@ -256,6 +260,7 @@ if (require.main === module) {
 
   const shutdown = async () => {
     if (licenseInterval) clearInterval(licenseInterval);
+    await cerrarOcrWorker();
     await disconnectRedis();
     process.exit(0);
   };
