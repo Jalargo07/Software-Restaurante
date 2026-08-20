@@ -27,7 +27,7 @@ api.interceptors.response.use(
     if (isNetworkError || isOffline) {
       const method = error.config?.method?.toUpperCase() || 'GET'
       const url = error.config?.url || ''
-      const data = error.config?.data ? JSON.parse(error.config.data) : undefined
+      const data = typeof error.config?.data === 'string' ? JSON.parse(error.config.data) : error.config?.data
 
       try {
         const { useSyncQueueStore } = await import('../stores/syncQueue')
