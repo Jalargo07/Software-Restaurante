@@ -9,7 +9,7 @@ const toastStore = useToastStore()
     <div
       v-for="t in toastStore.toasts"
       :key="t.id"
-      class="rounded-lg shadow-lg p-4 text-white text-sm font-medium cursor-pointer backdrop-blur-sm"
+      class="toast-enter rounded-lg shadow-lg p-4 text-white text-sm font-medium cursor-pointer backdrop-blur-sm"
       :class="{
         'bg-green-600 border border-green-500': t.type === 'success',
         'bg-red-600 border border-red-500': t.type === 'error',

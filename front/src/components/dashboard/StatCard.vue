@@ -1,11 +1,14 @@
 <script setup lang="ts">
-defineProps<{
+import { ref, watch, onMounted } from 'vue'
+
+const props = defineProps<{
   iconColor: 'purple' | 'blue' | 'amber'
   badge: string
   titulo: string
   valor: string
   footer: string
   variante?: 'gradient' | 'default'
+  numericValue?: number
 }>()
 
 const iconColorClasses: Record<string, string> = {
@@ -14,6 +17,31 @@ const iconColorClasses: Record<string, string> = {
   amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-500 dark:text-amber-400',
   green: 'bg-green-50 dark:bg-green-900/30 text-green-500 dark:text-green-400',
 }
+
+const displayValue = ref(props.numericValue ?? 0)
+
+function animateValue() {
+  if (props.numericValue === undefined) return
+  const duration = 1000
+  const start = 0
+  const end = props.numericValue
+  const startTime = performance.now()
+
+  function update(currentTime: number) {
+    const elapsed = currentTime - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    displayValue.value = Math.floor(progress * end)
+
+    if (progress < 1) {
+      requestAnimationFrame(update)
+    }
+  }
+
+  requestAnimationFrame(update)
+}
+
+watch(() => props.numericValue, animateValue)
+onMounted(animateValue)
 </script>
 
 <template>
@@ -37,7 +65,7 @@ const iconColorClasses: Record<string, string> = {
       </div>
       <div :class="variante === 'gradient' ? 'text-white/70 text-xs font-semibold uppercase tracking-wider' : 'text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider'">{{ titulo }}</div>
       <div :class="variante === 'gradient' ? 'text-2xl font-extrabold text-white' : 'text-2xl font-extrabold text-gray-900 dark:text-gray-100'">
-        <slot name="valor">{{ valor }}</slot>
+        <slot name="valor">{{ props.numericValue !== undefined ? displayValue : valor }}</slot>
       </div>
     </div>
     <div :class="variante === 'gradient' ? 'pt-0 pb-3 px-4 text-white/70 text-xs' : 'bg-gray-50 dark:bg-gray-700/50 py-2 px-4 text-gray-500 dark:text-gray-400 text-xs'">

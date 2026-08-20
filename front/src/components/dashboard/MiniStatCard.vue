@@ -3,6 +3,7 @@ defineProps<{
   iconColor: 'red' | 'blue' | 'green'
   titulo: string
   valor?: string
+  loading?: boolean
 }>()
 
 const iconColorClasses: Record<string, string> = {
@@ -19,7 +20,7 @@ const valorColorClasses: Record<string, string> = {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" :class="{ 'shimmer': loading }">
     <div class="flex items-center p-3">
       <div class="p-3 rounded-lg me-3" :class="iconColorClasses[iconColor]">
         <slot name="icon" />
@@ -27,7 +28,10 @@ const valorColorClasses: Record<string, string> = {
       <div class="truncate">
         <div class="text-gray-500 dark:text-gray-400 text-xs font-semibold">{{ titulo }}</div>
         <div class="text-lg font-bold truncate" :class="valorColorClasses[iconColor]">
-          <slot name="valor">{{ valor }}</slot>
+          <template v-if="!loading">
+            <slot name="valor">{{ valor }}</slot>
+          </template>
+          <div v-else class="h-5 w-16 skeleton rounded"></div>
         </div>
       </div>
     </div>
