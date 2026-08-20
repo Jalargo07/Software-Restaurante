@@ -34,6 +34,7 @@ import landingRoutes, { landingPublicRouter } from './routes/landing';
 import deliveryRoutes, { deliveryPublicRouter } from './routes/delivery';
 import sucursalRoutes from './routes/sucursales';
 import contactoRoutes from './routes/contacto';
+import { initializeSocketHandlers } from './services/socketHandler';
 import { setSocketIO } from './utils/cacheInvalidation';
 import { Tenant, Usuario, TenantConfig, LandingContent, SuperAdmin, Sucursal } from './models';
 import superAdminAuthRoutes from './routes/superAdminAuth';
@@ -118,10 +119,7 @@ app.set('io', io);
 
 setSocketIO(io);
 
-io.on('connection', (socket) => {
-  console.log(`Socket conectado: ${socket.id}`);
-  socket.on('disconnect', () => console.log(`Socket desconectado: ${socket.id}`));
-});
+initializeSocketHandlers(io);
 
 const startServer = async () => {
   try {

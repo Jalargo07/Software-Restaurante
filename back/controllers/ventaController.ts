@@ -185,7 +185,7 @@ export const agregarProductos = async (req: Request, res: Response) => {
     res.json(ventaCompleta);
 
     const io = req.app.get('io');
-    if (io) io.emit('nueva-comanda', ventaCompleta);
+    if (io) io.to(`tenant:${req.tenantId}`).emit('nueva-comanda', ventaCompleta);
   } catch (error: any) {
     await t.rollback();
     return res.status(500).json({ error: 'Error al agregar productos' });
@@ -282,7 +282,7 @@ export const crearConProductos = async (req: Request, res: Response) => {
     res.status(201).json(ventaCompleta);
 
     const io = req.app.get('io');
-    if (io) io.emit('nueva-comanda', ventaCompleta);
+    if (io) io.to(`tenant:${req.tenantId}`).emit('nueva-comanda', ventaCompleta);
   } catch (error: any) {
     await t.rollback();
     return res.status(500).json({ error: 'Error al crear venta con productos' });
@@ -535,7 +535,7 @@ export const cobrar = async (req: Request, res: Response) => {
     invalidarCache(req.tenantId!, ['reportes', 'corte']);
 
     const io = req.app.get('io');
-    if (io) io.emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
+    if (io) io.to(`tenant:${req.tenantId}`).emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
   } catch (error: any) {
     console.error('Error en cobrar:', error.message || error);
     await t.rollback();
@@ -727,7 +727,7 @@ export const crearRapida = async (req: Request, res: Response) => {
     invalidarCache(req.tenantId!, ['reportes', 'corte']);
 
     const io = req.app.get('io');
-    if (io) io.emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
+    if (io) io.to(`tenant:${req.tenantId}`).emit('venta-cerrada', { id: venta.id, total: Number(venta.total) });
   } catch (error: any) {
     await t.rollback();
     return res.status(500).json({ error: 'Error al crear venta rapida' });
@@ -783,7 +783,7 @@ export const cancelar = async (req: Request, res: Response) => {
     invalidarCache(req.tenantId!, ['reportes', 'corte']);
 
     const io = req.app.get('io');
-    if (io) io.emit('venta-cancelada', { id: venta.id });
+    if (io) io.to(`tenant:${req.tenantId}`).emit('venta-cancelada', { id: venta.id });
   } catch (error: any) {
     return res.status(500).json({ error: 'Error al cancelar venta' });
   }

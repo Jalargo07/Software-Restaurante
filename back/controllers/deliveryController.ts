@@ -88,11 +88,11 @@ export const webhookDelivery = async (req: Request, res: Response) => {
     // Emitir Socket.IO
     const io = req.app.get('io');
     if (io) {
-      io.emit('nuevo-pedido-delivery', { ventaId: venta.id, app });
+      io.to(`tenant:${config.tenant_id}`).emit('nuevo-pedido-delivery', { ventaId: venta.id, app });
       const ventaCompleta = await Venta.findByPk(venta.id, {
         include: [{ model: DetalleVenta, include: [Producto] }],
       });
-      if (ventaCompleta) io.emit('nueva-comanda', ventaCompleta);
+      if (ventaCompleta) io.to(`tenant:${config.tenant_id}`).emit('nueva-comanda', ventaCompleta);
     }
 
     res.status(201).json({ message: 'Pedido recibido', ventaId: venta.id });
