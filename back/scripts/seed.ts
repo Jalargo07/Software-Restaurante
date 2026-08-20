@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import sequelize from '../config/database';
 import '../models/index';
 import { Tenant, TenantConfig, Producto, Proveedor, Mesa, DetalleReceta, Compra, DetalleCompra, Kardex, Venta, DetalleVenta } from '../models';
+import DeliveryPartner from '../models/DeliveryPartner';
 import Usuario from '../models/Usuario';
 
 function fechaHace(dias: number): Date {
@@ -12,7 +13,6 @@ function fechaHace(dias: number): Date {
 }
 
 async function seed() {
-  // No destruir tablas - solo crear datos si no existen
   await sequelize.sync({ alter: true });
 
   // Crear tenant solo si no existe
@@ -29,13 +29,30 @@ async function seed() {
 
   const tenantId = (tenant as any).id;
 
-  await TenantConfig.create({
-    tenant_id: tenantId,
-    nombreCompleto: 'Restaurante Principal S.A.',
-    colorPrimario: '#0d6efd',
-    colorSecundario: '#6c757d',
-    colorAcento: '#198754',
-    fontPrincipal: 'Inter',
+  await TenantConfig.findOrCreate({
+    where: { tenant_id: tenantId },
+    defaults: {
+      tenant_id: tenantId,
+      nombreCompleto: 'Restaurante Principal S.A.',
+      colorPrimario: '#0d6efd',
+      colorSecundario: '#6c757d',
+      colorAcento: '#198754',
+      fontPrincipal: 'Inter',
+    }
+  });
+
+  // Delivery Partners
+  await DeliveryPartner.findOrCreate({
+    where: { nombre: 'rappi', tenantId: tenantId },
+    defaults: { nombre: 'rappi', tenantId: tenantId, activo: true }
+  });
+  await DeliveryPartner.findOrCreate({
+    where: { nombre: 'ubereats', tenantId: tenantId },
+    defaults: { nombre: 'ubereats', tenantId: tenantId, activo: true }
+  });
+  await DeliveryPartner.findOrCreate({
+    where: { nombre: 'pedidosya', tenantId: tenantId },
+    defaults: { nombre: 'pedidosya', tenantId: tenantId, activo: true }
   });
 
   await Usuario.create({
