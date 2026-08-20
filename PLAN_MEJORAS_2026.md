@@ -508,13 +508,13 @@ Plan de 24 tareas divididas en 5 fases para modernizar y preparar BiteOps para c
 **Archivos a modificar:**
 - back/controllers/reporteController.ts
 - back/routes/reportes.ts
-- back/utils/pdfGenerator.ts (nuevo)
+- back/types/pdfkit.d.ts (nuevo)
 - front/src/views/inventario/InventarioView.vue
 - front/src/components/inventario/LowStockReportModal.vue (nuevo)
 
 **Descripción:** Generar PDF con productos bajo stock mínimo incluyendo proveedor y última fecha de compra.
 
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado
 
 ---
 
@@ -585,6 +585,6 @@ Mes 5 (Sprint 50-52):
 | 21 | ⬜ Pendiente | - |
 | 22 | ⬜ Pendiente | - |
 | 23 | ✅ Completada | 19/08/2026 |
-| 24 | ⬜ Pendiente | - |
+| 24 | ✅ Completada | 19/08/2026 |
 
-**Completado:** 20/24 (83%)
+**Completado:** 21/24 (87%)
