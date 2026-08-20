@@ -47,7 +47,9 @@ export function calcularConfianza(data: DataPoint[]): number {
     sumErrors += Math.pow(data[i].cantidad - predicted, 2);
   }
 
-  const r2 = 1 - (sumErrors / (data.length * Math.pow(Math.max(...data.map(d => d.cantidad)) - Math.min(...data.map(d => d.cantidad)), 2)));
+  const range = Math.max(...data.map(d => d.cantidad)) - Math.min(...data.map(d => d.cantidad));
+  if (range === 0) return 0;
+  const r2 = 1 - (sumErrors / (data.length * Math.pow(range, 2)));
   return Math.min(100, Math.max(0, r2 * 100));
 }
 

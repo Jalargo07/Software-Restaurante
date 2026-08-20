@@ -312,7 +312,7 @@ export const obtenerCOGS = async (req: Request, res: Response, next: NextFunctio
       totalVentas += parseFloat(v.total.toString());
 
       const detalles = await DetalleVenta.findAll({
-        where: { ventaId: v.id, tenantId: req.tenantId }
+        where: { VentaId: v.id, tenant_id: req.tenantId }
       });
 
       for (const detalle of detalles) {
@@ -320,8 +320,9 @@ export const obtenerCOGS = async (req: Request, res: Response, next: NextFunctio
         const kardexSalida = await Kardex.findOne({
           where: {
             productoId: d.productoId,
-            tenantId: req.tenantId,
-            tipo: 'salida'
+            tenant_id: req.tenantId,
+            tipo: 'salida',
+            ventaId: v.id
           },
           order: [['fecha', 'DESC']]
         });
@@ -376,7 +377,7 @@ export const obtenerHeatmap = async (req: Request, res: Response, next: NextFunc
       where,
       include: [{
         model: Venta,
-        where: { estado: 'cerrada', tenantId: req.tenantId },
+        where: { estado: 'cerrada', tenant_id: req.tenantId },
         required: true
       }]
     });
