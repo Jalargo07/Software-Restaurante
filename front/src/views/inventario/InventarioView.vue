@@ -5,6 +5,7 @@ import { useToastStore } from '../../stores/toast'
 import { useRoles } from '../../composables/useRoles'
 import ModalBase from '../../components/common/ModalBase.vue'
 import ProductoFormModal from '../../components/productos/ProductoFormModal.vue'
+import LowStockReportModal from '../../components/inventario/LowStockReportModal.vue'
 
 const productoStore = useProductoStore()
 const toast = useToastStore()
@@ -14,6 +15,7 @@ const tipoFiltro = ref('')
 const busqueda = ref('')
 const modalAbierto = ref(false)
 const editando = ref<any>(null)
+const showLowStockModal = ref(false)
 
 const paginaActual = ref(1)
 const porPagina = 10
@@ -75,7 +77,13 @@ async function eliminar(id: number) {
   <div class="max-w-7xl mx-auto px-4 pt-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Inventario</h2>
-      <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Producto</button>
+      <div class="flex gap-2">
+        <button @click="showLowStockModal = true" class="inline-flex items-center gap-1.5 px-4 py-2 border border-[var(--color-primario)] text-[var(--color-primario)] hover:bg-[var(--color-primario)] hover:text-white text-sm font-medium rounded-lg transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a1.5 1.5 0 00-1.5-1.5h-5.69a1.5 1.5 0 01-1.06-.44z" /></svg>
+          Exportar PDF
+        </button>
+        <button v-if="canCreate" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primario)] hover:brightness-90 text-white text-sm font-medium rounded-lg transition-colors" @click="abrirModal()">+ Nuevo Producto</button>
+      </div>
     </div>
 
     <div class="mt-3 flex gap-2 flex-wrap">
@@ -167,5 +175,7 @@ async function eliminar(id: number) {
     <ModalBase v-if="modalAbierto" id="productoModal" :titulo="editando ? 'Editar Producto' : 'Nuevo Producto'" @cerrar="cerrarModal">
       <ProductoFormModal :producto="editando" :abierto="modalAbierto" @cerrar="cerrarModal" @guardado="productoStore.fetchProductos()" />
     </ModalBase>
+
+    <LowStockReportModal :show="showLowStockModal" @close="showLowStockModal = false" />
   </div>
 </template>

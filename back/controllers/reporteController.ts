@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { Venta, DetalleVenta, DetalleCompra, Producto, Compra, Kardex } from '../models';
+import PDFDocument from 'pdfkit';
+import { Venta, DetalleVenta, DetalleCompra, Producto, Compra, Kardex, Proveedor } from '../models';
 import { Op, fn, col } from 'sequelize';
 import { scopeTenant } from '../utils/tenantScope';
 import { obtenerForecast } from '../services/demandForecast';
@@ -399,6 +400,85 @@ export const obtenerHeatmap = async (req: Request, res: Response, next: NextFunc
       dias: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
       matrix
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const exportarStockBajoPDF = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { Producto, Proveedor, Compra, DetalleCompra } = await import('../models');
+
+    const productos = await Producto.findAll({
+      where: {
+        tenantId: req.tenantId,
+        activo: true,
+        tipo: 'insumo'
+      }
+    });
+
+    const productosBajoStock = (productos as any[]).filter((p: any) => p.stock <= p.stockMinimo);
+
+    const doc = new PDFDocument();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=stock-bajo.pdf');
+
+    doc.pipe(res);
+
+    doc.fontSize(20).text('Reporte de Stock Bajo', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Fecha: ${new Date().toLocaleDateString()}`, { align: 'center' });
+    doc.moveDown();
+
+    doc.fontSize(10);
+    doc.text('Producto', 50, 150, { width: 150 });
+    doc.text('Stock', 200, 150, { width: 80 });
+    doc.text('Mín', 280, 150, { width: 80 });
+    doc.text('Proveedor', 360, 150, { width: 150 });
+    doc.text('Última Compra', 510, 150, { width: 100 });
+
+    doc.moveTo(50, 165).lineTo(610, 165).stroke();
+
+    let y = 175;
+    for (const producto of productosBajoStock) {
+      const prod = producto as any;
+      const ultimaCompra = await Compra.findOne({
+        where: { tenantId: req.tenantId, estado: 'recibida' },
+        include: [{
+          model: DetalleCompra,
+          where: { productoId: prod.id },
+          required: true
+        }],
+        order: [['createdAt', 'DESC']]
+      });
+
+      let proveedorNombre = 'N/A';
+      let ultimaFecha = 'N/A';
+
+      if (ultimaCompra) {
+        const detalle = (ultimaCompra as any).DetalleCompras?.[0];
+        if (detalle) {
+          proveedorNombre = (detalle as any).Proveedor?.nombre || 'N/A';
+          ultimaFecha = new Date((ultimaCompra as any).createdAt).toLocaleDateString();
+        }
+      }
+
+      doc.text(prod.nombre, 50, y, { width: 150 });
+      doc.text(prod.stock.toString(), 200, y, { width: 80 });
+      doc.text(prod.stockMinimo.toString(), 280, y, { width: 80 });
+      doc.text(proveedorNombre, 360, y, { width: 150 });
+      doc.text(ultimaFecha, 510, y, { width: 100 });
+
+      y += 20;
+
+      if (y > 700) {
+        doc.addPage();
+        y = 50;
+      }
+    }
+
+    doc.end();
   } catch (error) {
     next(error);
   }

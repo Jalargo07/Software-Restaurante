@@ -18,5 +18,6 @@ router.get('/heatmap', authenticateToken, reporteController.obtenerHeatmap);
 router.get('/exportar/ventas', authenticateToken, authorizeRole('admin'), excelController.reporteVentasExcel);
 router.get('/exportar/compras', authenticateToken, authorizeRole('admin'), excelController.reporteComprasExcel);
 router.get('/exportar/auditoria', authenticateToken, authorizeRole('admin'), excelController.reporteAuditoriaExcel);
+router.get('/exportar/stock-bajo', authenticateToken, reporteController.exportarStockBajoPDF);
 
 export default router;
