@@ -19,6 +19,8 @@ import LandingContent from './LandingContent';
 import SuperAdmin from './SuperAdmin';
 import DeliveryConfig from './DeliveryConfig';
 import ContactoMensaje from './ContactoMensaje';
+import SessionActiva from './SessionActiva';
+import RefreshToken from './RefreshToken';
 
 // Sucursal -> Models
 Sucursal.belongsTo(Tenant, { foreignKey: 'tenant_id' });
@@ -146,6 +148,14 @@ Transaccion.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 Tenant.hasMany(DeliveryConfig, { foreignKey: 'tenant_id' });
 DeliveryConfig.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
+// SessionActiva -> Usuario
+Usuario.hasMany(SessionActiva, { foreignKey: 'usuarioId', as: 'sesiones' });
+SessionActiva.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
+
+// RefreshToken -> Usuario
+Usuario.hasMany(RefreshToken, { foreignKey: 'usuarioId', as: 'refreshTokens' });
+RefreshToken.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
+
 export {
   Tenant,
   Sucursal,
@@ -168,4 +178,6 @@ export {
   SuperAdmin,
   DeliveryConfig,
   ContactoMensaje,
+  SessionActiva,
+  RefreshToken,
 };

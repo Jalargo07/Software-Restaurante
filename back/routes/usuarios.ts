@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import Usuario from '../models/Usuario';
 import Tenant from '../models/Tenant';
+import SessionActiva from '../models/SessionActiva';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authenticateToken, authorizeRole } from '../middleware/auth';
@@ -29,6 +30,14 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       jwtSecret,
       { expiresIn: '24h' }
     );
+
+    await SessionActiva.create({
+      tokenId: token.substring(0, 20),
+      usuarioId: usuario.id,
+      tenantId: usuario.tenant_id,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent']
+    });
 
     const loginResponse: any = { token, usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol, tenantId: usuario.tenant_id, plan } };
 
@@ -98,6 +107,30 @@ router.delete('/:id', authenticateToken, authorizeRole('admin'), async (req: Req
     res.json({ message: 'Usuario desactivado' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar usuario' });
+  }
+});
+
+router.get('/sessions', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const sesiones = await SessionActiva.findAll({
+      where: { usuarioId: req.user!.id, revokeAt: null },
+      attributes: ['id', 'ipAddress', 'userAgent', 'loginAt', 'ultimoUso']
+    });
+    res.json({ ok: true, sesiones });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener sesiones' });
+  }
+});
+
+router.delete('/sessions', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    await SessionActiva.update(
+      { revokeAt: new Date() },
+      { where: { usuarioId: req.user!.id, revokeAt: null } }
+    );
+    res.json({ ok: true, mensaje: 'Sesiones revocadas' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al revocar sesiones' });
   }
 });
 
