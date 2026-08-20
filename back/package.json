@@ -12,6 +12,9 @@
     "test:s3": "ts-node scripts/test-s3.ts",
     "seed": "ts-node scripts/seed.ts"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["msgpackr-extract", "sqlite3", "sharp", "esbuild"]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -35,6 +38,7 @@
     "multer": "^2.2.0",
     "openai": "^6.49.0",
     "otplib": "^13.4.1",
+    "pdfkit": "^0.19.1",
     "pdfjs-dist": "^6.1.200",
     "pg": "^8.22.0",
     "pg-hstore": "^2.3.4",
@@ -50,9 +54,9 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.1.1",
+    "@types/pdfkit": "^0.13.9",
     "@types/supertest": "^7.2.1",
     "nodemon": "^3.1.14",
-    "pdfkit": "^0.19.1",
     "sqlite3": "^6.0.1",
     "supertest": "^7.1.0",
     "ts-node": "^10.9.2",
