@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const env = process.env.NODE_ENV || 'development';
 
-const settings = {
+export const settings = {
   env,
   isProduction: env === 'production',
   isDevelopment: env === 'development',
@@ -49,5 +52,3 @@ const settings = {
       : (process.env.S3_ENDPOINT || '').includes('localhost'),
   },
 } as const;
-
-export default settings;

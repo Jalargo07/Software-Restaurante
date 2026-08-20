@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import settings from '../config/settings';
+import { settings } from '../config/settings';
 
 const JWT_SECRET = settings.jwt.secret;
 if (!JWT_SECRET && process.env.NODE_ENV === 'production') {

@@ -11,7 +11,7 @@ import { checkTenantLimit } from '../middleware/tenantLimits';
 import { loginLimiter } from '../middleware/rateLimit';
 import { scopeTenant, withTenant, belongsToTenant } from '../utils/tenantScope';
 import { checkLicense } from '../utils/licenseGuard';
-import settings from '../config/settings';
+import { settings } from '../config/settings';
 
 const router = Router();
 

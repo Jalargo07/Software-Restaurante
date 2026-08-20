@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import path from 'path';
 import fs from 'fs';
-import settings from './settings';
+import { settings } from './settings';
 
 let sequelize: Sequelize;
 

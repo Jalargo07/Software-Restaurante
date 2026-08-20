@@ -48,8 +48,7 @@ import { checkLicense } from './utils/licenseGuard';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const settings = require('./config/settings').default;
+import { settings } from './config/settings';
 
 const app = express();
 const PORT = settings.server.port;
