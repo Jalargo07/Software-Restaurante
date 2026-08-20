@@ -1,45 +1,84 @@
 import Redis from 'ioredis';
 
 let client: Redis | null = null;
+let connectionFailed = false;
 
 export function connectRedis(): Redis | null {
+  if (connectionFailed) return null;
+
   const url = process.env.REDIS_URL || 'redis://localhost:6379';
   const token = process.env.REDIS_TOKEN;
 
+  // Si no hay REDIS_URL o es localhost (no disponible en producción), saltar
+  if (!process.env.REDIS_URL || (process.env.NODE_ENV === 'production' && url.includes('localhost'))) {
+    console.warn('⚠️ REDIS_URL no configurada, funcionando sin caché');
+    connectionFailed = true;
+    return null;
+  }
+
   try {
-    // Upstash usa URL HTTPS + token, ioredis necesita formato especial
     const config: any = {
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: 2,
       retryStrategy(times: number) {
-        if (times > 3) return null;
+        if (times > 2) {
+          connectionFailed = true;
+          return null;
+        }
         return Math.min(times * 200, 2000);
       },
       lazyConnect: true,
+      enableOfflineQueue: false,
+      connectTimeout: 10000,
     };
 
-    // Si hay token, es Upstash (URL HTTPS)
-    if (token && url.startsWith('https://')) {
-      // Upstash requiere configuración TLS especial
-      config.tls = { rejectUnauthorized: false };
-      config.password = token;
-      // Upstash usa un formato de URL diferente, extraemos el host
+    let redisUrl: string;
+
+    if (url.startsWith('https://')) {
+      // Upstash REST URL → construir TCP URL
       const urlObj = new URL(url);
-      const redisUrl = `rediss://default:${token}@${urlObj.hostname}`;
-      client = new Redis(redisUrl, config);
-    } else if (token) {
-      // Formato rediss:// con token
-      config.password = token;
-      client = new Redis(url, config);
+      const upstashToken = token || urlObj.password || '';
+      if (!upstashToken) {
+        console.warn('⚠️ REDIS_URL es HTTPS pero falta REDIS_TOKEN, funcionando sin caché');
+        connectionFailed = true;
+        return null;
+      }
+      redisUrl = `rediss://default:${upstashToken}@${urlObj.hostname}:6380`;
+      config.tls = { rejectUnauthorized: false };
+    } else if (url.startsWith('rediss://')) {
+      redisUrl = url;
+      config.tls = { rejectUnauthorized: false };
     } else {
-      client = new Redis(url, config);
+      redisUrl = url;
+      if (token) config.password = token;
     }
 
-    client.on('connect', () => console.log('✅ Redis conectado'));
-    client.on('error', (err) => console.error('❌ Redis error:', err.message));
-    client.connect().catch(() => {});
+    client = new Redis(redisUrl, config);
+
+    client.on('connect', () => {
+      console.log('✅ Redis conectado');
+      connectionFailed = false;
+    });
+
+    let errorLogged = false;
+    client.on('error', (err) => {
+      if (!errorLogged) {
+        console.warn('⚠️ Redis no disponible:', err.message);
+        errorLogged = true;
+        connectionFailed = true;
+      }
+    });
+
+    client.connect().catch(() => {
+      if (!connectionFailed) {
+        console.warn('⚠️ Redis no disponible, funcionando sin caché');
+        connectionFailed = true;
+      }
+    });
+
     return client;
-  } catch (err) {
-    console.warn('⚠️ Redis no disponible, funcionando sin caché');
+  } catch (err: any) {
+    console.warn('⚠️ Redis no disponible:', err?.message || 'error desconocido');
+    connectionFailed = true;
     return null;
   }
 }
@@ -50,7 +89,11 @@ export function getRedis(): Redis | null {
 
 export async function disconnectRedis() {
   if (client) {
-    await client.quit();
+    try {
+      await client.quit();
+    } catch {
+      client.disconnect();
+    }
     client = null;
   }
 }
