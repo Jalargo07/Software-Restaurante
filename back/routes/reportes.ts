@@ -11,6 +11,8 @@ router.get('/ventas-por-dia', authenticateToken, cacheMiddleware(10), reporteCon
 router.get('/productos-mas-vendidos', authenticateToken, cacheMiddleware(30), reporteController.productosMasVendidos);
 router.get('/compras-mes', authenticateToken, cacheMiddleware(60), reporteController.comprasMes);
 router.get('/ganancia-bruta', authenticateToken, cacheMiddleware(30), reporteController.gananciaBruta);
+router.get('/cogs', authenticateToken, reporteController.obtenerCOGS);
+router.get('/forecast', authenticateToken, reporteController.obtenerForecastHandler);
 
 router.get('/exportar/ventas', authenticateToken, authorizeRole('admin'), excelController.reporteVentasExcel);
 router.get('/exportar/compras', authenticateToken, authorizeRole('admin'), excelController.reporteComprasExcel);

@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Venta, DetalleVenta, DetalleCompra, Producto, Compra, Kardex } from '../models';
 import { Op, fn, col } from 'sequelize';
 import { scopeTenant } from '../utils/tenantScope';
+import { obtenerForecast } from '../services/demandForecast';
 
 export const ventasHoy = async (req: Request, res: Response) => {
   try {
@@ -282,5 +283,76 @@ export const gananciaBruta = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error(error);
     return res.status(500).json({ error: 'Error al obtener ganancia bruta' });
+  }
+};
+
+export const obtenerCOGS = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { fechaDesde, fechaHasta } = req.query;
+
+    const whereVenta: any = {
+      tenantId: req.tenantId,
+      estado: 'cerrada'
+    };
+
+    if (fechaDesde || fechaHasta) {
+      whereVenta.createdAt = {};
+      if (fechaDesde) whereVenta.createdAt.gte = new Date(fechaDesde as string);
+      if (fechaHasta) whereVenta.createdAt.lte = new Date(fechaHasta as string);
+    }
+
+    const ventas = await Venta.findAll({ where: whereVenta });
+
+    let totalVentas = 0;
+    let totalCostos = 0;
+
+    for (const venta of ventas) {
+      const v = venta as any;
+      totalVentas += parseFloat(v.total.toString());
+
+      const detalles = await DetalleVenta.findAll({
+        where: { ventaId: v.id, tenantId: req.tenantId }
+      });
+
+      for (const detalle of detalles) {
+        const d = detalle as any;
+        const kardexSalida = await Kardex.findOne({
+          where: {
+            productoId: d.productoId,
+            tenantId: req.tenantId,
+            tipo: 'salida'
+          },
+          order: [['fecha', 'DESC']]
+        });
+
+        if (kardexSalida) {
+          const k = kardexSalida as any;
+          totalCostos += parseFloat(k.precioUnitario.toString()) * d.cantidad;
+        }
+      }
+    }
+
+    const cogsPorcentaje = totalVentas > 0 ? (totalCostos / totalVentas) * 100 : 0;
+
+    return res.json({
+      ok: true,
+      totalVentas,
+      totalCostos,
+      cogsPorcentaje: Math.round(cogsPorcentaje * 100) / 100,
+      gananciaBruta: totalVentas - totalCostos,
+      margenPorcentaje: totalVentas > 0 ? ((totalVentas - totalCostos) / totalVentas) * 100 : 0
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const obtenerForecastHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { dias } = req.query;
+    const forecast = await obtenerForecast(req.tenantId!, parseInt(dias as string) || 7);
+    res.json({ ok: true, forecast });
+  } catch (error) {
+    next(error);
   }
 };
