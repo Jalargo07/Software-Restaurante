@@ -3,7 +3,7 @@ import DeliveryPartner from '../models/DeliveryPartner';
 
 interface NormalizedOrder {
   partnerOrderId: string;
-  partner: string;
+  partnerNombre: string;
   customerName: string;
   customerPhone: string;
   deliveryAddress?: string;
@@ -19,7 +19,7 @@ interface NormalizedOrder {
 export async function parseRappiWebhook(payload: any): Promise<NormalizedOrder> {
   return {
     partnerOrderId: payload.order_id?.toString() || '',
-    partner: 'rappi',
+    partnerNombre: 'rappi',
     customerName: payload.customer?.name || 'Cliente Rappi',
     customerPhone: payload.customer?.phone || '',
     deliveryAddress: payload.delivery?.address?.street || '',
@@ -36,7 +36,7 @@ export async function parseRappiWebhook(payload: any): Promise<NormalizedOrder> 
 export async function parseUberEatsWebhook(payload: any): Promise<NormalizedOrder> {
   return {
     partnerOrderId: payload.id?.toString() || '',
-    partner: 'ubereats',
+    partnerNombre: 'ubereats',
     customerName: payload.customer?.first_name + ' ' + payload.customer?.last_name || 'Cliente Uber',
     customerPhone: payload.customer?.phone || '',
     deliveryAddress: payload.dropoff?.address || '',
@@ -54,10 +54,16 @@ export async function crearDeliveryOrder(
   tenantId: number,
   normalized: NormalizedOrder
 ): Promise<any> {
+  const partner = await DeliveryPartner.findOne({
+    where: { nombre: normalized.partnerNombre, tenantId }
+  });
+  if (!partner) {
+    throw new Error(`Partner '${normalized.partnerNombre}' no encontrado para tenant ${tenantId}`);
+  }
   return await DeliveryOrder.create({
     tenantId,
     partnerOrderId: normalized.partnerOrderId,
-    partner: normalized.partner,
+    partnerId: partner.get('id') as number,
     customerName: normalized.customerName,
     customerPhone: normalized.customerPhone,
     deliveryAddress: normalized.deliveryAddress,

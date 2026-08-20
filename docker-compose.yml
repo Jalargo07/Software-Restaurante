@@ -54,6 +54,7 @@ services:
       - "3000:3000"
     volumes:
       - sqlite-data:/app/data
+      - ./back/data/license-keys:/app/data/license-keys
     depends_on:
       postgres:
         condition: service_healthy

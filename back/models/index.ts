@@ -167,8 +167,8 @@ DeliveryPartner.belongsTo(Tenant, { foreignKey: 'tenantId' });
 Tenant.hasMany(DeliveryOrder, { foreignKey: 'tenantId' });
 DeliveryOrder.belongsTo(Tenant, { foreignKey: 'tenantId' });
 
-DeliveryPartner.hasMany(DeliveryOrder, { foreignKey: 'partner', sourceKey: 'nombre' });
-DeliveryOrder.belongsTo(DeliveryPartner, { foreignKey: 'partner', targetKey: 'nombre' });
+DeliveryPartner.hasMany(DeliveryOrder, { foreignKey: 'partnerId', sourceKey: 'id' });
+DeliveryOrder.belongsTo(DeliveryPartner, { foreignKey: 'partnerId', targetKey: 'id' });
 
 Venta.hasOne(DeliveryOrder, { foreignKey: 'ventaId' });
 DeliveryOrder.belongsTo(Venta, { foreignKey: 'ventaId' });

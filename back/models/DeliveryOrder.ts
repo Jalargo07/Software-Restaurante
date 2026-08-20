@@ -15,9 +15,13 @@ const DeliveryOrder = sequelize.define('DeliveryOrder', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  partner: {
-    type: DataTypes.STRING,
-    allowNull: false
+  partnerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'DeliveryPartners',
+      key: 'id'
+    }
   },
   status: {
     type: DataTypes.STRING,

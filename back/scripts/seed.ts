@@ -334,11 +334,14 @@ async function seed() {
     }
   }
   console.log(`${ventasData.length} ventas de prueba creadas`);
-
-  console.log('Seed completado exitosamente.');
 }
 
-seed().catch((err) => {
-  console.error('Error en seed:', err);
-  process.exit(1);
-});
+seed()
+  .then(() => {
+    console.log('Seed completado exitosamente.');
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error('Error en seed:', err);
+    process.exit(1);
+  });

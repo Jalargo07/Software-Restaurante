@@ -56,7 +56,6 @@ export const loginLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true,
   store: createRedisStore(),
-  keyGenerator: (req) => req.ip || 'unknown',
   handler: (req, res) => {
     res.status(429).json({
       ok: false,
