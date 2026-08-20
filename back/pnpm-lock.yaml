@@ -65,6 +65,9 @@ importers:
       pdfjs-dist:
         specifier: ^6.1.200
         version: 6.1.200
+      pdfkit:
+        specifier: ^0.19.1
+        version: 0.19.1
       pg:
         specifier: ^8.22.0
         version: 8.22.0
@@ -102,15 +105,15 @@ importers:
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
+      '@types/pdfkit':
+        specifier: ^0.13.9
+        version: 0.13.9
       '@types/supertest':
         specifier: ^7.2.1
         version: 7.2.1
       nodemon:
         specifier: ^3.1.14
         version: 3.1.14
-      pdfkit:
-        specifier: ^0.19.1
-        version: 0.19.1
       sqlite3:
         specifier: ^6.0.1
         version: 6.0.1
@@ -931,6 +934,9 @@ packages:
 
   '@types/node@26.1.1':
     resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
+
+  '@types/pdfkit@0.13.9':
+    resolution: {integrity: sha512-RDG8Yb1zT7I01FfpwK7nMSA433XWpblMqSCtA5vJlSyavWZb303HUYPCel6JTiDDFqwGLvtAnYbH8N/e0Cb89g==}
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
@@ -3324,6 +3330,10 @@ snapshots:
   '@types/node@26.1.1':
     dependencies:
       undici-types: 8.3.0
+
+  '@types/pdfkit@0.13.9':
+    dependencies:
+      '@types/node': 26.1.1
 
   '@types/qs@6.15.1': {}
 
